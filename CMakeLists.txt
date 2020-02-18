@@ -15,6 +15,27 @@ if(NOT GLUT_FOUND)
     message("Error: GLUT not found!")
 endif(NOT GLUT_FOUND)
 #########################################################
+# FIND GLFW
+#########################################################
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
+include_directories(${GLFW_INCLUDE_DIRS})
+link_directories(${GLFW_LIBRARY_DIRS})
+add_definitions(${GLFW_DEFINITIONS})
+if(NOT GLFW_FOUND)
+    message("Error: GLFW not found!")
+endif(NOT GLFW_FOUND)
+#########################################################
+# FIND GLEW
+#########################################################
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+link_directories(${GLEW_LIBRARY_DIRS})
+add_definitions(${GLEW_DEFINITIONS})
+if(NOT GLEW_FOUND)
+    message("Error: GLEW not found!")
+endif(NOT GLEW_FOUND)
+#########################################################
 # FIND OPENGL
 #########################################################
 find_package(OpenGL REQUIRED)
@@ -34,6 +55,6 @@ add_executable(main src/client.cpp src/server.cpp)
 ########################################################
 # Linking & stuff
 #########################################################
-target_link_libraries(main ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
-# target_link_libraries(client ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
+target_link_libraries(main ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+# target_link_libraries(client ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} )
 # target_link_libraries(server)
