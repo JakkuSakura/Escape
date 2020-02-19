@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 # Project Name
 PROJECT(Escape)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/) 
 file(GLOB SOURCES src/*.cpp)
