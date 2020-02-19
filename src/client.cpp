@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
+#include <glm/mat4x4.hpp>
 #include "shader.h"
 GLFWwindow *window;
 // settings
@@ -40,6 +41,7 @@ void initGLEW()
 }
 void initOpenGL()
 {
+    glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, 800, 600);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -59,7 +61,6 @@ int main()
     initAll();
 
     Shader shader("shaders/point_and_color.vs", "shaders/color.fs");
-    
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -105,6 +106,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        shader.set("transform", glm::mat4(1.0f));
         shader.use();
 
         glBindVertexArray(VAO);

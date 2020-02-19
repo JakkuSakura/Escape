@@ -4,6 +4,7 @@ PROJECT(HW_OPENGL)
 if (POLICY CMP0072)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
+include_directories(vendor)
 #########################################################
 # FIND GLUT
 #########################################################
