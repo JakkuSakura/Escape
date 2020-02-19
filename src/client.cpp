@@ -60,7 +60,7 @@ int main()
 {
     initAll();
 
-    Shader shader("shaders/point_and_color.vs", "shaders/color.fs");
+    Shader shader("assets/shaders/point_and_color.vs", "assets/shaders/color.fs");
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
