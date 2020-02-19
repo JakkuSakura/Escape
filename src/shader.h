@@ -116,7 +116,6 @@ public:
     }
     void set(const std::string &name, const glm::mat4 &value) const
     {
-        show_mat(value);
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, false,  glm::value_ptr(value));
     }
 
