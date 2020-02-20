@@ -4,16 +4,19 @@
 #include <fstream>
 #include <glm/mat4x4.hpp>
 #include "shader.h"
-#include "display.h"
-
-class Demo : public Escape::Display
+#include "window.h"
+#include "application.h"
+#include "core.h"
+using namespace Escape;
+class Demo : public Window
 {
     Shader shader;
     unsigned int VBO, VAO, EBO;
 
 public:
-    Demo() : Display("Demo", 800, 600), shader("assets/shaders/point_and_color.vs", "assets/shaders/color.fs")
+    Demo() : Window("Demo", 800, 600), shader("assets/shaders/point_and_color.vs", "assets/shaders/color.fs")
     {
+        init();
     }
     void init()
     {
@@ -55,7 +58,7 @@ public:
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
     }
-    void render()
+    void render() override
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -69,8 +72,7 @@ public:
 
 int main()
 {
-    Demo demo;
-    demo.init();
-    demo.loop();
+    Application app(new Demo(), new Core());
+    app.loop();
     return 0;
 }

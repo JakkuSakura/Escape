@@ -7,53 +7,65 @@
 #include <cassert>
 namespace Escape
 {
-class Display;
-extern Display *instance;
-class Display
+class Window;
+class Application;
+extern Window *window_instance;
+class Window
 {
 private:
     std::string title;
     int width, height;
     GLFWwindow *window;
+    Application *app;
 
 public:
-    Display(const std::string &title, int width, int height)
+    Window(const std::string &title, int width, int height)
     {
-        assert(instance == nullptr /*You can only create one Display. Multi-window not supportted yet.*/);
-        instance = this;
+        assert(window_instance == nullptr /*You can only create one Window. Multi-window not supportted yet.*/);
+        window_instance = this;
         this->title = title;
         this->width = width;
         this->height = height;
+        app = nullptr;
         initAll();
     };
-
-    virtual void render(){};
-    virtual void loop()
+    void setApp(Application *app)
     {
-        while (!glfwWindowShouldClose(window))
-        {
-            processInput(window);
+        this->app = app;
+    }
+    Application *getApp()
+    {
+        return app;
+    }
+    virtual void render(){};
+    virtual void update(float delta)
+    {
+        processInput(window);
 
-            render();
+        render();
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    virtual bool isRunning()
+    {
+        return !glfwWindowShouldClose(window);
     }
     virtual void processInput(GLFWwindow *window)
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
     }
-    virtual ~Display()
+    virtual ~Window()
     {
         glfwTerminate();
+        window_instance = nullptr;
     }
 
 private:
     static void windowResizedWrapper(GLFWwindow *window, int width, int height)
     {
-        instance->windowResized(window, width, height);
+        window_instance->windowResized(window, width, height);
     }
     virtual void windowResized(GLFWwindow *window, int width, int height)
     {
@@ -68,8 +80,8 @@ private:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-        if (window == NULL)
+        window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+        if (window == nullptr)
         {
             std::cout << "Failed to create GLFW window" << std::endl;
             glfwTerminate();
