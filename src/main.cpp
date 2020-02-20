@@ -67,8 +67,7 @@ public:
     }
 };
 
-int
-main()
+int main()
 {
     Demo demo;
     demo.init();
