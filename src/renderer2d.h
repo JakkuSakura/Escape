@@ -4,11 +4,15 @@
 #include "scene.h"
 #include "sprite2d.h"
 #include "utils.h"
+#include "vertex_buffer.h"
+#include "index_buffer.h"
 namespace Escape
 {
 struct RectangleData
 {
-    unsigned int VBO, VAO, EBO;
+    unsigned int VAO;
+    VertexBuffer vbo;
+    IndexBuffer ebo;
     RectangleData()
     {
         float vertices[] = {
@@ -22,19 +26,17 @@ struct RectangleData
             1, 2, 3  // second Triangle
         };
         glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
         glBindVertexArray(VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+        vbo.init(vertices, sizeof(vertices));
+        ebo.init(indices, 6);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(0);
+    }
+    ~RectangleData() {
+
     }
 };
 class Renderer2D
@@ -50,7 +52,7 @@ public:
         glm::mat4 transform = last_scene->mat * glm::translate(glm::mat4(1.0f), rect.pos) * glm::scale(glm::mat4(1.0f), {rect.size.x, rect.size.y, 1.0f});
         shader.setUniform("transform", transform);
         glBindVertexArray(rectangle.VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, rectangle.ebo.getCount(), GL_UNSIGNED_INT, 0);
     }
     void applyShader(Shader &shader)
     {
