@@ -24,6 +24,11 @@ public:
     {
         readShader(vertexPath, fragmentPath);
     }
+    ~Shader() {
+        // FIXME
+        // glDeleteProgram(ID);
+        // cannot deal with multiple deletion
+    }
     void readShader(const char *vertexPath, const char *fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
