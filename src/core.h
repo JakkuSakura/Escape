@@ -8,8 +8,12 @@ class Application;
 class Core
 {
     Application *app = nullptr;
-    ECS::World* world = ECS::World::createWorld();
+    ECS::World *world = ECS::World::createWorld();
+
 public:
+    Core()
+    {
+    }
     void setApp(Application *app)
     {
         this->app = app;
@@ -18,13 +22,16 @@ public:
     {
         return app;
     }
-    ECS::World *getWorld() {
+    ECS::World *getWorld()
+    {
         return world;
     }
-    virtual void update(float delta){
+    virtual void update(float delta)
+    {
         world->tick(delta);
     };
-    virtual ~Core() {
+    virtual ~Core()
+    {
         world->destroyWorld();
     }
 };
