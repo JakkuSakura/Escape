@@ -61,16 +61,17 @@ public:
         window_instance = nullptr;
     }
 
-private:
-    static void windowResizedWrapper(GLFWwindow *window, int width, int height)
-    {
-        window_instance->windowResized(window, width, height);
-    }
-    virtual void windowResized(GLFWwindow *window, int width, int height)
+    virtual void windowResized(int width, int height)
     {
         this->width = width;
         this->height = height;
         glViewport(0, 0, width, height);
+    }
+
+private:
+    static void windowResizedWrapper(GLFWwindow *window, int width, int height)
+    {
+        window_instance->windowResized(width, height);
     }
     void initGLFW()
     {
