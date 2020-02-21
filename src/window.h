@@ -7,9 +7,7 @@
 #include <cassert>
 namespace Escape
 {
-class Window;
 class Application;
-extern Window *window_instance;
 class Window
 {
 private:
@@ -19,6 +17,7 @@ private:
     Application *app;
 
 public:
+    static Window *window_instance;
     Window(const std::string &title, int width, int height)
     {
         assert(window_instance == nullptr /*You can only create one Window. Multi-window not supportted yet.*/);

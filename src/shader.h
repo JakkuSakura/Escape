@@ -12,13 +12,19 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "utils.h"
+namespace Escape
+{
 class Shader
 {
 public:
     unsigned int ID;
-    // constructor generates the shader on the fly
-
+    Shader() : ID(0) {}
+    Shader(const Shader &s) = default;
     Shader(const char *vertexPath, const char *fragmentPath)
+    {
+        readShader(vertexPath, fragmentPath);
+    }
+    void readShader(const char *vertexPath, const char *fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -79,44 +85,44 @@ public:
         glUseProgram(ID);
     }
     // utility uniform functions
-    
-    void set(const std::string &name, int value) const
+
+    void setUniform(const std::string &name, int value) const
     {
         glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
     }
 
-    void set(const std::string &name, float value) const
+    void setUniform(const std::string &name, float value) const
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
 
-    void set(const std::string &name, double value) const
+    void setUniform(const std::string &name, double value) const
     {
         glUniform1d(glGetUniformLocation(ID, name.c_str()), value);
     }
-    void set(const std::string &name, const glm::vec2 &value) const
+    void setUniform(const std::string &name, const glm::vec2 &value) const
     {
-        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1,  glm::value_ptr(value));
+        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
     }
-    void set(const std::string &name, const glm::vec3 &value) const
+    void setUniform(const std::string &name, const glm::vec3 &value) const
     {
-        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1,  glm::value_ptr(value));
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
     }
-    void set(const std::string &name, const glm::vec4 &value) const
+    void setUniform(const std::string &name, const glm::vec4 &value) const
     {
-        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1,  glm::value_ptr(value));
+        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
     }
-    void set(const std::string &name, const glm::mat2 &value) const
+    void setUniform(const std::string &name, const glm::mat2 &value) const
     {
-        glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, false,  glm::value_ptr(value));
+        glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, false, glm::value_ptr(value));
     }
-    void set(const std::string &name, const glm::mat3 &value) const
+    void setUniform(const std::string &name, const glm::mat3 &value) const
     {
-        glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, false,  glm::value_ptr(value));
+        glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, false, glm::value_ptr(value));
     }
-    void set(const std::string &name, const glm::mat4 &value) const
+    void setUniform(const std::string &name, const glm::mat4 &value) const
     {
-        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, false,  glm::value_ptr(value));
+        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, false, glm::value_ptr(value));
     }
 
 private:
@@ -148,4 +154,6 @@ private:
         }
     }
 };
+} // namespace Escape
+
 #endif
