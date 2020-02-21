@@ -32,6 +32,10 @@ public:
         assert(VBO != 0);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
     }
+    void unbind() const
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 };
 } // namespace Escape
 

@@ -6,11 +6,12 @@
 #include "utils.h"
 #include "vertex_buffer.h"
 #include "index_buffer.h"
+#include "vertex_array.h"
 namespace Escape
 {
 struct RectangleData
 {
-    unsigned int VAO;
+    VertexArray vao;
     VertexBuffer vbo;
     IndexBuffer ebo;
     RectangleData()
@@ -25,18 +26,15 @@ struct RectangleData
             0, 1, 3, // first Triangle
             1, 2, 3  // second Triangle
         };
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
 
         vbo.init(vertices, sizeof(vertices));
         ebo.init(indices, 6);
-
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
+        VertexArrayLayout layout;
+        layout.push<float>(3);
+        vao.bind(vbo, ebo, layout);
     }
-    ~RectangleData() {
-
+    ~RectangleData()
+    {
     }
 };
 class Renderer2D
@@ -51,7 +49,8 @@ public:
         shader.setUniform("color", rect.color);
         glm::mat4 transform = last_scene->mat * glm::translate(glm::mat4(1.0f), rect.pos) * glm::scale(glm::mat4(1.0f), {rect.size.x, rect.size.y, 1.0f});
         shader.setUniform("transform", transform);
-        glBindVertexArray(rectangle.VAO);
+
+        rectangle.vao.bind();
         glDrawElements(GL_TRIANGLES, rectangle.ebo.getCount(), GL_UNSIGNED_INT, 0);
     }
     void applyShader(Shader &shader)
