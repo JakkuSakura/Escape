@@ -29,7 +29,6 @@ public:
             T *casted = dynamic_cast<T *>(sys);
             if (casted != nullptr)
                 objective = casted;
-            
         });
         return objective;
     }
@@ -66,14 +65,10 @@ public:
     }
     virtual void update(float delta)
     {
-        updateSubSystems(delta);
     }
-    void updateSubSystems(float delta)
+    void updateAll(float delta)
     {
-        for (auto &&sub : subsystems)
-        {
-            sub->update(delta);
-        }
+        foreach ([&](System *sys) { sys->update(delta); });
     }
 };
 } // namespace Escape

@@ -36,7 +36,8 @@ public:
         for (auto &&pr : movement_events)
         {
             assert(pr.first->get<Position>().isValid());
-            pr.first->get<Position>().get() += pr.second * delta;
+            auto pos = pr.first->get<Position>();
+            pos.get() += pr.second * delta;
         }
 
         movement_events.clear();
@@ -47,11 +48,12 @@ private:
 class Logic : public ECSCore
 {
 public:
+    Entity *player;
     Logic()
     {
         addSubSystem(movementSystem = new MovementSystem());
 
-        createAgent(Position(66, 33));
+        player = createAgent(Position(0, 0));
     }
     Entity *createAgent(const Position &pos)
     {
@@ -67,6 +69,7 @@ class Display : public Window
 {
     Scene scene;
     Renderer2D renderer;
+    Logic *logic;
     World *world;
 
 public:
@@ -76,16 +79,41 @@ public:
     }
     void initialize() override
     {
-        auto system = findSystem<ECSCore>();
-        assert(system != nullptr);
-        world = system->getWorld();
+        logic = findSystem<Logic>();
+        assert(logic != nullptr);
+        world = logic->getWorld();
     }
     void windowResized(int width, int height) override
     {
         Window::windowResized(width, height);
         scene.mat = glm::ortho<float>(-width / 2, width / 2, -height / 2, height / 2);
     }
+    virtual void processInput(GLFWwindow *window) override
+    {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
 
+        glm::vec2 speed(0, 0);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            speed.y += 1;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            speed.y += -1;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            speed.x += -1;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            speed.x += 1;
+        float norm = glm::length(speed);
+        if (norm > 0)
+        {
+            if (norm > 1)
+            {
+                speed /= norm;
+            }
+            speed *=  30.0f;
+            std::cerr << "Movement " << speed.x << " " << speed.y << std::endl;
+            logic->movementSystem->move(logic->player, speed);
+        }
+    }
     void render() override
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

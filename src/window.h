@@ -10,11 +10,11 @@ namespace Escape
 {
 class Window : public System
 {
-private:
+protected:
     std::string title;
     int width, height;
     GLFWwindow *window;
-
+    float delta;
 public:
     static Window *window_instance;
     Window(const std::string &title, int width, int height)
@@ -29,8 +29,8 @@ public:
     virtual void render(){};
     virtual void update(float delta)
     {
+        this->delta = delta;
         processInput(window);
-
         render();
 
         glfwSwapBuffers(window);

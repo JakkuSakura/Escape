@@ -20,7 +20,7 @@ public:
         float delta = (now - last_frame) / 1000.0f;
         while (isRunning())
         {
-            update(delta);
+            updateAll(delta);
         }
     }
     virtual ~Application()
