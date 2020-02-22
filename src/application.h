@@ -2,25 +2,27 @@
 #define APPLICATION_H
 #include "window.h"
 #include "system.h"
-#include <ctime>
+#include "utils.h"
 namespace Escape
 {
+ 
 class Application : public System
 {
 public:
     Application()
     {
         is_running = true;
-        last_frame = clock() - (1000.0 / 60.0);
     }
     virtual void loop()
     {
         foreach ([](System *sys) { sys->initialize(); });
-        clock_t now = clock();
-        float delta = (now - last_frame) / 1000.0f;
+        clock_type last_frame = game_clock();
         while (isRunning())
         {
+            clock_type now = game_clock();
+            clock_type delta = now - last_frame;
             updateAll(delta);
+            last_frame = now;
         }
     }
     virtual ~Application()
@@ -37,7 +39,6 @@ public:
 
 protected:
     bool is_running;
-    clock_t last_frame;
 };
 
 } // namespace Escape

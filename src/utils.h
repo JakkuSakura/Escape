@@ -26,4 +26,7 @@ inline void show_vec(const T &vec)
 
     std::cerr << std::endl;
 }
+using clock_type = float;
+clock_type game_clock();
+
 #endif // UTILS_H

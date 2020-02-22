@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <cassert>
 #include "system.h"
+#include "utils.h"
 namespace Escape
 {
 namespace Render
@@ -17,7 +18,7 @@ protected:
     std::string title;
     int width, height;
     GLFWwindow *window;
-    float delta;
+    clock_type delta;
 
 public:
     static Window *window_instance;
@@ -31,7 +32,7 @@ public:
         initAll();
     };
     virtual void render(){};
-    virtual void update(float delta)
+    virtual void update(clock_type delta)
     {
         this->delta = delta;
         processInput(window);

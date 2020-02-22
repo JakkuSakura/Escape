@@ -4,10 +4,13 @@
 #include "system.h"
 namespace Escape
 {
-
+using ECS::ComponentHandle;
+using ECS::Entity;
+using ECS::World;
 class SystemManager : public System
 {
     ECS::World *world = ECS::World::createWorld();
+
 public:
     SystemManager()
     {
@@ -16,7 +19,7 @@ public:
     {
         return world;
     }
-    virtual void update(float delta)
+    virtual void update(clock_type delta)
     {
         world->tick(delta);
     };
@@ -37,6 +40,10 @@ public:
         assert(system_manager != nullptr);
         world = system_manager->getWorld();
     }
+};
+struct Name : public std::string
+{
+    using std::string::string;
 };
 
 } // namespace Escape

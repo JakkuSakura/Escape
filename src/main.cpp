@@ -10,64 +10,36 @@
 #include "system.h"
 #include "sprite2d.h"
 #include "MyECS.h"
-using namespace Escape;
+#include "utils.h"
+#include "weapons.h"
+#include "movement.h"
 using namespace ECS;
+namespace Escape
+{
 
-struct Position : public glm::vec2
-{
-    using glm::vec2::vec2;
-};
-struct Velocity : public glm::vec2
-{
-    using glm::vec2::vec2;
-};
 
-struct Name : public std::string
-{
-    using std::string::string;
-};
-
-class MovementSystem : public ECSSystem
-{
-public:
-    void update(float delta) override
-    {
-        world->each<Velocity>([&](Entity *ent, ComponentHandle<Velocity> vel) {
-            auto &&pos = ent->get<Position>();
-            assert(pos.isValid());
-            pos.get() += vel.get() * delta;
-        });
-    }
-
-private:
-};
-struct Bullet
-{
-    Entity *firer;
-
-};
-class BulletSystem : public ECSSystem
-{
-public:
-};
 class Logic : public SystemManager
 {
 public:
     Entity *player;
+    MovementSystem *movementSystem;
+    BulletSystem *bulletSystem;
+    LifespanSystem *lifespanSystem;
     Logic()
     {
         addSubSystem(movementSystem = new MovementSystem());
+        addSubSystem(bulletSystem = new BulletSystem());
+        addSubSystem(lifespanSystem = new LifespanSystem());
 
         player = createAgent(Position(0, 0));
     }
     Entity *createAgent(const Position &pos)
     {
         Entity *agent = getWorld()->create();
-        agent->assign<Name>("Agent");
+        agent->assign<Name>("agent");
         agent->assign<Position>(pos);
         return agent;
     }
-    MovementSystem *movementSystem;
 };
 
 using namespace Escape::Render;
@@ -106,6 +78,9 @@ public:
             x -= width / 2;
             y = height / 2 - y;
             std::cerr << "Cursor: " << x << " " << y << std::endl;
+
+            float angle = atan2(y - logic->player->get<Position>()->y, x - logic->player->get<Position>()->x);
+            logic->bulletSystem->fire(logic->player, BulletType::MINIGUN_BULLET, angle);
         }
 
         glm::vec2 vel(0, 0);
@@ -124,34 +99,43 @@ public:
             {
                 vel /= spd;
             }
-            vel *= 30.0f;
-            logic->player->assign<Velocity>(vel.x, vel.y);
+            vel *= 64.0f;
         }
-        else
-        {
-            logic->player->remove<Velocity>();
-        }
+        logic->movementSystem->move(logic->player, vel);
     }
     void render() override
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.applyScene(scene);
         world->each<Name>([&, this](Entity *ent, ComponentHandle<Name> name) {
-            if (name.get() == "Agent")
+            if (name.get() == "agent")
             {
                 renderAgent(ent);
+            }
+            if (name.get() == "bullet")
+            {
+                renderBullet(ent);
             }
         });
     }
     void renderAgent(Entity *ent)
     {
         auto &&pos = ent->get<Position>();
+        assert(pos.isValid());
         renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1, 1, 1));
     }
+    void renderBullet(Entity *ent)
+    {
+        auto &&pos = ent->get<Position>();
+        assert(pos.isValid());
+        renderer.drawRect(Rectangle(pos->x, pos->y, 2, 2, 1, 0, 0));
+    }
 };
+} // namespace Escape
+
 int main()
 {
-    SeparateApplication app(new Display(), new Logic());
+    Escape::SeparateApplication app(new Escape::Display(), new Escape::Logic());
     app.loop();
     return 0;
 }

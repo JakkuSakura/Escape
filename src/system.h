@@ -3,6 +3,7 @@
 #include <vector>
 #include <cassert>
 #include <functional>
+#include "utils.h"
 namespace Escape
 {
 /**
@@ -18,18 +19,18 @@ protected:
 public:
     virtual void configure()
     {
-
     }
     virtual void unconfigure()
     {
-
     }
-    virtual void update(float delta)
+    virtual void update(clock_type delta)
     {
     }
-    void updateAll(float delta)
+    void updateAll(clock_type delta)
     {
-        foreach ([&](System *sys) { sys->update(delta); });
+        foreach ([=](System *sys) {
+            sys->update(delta);
+        });
     }
     System(System *parent = nullptr) : parent(parent)
     {
@@ -88,7 +89,7 @@ public:
         assert(sub->parent != nullptr);
         for (size_t i = 0; i < subsystems.size(); i++)
         {
-            if(subsystems[i] == sub)
+            if (subsystems[i] == sub)
             {
                 subsystems.erase(subsystems.begin() + i);
                 sub->unconfigure();
