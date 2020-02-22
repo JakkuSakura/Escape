@@ -11,14 +11,39 @@
 #include "sprite2d.h"
 #include "ECScore.h"
 using namespace Escape;
-class Demo : public Window
+using namespace ECS;
+
+struct Position : public glm::vec2
+{
+    using glm::vec2::vec2;
+};
+struct Name : public std::string
+{
+    using std::string::string;
+};
+class Logic : public ECSCore
+{
+public:
+    Logic()
+    {
+        createAgent(Position(66, 33));
+    }
+    Entity *createAgent(const Position &pos)
+    {
+        Entity *agent = getWorld()->create();
+        agent->assign<Name>("Agent");
+        agent->assign<Position>(pos);
+        return agent;
+    }
+};
+
+class Display : public Window
 {
     Scene scene;
     Renderer2D renderer;
-    Rectangle rect;
 
 public:
-    Demo() : Window("Demo", 800, 600), rect(0, 0, 100, 100, 1, 0, 0)
+    Display() : Window("Display", 800, 600)
     {
         windowResized(800, 600);
     }
@@ -27,20 +52,31 @@ public:
         Window::windowResized(width, height);
         scene.mat = glm::ortho<float>(-width / 2, width / 2, -height / 2, height / 2);
     }
+    World *getWorld() const
+    {
+        assert(parent != nullptr);
+        return ((Logic *)((SeparateApplication *)parent)->getCore())->getWorld();
+    }
     void render() override
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.applyScene(scene);
-        renderer.drawRect(rect);
+        getWorld()->each<Name>([&, this](Entity *ent, ComponentHandle<Name> name) {
+            if (name.get() == "Agent")
+            {
+                renderAgent(ent);
+            }
+        });
     }
-};
-class Logic : public ECSCore
-{
-
+    void renderAgent(Entity *ent)
+    {
+        auto &&pos = ent->get<Position>();
+        renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1, 1, 1));
+    }
 };
 int main()
 {
-    SeparateApplication app(new Demo(), new Logic());
+    SeparateApplication app(new Display(), new Logic());
     app.loop();
     return 0;
 }
