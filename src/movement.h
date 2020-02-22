@@ -8,10 +8,21 @@ namespace Escape
 struct Position : public glm::vec2
 {
     using glm::vec2::vec2;
+    glm::vec2 &as_vec2()
+    {
+        return *this;
+    }
 };
 struct Velocity : public glm::vec2
 {
     using glm::vec2::vec2;
+    glm::vec2 &as_vec2()
+    {
+        return *this;
+    }
+};
+struct Hitbox {
+    float radius;
 };
 class MovementSystem : public ECSSystem
 {

@@ -13,32 +13,40 @@
 #include "utils.h"
 #include "weapons.h"
 #include "movement.h"
+#include "agent.h"
 
 namespace Escape
 {
 
-
 class Logic : public SystemManager
 {
+    class PostInit : public ECSSystem
+    {
+    public:
+        void initialize() override
+        {
+            auto logic = findSystem<Logic>();
+            assert(logic != nullptr);
+            logic->player = logic->agent_system->createAgent(Position(0, 0));
+            logic->agent_system->createAgent(Position(-200, 200));
+            logic->agent_system->createAgent(Position(0, 200));
+            logic->agent_system->createAgent(Position(200, 200));
+        }
+    };
+
 public:
     Entity *player;
-    MovementSystem *movementSystem;
-    BulletSystem *bulletSystem;
-    LifespanSystem *lifespanSystem;
+    MovementSystem *movement_system;
+    BulletSystem *bullet_system;
+    LifespanSystem *lifespan_system;
+    AgentSystem *agent_system;
     Logic()
     {
-        addSubSystem(movementSystem = new MovementSystem());
-        addSubSystem(bulletSystem = new BulletSystem());
-        addSubSystem(lifespanSystem = new LifespanSystem());
-
-        player = createAgent(Position(0, 0));
-    }
-    Entity *createAgent(const Position &pos)
-    {
-        Entity *agent = getWorld()->create();
-        agent->assign<Name>("agent");
-        agent->assign<Position>(pos);
-        return agent;
+        addSubSystem(movement_system = new MovementSystem());
+        addSubSystem(bullet_system = new BulletSystem());
+        addSubSystem(lifespan_system = new LifespanSystem());
+        addSubSystem(agent_system = new AgentSystem());
+        addSubSystem(new PostInit());
     }
 };
 
@@ -71,16 +79,19 @@ public:
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
+        if (logic->player == nullptr)
+            return;
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
             double x, y;
             glfwGetCursorPos(window, &x, &y);
             x -= width / 2;
             y = height / 2 - y;
-            std::cerr << "Cursor: " << x << " " << y << std::endl;
-
-            float angle = atan2(y - logic->player->get<Position>()->y, x - logic->player->get<Position>()->x);
-            logic->bulletSystem->fire(logic->player, BulletType::MINIGUN_BULLET, angle);
+            // std::cerr << "Cursor: " << x << " " << y << std::endl;
+            auto pos = logic->player->get<Position>();
+            assert(pos.isValid());
+            float angle = atan2(y - pos->y, x - pos->x);
+            logic->bullet_system->fire(logic->player, BulletType::MINIGUN_BULLET, angle);
         }
 
         glm::vec2 vel(0, 0);
@@ -101,7 +112,7 @@ public:
             }
             vel *= 64.0f;
         }
-        logic->movementSystem->move(logic->player, vel);
+        logic->movement_system->move(logic->player, vel);
     }
     void render() override
     {
