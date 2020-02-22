@@ -4,6 +4,9 @@
 #include "shader.h"
 namespace Escape
 {
+namespace Render
+{
+
 class Scene
 {
 public:
@@ -13,15 +16,15 @@ public:
     }
     Scene() : Scene(glm::mat4(1.0f))
     {
-        
     }
     virtual ~Scene() {}
-    virtual void apply(Shader &shader) {
+    virtual void apply(Shader &shader)
+    {
         shader.setUniform("transform", mat);
         shader.use();
     };
 };
+} // namespace Render
 } // namespace Escape
-
 
 #endif // SCENE_H

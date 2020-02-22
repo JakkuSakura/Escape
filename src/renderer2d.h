@@ -9,6 +9,9 @@
 #include "vertex_array.h"
 namespace Escape
 {
+namespace Render
+{
+
 struct RectangleData
 {
     VertexArray vao;
@@ -69,7 +72,7 @@ private:
     Scene *last_scene;
     RectangleData rectangle;
 };
-
+} // namespace Render
 } // namespace Escape
 
 #endif // RENDERER2D_H

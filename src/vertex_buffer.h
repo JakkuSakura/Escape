@@ -4,6 +4,9 @@
 #include <cassert>
 namespace Escape
 {
+namespace Render
+{
+
 class VertexBuffer
 {
     unsigned int VBO;
@@ -37,6 +40,7 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 };
+} // namespace Render
 } // namespace Escape
 
 #endif // VERTEX_BUFFER_H

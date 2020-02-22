@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 namespace Escape
 {
+namespace Render
+{
+
 class Sprite2D
 {
 public:
@@ -21,6 +24,7 @@ public:
     {
     }
 };
+} // namespace Render
 } // namespace Escape
 
 #endif // SPRITE2D_H

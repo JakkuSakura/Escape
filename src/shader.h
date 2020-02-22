@@ -14,6 +14,9 @@
 #include "utils.h"
 namespace Escape
 {
+namespace Render
+{
+
 class Shader
 {
 public:
@@ -24,7 +27,8 @@ public:
     {
         readShader(vertexPath, fragmentPath);
     }
-    ~Shader() {
+    ~Shader()
+    {
         // FIXME
         // glDeleteProgram(ID);
         // cannot deal with multiple deletion
@@ -159,6 +163,7 @@ private:
         }
     }
 };
+} // namespace Render
 } // namespace Escape
 
 #endif

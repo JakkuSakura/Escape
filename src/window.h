@@ -8,6 +8,9 @@
 #include "system.h"
 namespace Escape
 {
+namespace Render
+{
+
 class Window : public System
 {
 protected:
@@ -15,6 +18,7 @@ protected:
     int width, height;
     GLFWwindow *window;
     float delta;
+
 public:
     static Window *window_instance;
     Window(const std::string &title, int width, int height)
@@ -102,6 +106,7 @@ private:
         initOpenGL();
     }
 };
+} // namespace Render
 
 } // namespace Escape
 

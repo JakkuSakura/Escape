@@ -4,12 +4,16 @@
 #include <cassert>
 namespace Escape
 {
+namespace Render
+{
+
 class IndexBuffer
 {
     unsigned int EBO, count;
 
 public:
     IndexBuffer() : EBO(0), count(0)
+
     {
     }
     IndexBuffer(unsigned int *data, unsigned int count)
@@ -43,6 +47,7 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 };
+} // namespace Render
 } // namespace Escape
 
 #endif // INDEX_BUFFER_H

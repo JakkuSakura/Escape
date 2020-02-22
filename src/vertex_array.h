@@ -5,6 +5,10 @@
 #include <vector>
 namespace Escape
 {
+namespace Render
+{
+    
+
 struct VertexArrayLayoutElement
 {
     unsigned int type;
@@ -102,6 +106,7 @@ public:
         glDeleteVertexArrays(1, &VAO);
     }
 };
+} // namespace Render
 } // namespace Escape
 
 #endif // VERTEX_ARRAY_H

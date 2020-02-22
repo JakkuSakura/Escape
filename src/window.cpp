@@ -1,5 +1,9 @@
 #include "window.h"
 namespace Escape
 {
-Window* Window::window_instance;
+namespace Render
+{
+Window *Window::window_instance;
+
+}
 } // namespace Escape

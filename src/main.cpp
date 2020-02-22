@@ -65,6 +65,7 @@ public:
     MovementSystem *movementSystem;
 };
 
+using namespace Escape::Render;
 class Display : public Window
 {
     Scene scene;
