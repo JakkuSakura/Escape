@@ -5,6 +5,10 @@
 #include <functional>
 namespace Escape
 {
+/**
+ * This system supports subsystems
+ * 
+ */
 class System
 {
 protected:
@@ -12,6 +16,21 @@ protected:
     System *parent;
 
 public:
+    virtual void configure()
+    {
+
+    }
+    virtual void unconfigure()
+    {
+
+    }
+    virtual void update(float delta)
+    {
+    }
+    void updateAll(float delta)
+    {
+        foreach ([&](System *sys) { sys->update(delta); });
+    }
     System(System *parent = nullptr) : parent(parent)
     {
     }
@@ -62,13 +81,22 @@ public:
         assert(sub->parent == nullptr);
         sub->parent = this;
         subsystems.push_back(sub);
+        sub->configure();
     }
-    virtual void update(float delta)
+    bool removeSubSystem(System *sub)
     {
-    }
-    void updateAll(float delta)
-    {
-        foreach ([&](System *sys) { sys->update(delta); });
+        assert(sub->parent != nullptr);
+        for (size_t i = 0; i < subsystems.size(); i++)
+        {
+            if(subsystems[i] == sub)
+            {
+                subsystems.erase(subsystems.begin() + i);
+                sub->unconfigure();
+                sub->parent = nullptr;
+                return true;
+            }
+        }
+        return false;
     }
 };
 } // namespace Escape

@@ -9,7 +9,7 @@
 #include "renderer2d.h"
 #include "system.h"
 #include "sprite2d.h"
-#include "ECScore.h"
+#include "MyECS.h"
 using namespace Escape;
 using namespace ECS;
 
@@ -17,35 +17,40 @@ struct Position : public glm::vec2
 {
     using glm::vec2::vec2;
 };
+struct Velocity : public glm::vec2
+{
+    using glm::vec2::vec2;
+};
+
 struct Name : public std::string
 {
     using std::string::string;
 };
 
-class MovementSystem : public System
+class MovementSystem : public ECSSystem
 {
-    std::vector<std::pair<Entity *, glm::vec2>> movement_events;
-
 public:
-    void move(Entity *ent, const glm::vec2 &speed)
-    {
-        movement_events.emplace_back(ent, speed);
-    }
     void update(float delta) override
     {
-        for (auto &&pr : movement_events)
-        {
-            assert(pr.first->get<Position>().isValid());
-            auto pos = pr.first->get<Position>();
-            pos.get() += pr.second * delta;
-        }
-
-        movement_events.clear();
+        world->each<Velocity>([&](Entity *ent, ComponentHandle<Velocity> vel) {
+            auto &&pos = ent->get<Position>();
+            assert(pos.isValid());
+            pos.get() += vel.get() * delta;
+        });
     }
 
 private:
 };
-class Logic : public ECSCore
+struct Bullet
+{
+    Entity *firer;
+
+};
+class BulletSystem : public ECSSystem
+{
+public:
+};
+class Logic : public SystemManager
 {
 public:
     Entity *player;
@@ -94,25 +99,37 @@ public:
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
-        glm::vec2 speed(0, 0);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            speed.y += 1;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            speed.y += -1;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            speed.x += -1;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            speed.x += 1;
-        float norm = glm::length(speed);
-        if (norm > 0)
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-            if (norm > 1)
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            x -= width / 2;
+            y = height / 2 - y;
+            std::cerr << "Cursor: " << x << " " << y << std::endl;
+        }
+
+        glm::vec2 vel(0, 0);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            vel.y += 1;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            vel.y += -1;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            vel.x += -1;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            vel.x += 1;
+        float spd = glm::length(*(glm::vec2 *)&vel);
+        if (spd > 0)
+        {
+            if (spd > 1)
             {
-                speed /= norm;
+                vel /= spd;
             }
-            speed *=  30.0f;
-            std::cerr << "Movement " << speed.x << " " << speed.y << std::endl;
-            logic->movementSystem->move(logic->player, speed);
+            vel *= 30.0f;
+            logic->player->assign<Velocity>(vel.x, vel.y);
+        }
+        else
+        {
+            logic->player->remove<Velocity>();
         }
     }
     void render() override
