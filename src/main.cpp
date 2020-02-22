@@ -9,6 +9,7 @@
 #include "renderer2d.h"
 #include "system.h"
 #include "sprite2d.h"
+#include "ECScore.h"
 using namespace Escape;
 class Demo : public Window
 {
@@ -33,10 +34,13 @@ public:
         renderer.drawRect(rect);
     }
 };
+class Logic : public ECSCore
+{
 
+};
 int main()
 {
-    SeparateApplication app(new Demo(), new System());
+    SeparateApplication app(new Demo(), new Logic());
     app.loop();
     return 0;
 }

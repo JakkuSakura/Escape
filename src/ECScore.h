@@ -5,21 +5,12 @@
 namespace Escape
 {
 
-class Application;
 class ECSCore : public System
 {
     ECS::World *world = ECS::World::createWorld();
 public:
-    Core()
+    ECSCore()
     {
-    }
-    void setApp(Application *app)
-    {
-        this->app = app;
-    }
-    Application *getApp()
-    {
-        return app;
     }
     ECS::World *getWorld()
     {
@@ -29,7 +20,7 @@ public:
     {
         world->tick(delta);
     };
-    virtual ~Core()
+    virtual ~ECSCore()
     {
         world->destroyWorld();
     }
