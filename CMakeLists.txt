@@ -8,7 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/) 
 file(GLOB SOURCES src/*.cpp)
 
-include_directories(vendor/glm/ vendor/stb/)
+include_directories(vendor/glm/ vendor/stb/ vendor/ECS/)
 
 if (POLICY CMP0072)
 set(OpenGL_GL_PREFERENCE LEGACY)
