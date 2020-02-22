@@ -1,15 +1,14 @@
-#if !defined(CORE_H)
-#define CORE_H
+#if !defined(ECSCORE_H)
+#define ECSCORE_H
 #include "ECS.h"
+#include "system.h"
 namespace Escape
 {
 
 class Application;
-class Core
+class ECSCore : public System
 {
-    Application *app = nullptr;
     ECS::World *world = ECS::World::createWorld();
-
 public:
     Core()
     {
@@ -38,4 +37,4 @@ public:
 
 } // namespace Escape
 
-#endif // CORE_H
+#endif // ECSCORE_H

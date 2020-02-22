@@ -5,9 +5,9 @@
 #include <glm/mat4x4.hpp>
 #include "scene.h"
 #include "window.h"
-#include "application.h"
+#include "separate_application.h"
 #include "renderer2d.h"
-#include "core.h"
+#include "system.h"
 #include "sprite2d.h"
 using namespace Escape;
 class Demo : public Window
@@ -36,7 +36,7 @@ public:
 
 int main()
 {
-    Application app(new Demo(), new Core());
+    SeparateApplication app(new Demo(), new System());
     app.loop();
     return 0;
 }

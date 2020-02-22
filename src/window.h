@@ -5,16 +5,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cassert>
+#include "system.h"
 namespace Escape
 {
-class Application;
-class Window
+class Window : public System
 {
 private:
     std::string title;
     int width, height;
     GLFWwindow *window;
-    Application *app;
 
 public:
     static Window *window_instance;
@@ -25,17 +24,8 @@ public:
         this->title = title;
         this->width = width;
         this->height = height;
-        app = nullptr;
         initAll();
     };
-    void setApp(Application *app)
-    {
-        this->app = app;
-    }
-    Application *getApp()
-    {
-        return app;
-    }
     virtual void render(){};
     virtual void update(float delta)
     {
