@@ -36,7 +36,7 @@ struct BulletPrototype
 };
 struct BulletData
 {
-    Entity *firer;
+    size_t firer_id;
     BulletType type;
     float damage;
     bool hit;
@@ -82,7 +82,7 @@ public:
     {
         Entity *bullet = world->create();
         bullet->assign<Name>("bullet");
-        bullet->assign<BulletData>(BulletData{firer : firer, type : type, damage : lookUpDamage(type), hit : false});
+        bullet->assign<BulletData>(BulletData{firer_id : firer->getEntityId(), type : type, damage : lookUpDamage(type), hit : false});
         float speed = 300;
         bullet->assign<Velocity>(speed * cos(angle), speed * sin(angle));
         bullet->assign<Position>(firer->get<Position>().get());
@@ -92,14 +92,13 @@ public:
     {
         world->each<Hitbox>([&](Entity *ent, ComponentHandle<Hitbox> hitbox) {
             auto health = ent->get<Health>();
-            if(health <= 0)
+            if (health <= 0)
                 return;
             auto position = ent->get<Position>();
             if (health.isValid() && position.isValid())
             {
-                world->each<BulletData>([&](Entity *bullet, ComponentHandle<BulletData> bullet_data)
-                {
-                    if(bullet_data->firer == ent)
+                world->each<BulletData>([&](Entity *bullet, ComponentHandle<BulletData> bullet_data) {
+                    if (bullet_data->firer_id == ent->getEntityId())
                         return;
                     auto position_bullet = bullet->get<Position>();
                     // assert(position_bullet.isValid());
