@@ -2,6 +2,7 @@
 #define SYSTEM_H
 #include <vector>
 #include <cassert>
+#include <functional>
 namespace Escape
 {
 class System
@@ -14,7 +15,40 @@ public:
     System(System *parent = nullptr) : parent(parent)
     {
     }
-    System *getParent() const {
+    virtual void initialize()
+    {
+    }
+    template <class T>
+    T *findSystem()
+    {
+        System *root = this;
+        while (root->parent != nullptr)
+            root = root->parent;
+        T *objective = nullptr;
+        root->foreach ([&](System *sys) {
+            T *casted = dynamic_cast<T *>(sys);
+            if (casted != nullptr)
+                objective = casted;
+            
+        });
+        return objective;
+    }
+    void foreach (std::function<void(System *)> func)
+    {
+        func(this);
+        for (auto &&sub : subsystems)
+        {
+            sub->foreach (func);
+        }
+    }
+
+    const std::vector<System *> &getSubSystems() const
+    {
+        return subsystems;
+    }
+
+    System *getParent() const
+    {
         return parent;
     }
     virtual ~System()

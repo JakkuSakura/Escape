@@ -15,6 +15,7 @@ public:
     }
     virtual void loop()
     {
+        foreach ([](System *sys) { sys->initialize(); });
         clock_t now = clock();
         float delta = (now - last_frame) / 1000.0f;
         while (isRunning())
