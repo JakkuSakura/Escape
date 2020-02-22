@@ -13,7 +13,7 @@
 #include "utils.h"
 #include "weapons.h"
 #include "movement.h"
-using namespace ECS;
+
 namespace Escape
 {
 

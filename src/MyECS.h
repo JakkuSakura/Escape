@@ -9,13 +9,13 @@ using ECS::Entity;
 using ECS::World;
 class SystemManager : public System
 {
-    ECS::World *world = ECS::World::createWorld();
+    World *world = World::createWorld();
 
 public:
     SystemManager()
     {
     }
-    ECS::World *getWorld()
+    World *getWorld()
     {
         return world;
     }
@@ -32,7 +32,7 @@ public:
 class ECSSystem : public System
 {
 public:
-    ECS::World *world;
+    World *world;
     SystemManager *system_manager;
     void initialize() override
     {
