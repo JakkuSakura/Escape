@@ -6,6 +6,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 #include <map>
+#include <cmath>
+#include <random>
+
 namespace Escape
 {
 struct Health
@@ -31,8 +34,7 @@ struct BulletPrototype
 {
     BulletType type;
     float damage;
-    float accuracy;
-    float peice_number;
+    float speed;
 };
 struct BulletData
 {
@@ -53,26 +55,22 @@ public:
         default_bullets[BulletType::HANDGUN_BULLET] = BulletPrototype{
             type : BulletType::HANDGUN_BULLET,
             damage : 10,
-            accuracy : 10,
-            peice_number : 1
+            speed : 300
         };
         default_bullets[BulletType::SHOTGUN_SHELL] = BulletPrototype{
             type : BulletType::SHOTGUN_SHELL,
             damage : 8,
-            accuracy : 3,
-            peice_number : 5
+            speed : 300
         };
         default_bullets[BulletType::SMG_BULLET] = BulletPrototype{
             type : BulletType::SMG_BULLET,
             damage : 7,
-            accuracy : 8,
-            peice_number : 1
+            speed : 300
         };
         default_bullets[BulletType::RIFLE_BULLET] = BulletPrototype{
             type : BulletType::RIFLE_BULLET,
-            damage : 50,
-            accuracy : 100,
-            peice_number : 1
+            damage : 55,
+            speed : 500
         };
     }
     void initialize() override
@@ -80,17 +78,13 @@ public:
         ECSSystem::initialize();
         lifespan = findSystem<LifespanSystem>();
     }
-    float lookUpDamage(BulletType type) const
-    {
-        return default_bullets.at(type).damage;
-    }
     void fire(Entity *firer, BulletType type, float angle)
     {
+        auto prototype = default_bullets.at(type);
         Entity *bullet = world->create();
         bullet->assign<Name>("bullet");
-        bullet->assign<BulletData>(BulletData{firer_id : firer->getEntityId(), type : type, damage : lookUpDamage(type), hit : false});
-        float speed = 300;
-        bullet->assign<Velocity>(speed * cos(angle), speed * sin(angle));
+        bullet->assign<BulletData>(BulletData{firer_id : firer->getEntityId(), type : type, damage : prototype.damage, hit : false});
+        bullet->assign<Velocity>(prototype.speed * cos(angle), prototype.speed * sin(angle));
         bullet->assign<Position>(firer->get<Position>().get());
         bullet->assign<Lifespan>(lifespan->period(3));
     }
@@ -132,6 +126,8 @@ struct WeaponPrototype
     WeaponType type;
     BulletType bullet;
     float cd;
+    float accuracy;
+    float peice_number;
 };
 struct Weapon
 {
@@ -143,29 +139,37 @@ class WeaponSystem : public ECSSystem
     BulletSystem *bullet_system;
     TimeServer *timeserver;
     std::map<WeaponType, WeaponPrototype> default_weapons;
-
+    std::default_random_engine engine;
 public:
     WeaponSystem()
     {
         default_weapons[WeaponType::HANDGUN] = WeaponPrototype{
             type : WeaponType::HANDGUN,
             bullet : BulletType::HANDGUN_BULLET,
-            cd : 0.5
+            cd : 0.5,
+            accuracy : 95,
+            peice_number: 1
         };
         default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
             type : WeaponType::SHOTGUN,
             bullet : BulletType::SHOTGUN_SHELL,
-            cd : 1.5
+            cd : 1.5,
+            accuracy : 80,
+            peice_number: 10
         };
         default_weapons[WeaponType::SMG] = WeaponPrototype{
             type : WeaponType::SMG,
             bullet : BulletType::SMG_BULLET,
-            cd : 1.0 / 30
+            cd : 1.0 / 30,
+            accuracy : 93,
+            peice_number: 1
         };
         default_weapons[WeaponType::RIFLE] = WeaponPrototype{
             type : WeaponType::RIFLE,
             bullet : BulletType::RIFLE_BULLET,
-            cd : 2
+            cd : 2,
+            accuracy : 97,
+            peice_number: 1
         };
     }
     void initialize() override
@@ -181,8 +185,14 @@ public:
             const WeaponPrototype &prototype = default_weapons.at(weapon->weapon);
             if (timeserver->now() - weapon->last > prototype.cd)
             {
-                bullet_system->fire(ent, prototype.bullet, angle);
+                float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
+                std::uniform_real_distribution<double> u(-angle_diff, angle_diff);
+                for (size_t i = 0; i < prototype.peice_number; i++)
+                {
+                    bullet_system->fire(ent, prototype.bullet, angle + u(engine));
+                }
                 weapon->last = timeserver->now();
+                
             }
         }
     }
