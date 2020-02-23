@@ -2,13 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
-#include "engine/scene.h"
-#include "engine/window_glfw.h"
 #include "engine/separate_application.h"
-#include "engine/renderer2d.h"
 #include "engine/window_ogre.h"
 #include <OgreRenderSystem.h>
-#include "engine/sprite2d.h"
 #include "engine/MyECS.h"
 #include "engine/utils.h"
 #include "weapons.h"

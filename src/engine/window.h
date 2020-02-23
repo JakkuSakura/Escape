@@ -6,8 +6,6 @@
 
 namespace Escape
 {
-namespace Render
-{
 
 class Window : public System
 {
@@ -48,7 +46,6 @@ public:
         this->height = height;
     }
 };
-} // namespace Render
 
 } // namespace Escape
 
