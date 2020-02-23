@@ -34,12 +34,13 @@ public:
     virtual bool touchReleased(const OgreBites::TouchFingerEvent &evt) { return false; }
     virtual bool mouseMoved(const OgreBites::MouseMotionEvent &evt)
     {
+        mouse_x = evt.x;
+        mouse_y = evt.y;
         return false;
     }
     virtual bool mouseWheelRolled(const OgreBites::MouseWheelEvent &evt) { return false; }
     virtual bool mousePressed(const OgreBites::MouseButtonEvent &evt)
     {
-
         mouse_x = evt.x;
         mouse_y = evt.y;
         mouse[evt.button] = true;
