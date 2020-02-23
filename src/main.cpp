@@ -152,7 +152,10 @@ public:
     {
         auto &&pos = ent->get<Position>();
         assert(pos.isValid());
-        renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1, 1, 1));
+        auto &&health = ent->get<Health>();
+        assert(health.isValid());
+        float percent = health->health / health->max_health;
+        renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1 - percent, percent, 0));
     }
     void renderBullet(Entity *ent)
     {
