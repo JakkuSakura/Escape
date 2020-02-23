@@ -54,7 +54,7 @@ public:
     }
     virtual bool textInput(const OgreBites::TextInputEvent &evt) { return false; }
 };
-class WindowOGRE : public Window, public OgreBites::ApplicationContext
+class WindowOgre : public Window, public OgreBites::ApplicationContext
 {
 protected:
     clock_type delta;
@@ -66,9 +66,10 @@ protected:
 public:
     InputState input;
 
-    WindowOGRE(const std::string &title, int width, int height) : Window(title, width, height), OgreBites::ApplicationContext(title)
+    WindowOgre(const std::string &title, int width, int height) : Window(title, width, height), OgreBites::ApplicationContext(title)
     {
         running = true;
+        // TODO set window size
         initApp();
         addInputListener(&input);
     };
@@ -77,9 +78,16 @@ public:
         if (input.keys[OgreBites::SDLK_ESCAPE])
             stop();
     }
+    virtual void update(clock_type delta)
+    {
+        this->delta = delta;
+        processInput();
+        render();
+        root->renderOneFrame();
+        postProcess();
+    }
     virtual void render()
     {
-        root->renderOneFrame();
     }
     virtual void postProcess() override
     {
@@ -92,15 +100,19 @@ public:
     {
         return !closed && !root->endRenderingQueued();
     }
-    virtual ~WindowOGRE()
+    virtual ~WindowOgre()
     {
         closeApp();
     }
-
-    virtual void windowResized(int width, int height)
+    virtual void windowResized(Ogre::RenderWindow *rw) override
     {
-        this->width = width;
-        this->height = height;
+        unsigned int width, height, depth;
+        rw->getMetrics(width, height, depth);
+        windowResized((int)width, (int)height);
+    }
+    virtual void windowResized(int width, int height) override
+    {
+        Window::windowResized(width, height);
     }
     void setup() final override
     {
@@ -127,8 +139,6 @@ public:
         // and tell it to render into the main window
         getRenderWindow()->addViewport(cam);
     }
-
-
 };
 } // namespace Render
 
