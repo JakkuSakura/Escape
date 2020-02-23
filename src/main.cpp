@@ -22,11 +22,12 @@ class Logic : public SystemManager
 {
     class PostInit : public ECSSystem
     {
+        Logic *logic;
+
     public:
+        PostInit(Logic *logic) : logic(logic) {}
         void initialize() override
         {
-            auto logic = findSystem<Logic>();
-            assert(logic != nullptr);
             logic->player = logic->agent_system->createAgent(Position(0, 0));
             logic->agent_system->createAgent(Position(-200, 200));
             logic->agent_system->createAgent(Position(0, 200));
@@ -40,13 +41,19 @@ public:
     BulletSystem *bullet_system;
     LifespanSystem *lifespan_system;
     AgentSystem *agent_system;
+    TimeServer *timeserver;
+    void initialize() override
+    {
+        SystemManager::initialize();
+        timeserver = findSystem<Application>()->timeserver;
+    }
     Logic()
     {
         addSubSystem(movement_system = new MovementSystem());
-        addSubSystem(bullet_system = new BulletSystem());
         addSubSystem(lifespan_system = new LifespanSystem());
+        addSubSystem(bullet_system = new BulletSystem());
         addSubSystem(agent_system = new AgentSystem());
-        addSubSystem(new PostInit());
+        addSubSystem(new PostInit(this));
     }
 };
 
@@ -65,6 +72,7 @@ public:
     }
     void initialize() override
     {
+        Window::initialize();
         logic = findSystem<Logic>();
         assert(logic != nullptr);
         world = logic->getWorld();

@@ -4,11 +4,16 @@ PROJECT(Escape)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# SET(CMAKE_BUILD_TYPE "Debug")
+# SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+# SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/) 
 file(GLOB SOURCES src/*.cpp)
 
-include_directories(vendor/glm/ vendor/stb/ vendor/ECS/)
+include_directories(vendor/glm/ vendor/stb/ vendor/ECS/ vendor/asio/asio/include)
 
 if (POLICY CMP0072)
 set(OpenGL_GL_PREFERENCE LEGACY)

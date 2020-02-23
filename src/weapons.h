@@ -45,6 +45,7 @@ struct BulletData
 class BulletSystem : public ECSSystem
 {
     std::map<BulletType, BulletPrototype> default_bullets;
+    LifespanSystem *lifespan;
 
 public:
     BulletSystem()
@@ -74,6 +75,11 @@ public:
             peice_number : 1
         };
     }
+    void initialize() override
+    {
+        ECSSystem::initialize();
+        lifespan = findSystem<LifespanSystem>();
+    }
     float lookUpDamage(BulletType type) const
     {
         return default_bullets.at(type).damage;
@@ -86,7 +92,7 @@ public:
         float speed = 300;
         bullet->assign<Velocity>(speed * cos(angle), speed * sin(angle));
         bullet->assign<Position>(firer->get<Position>().get());
-        bullet->assign<Lifespan>(Lifespan{begin : game_clock(), end : game_clock() + 3});
+        bullet->assign<Lifespan>(lifespan->period(3));
     }
     void update(clock_type delta) override
     {

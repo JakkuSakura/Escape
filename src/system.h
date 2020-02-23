@@ -39,7 +39,7 @@ public:
     {
     }
     template <class T>
-    T *findSystem()
+    T *findSystem(bool assert=true)
     {
         System *root = this;
         while (root->parent != nullptr)
@@ -50,6 +50,8 @@ public:
             if (casted != nullptr)
                 objective = casted;
         });
+        if(assert)
+            assert(objective != nullptr);
         return objective;
     }
     void foreach (std::function<void(System *)> func)

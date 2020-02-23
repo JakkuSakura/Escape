@@ -3,26 +3,25 @@
 #include "window.h"
 #include "system.h"
 #include "utils.h"
+#include "timeserver.h"
 namespace Escape
 {
  
 class Application : public System
 {
 public:
+    TimeServer *timeserver;
     Application()
     {
+        addSubSystem(timeserver = new TimeServer(20));
         is_running = true;
     }
     virtual void loop()
     {
         foreach ([](System *sys) { sys->initialize(); });
-        clock_type last_frame = game_clock();
         while (isRunning())
         {
-            clock_type now = game_clock();
-            clock_type delta = now - last_frame;
-            updateAll(delta);
-            last_frame = now;
+            updateAll(timeserver->getDelta());
         }
     }
     virtual ~Application()
