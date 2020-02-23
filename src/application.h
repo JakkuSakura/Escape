@@ -13,7 +13,7 @@ public:
     TimeServer *timeserver;
     Application()
     {
-        addSubSystem(timeserver = new TimeServer(20));
+        addSubSystem(timeserver = new TimeServer(30));
         is_running = true;
     }
     virtual void loop()

@@ -24,7 +24,7 @@ enum class BulletType
 {
     HANDGUN_BULLET,
     SHOTGUN_SHELL,
-    MINIGUN_BULLET,
+    SMG_BULLET,
     RIFLE_BULLET
 };
 struct BulletPrototype
@@ -56,17 +56,17 @@ public:
             accuracy : 10,
             peice_number : 1
         };
-        default_bullets[BulletType::MINIGUN_BULLET] = BulletPrototype{
-            type : BulletType::MINIGUN_BULLET,
-            damage : 7,
-            accuracy : 8,
-            peice_number : 1
-        };
         default_bullets[BulletType::SHOTGUN_SHELL] = BulletPrototype{
             type : BulletType::SHOTGUN_SHELL,
             damage : 8,
             accuracy : 3,
             peice_number : 5
+        };
+        default_bullets[BulletType::SMG_BULLET] = BulletPrototype{
+            type : BulletType::SMG_BULLET,
+            damage : 7,
+            accuracy : 8,
+            peice_number : 1
         };
         default_bullets[BulletType::RIFLE_BULLET] = BulletPrototype{
             type : BulletType::RIFLE_BULLET,
@@ -118,6 +118,73 @@ public:
                 });
             }
         });
+    }
+};
+enum class WeaponType
+{
+    HANDGUN,
+    SHOTGUN,
+    SMG,
+    RIFLE
+};
+struct WeaponPrototype
+{
+    WeaponType type;
+    BulletType bullet;
+    float cd;
+};
+struct Weapon
+{
+    WeaponType weapon;
+    float last;
+};
+class WeaponSystem : public ECSSystem
+{
+    BulletSystem *bullet_system;
+    TimeServer *timeserver;
+    std::map<WeaponType, WeaponPrototype> default_weapons;
+
+public:
+    WeaponSystem()
+    {
+        default_weapons[WeaponType::HANDGUN] = WeaponPrototype{
+            type : WeaponType::HANDGUN,
+            bullet : BulletType::HANDGUN_BULLET,
+            cd : 0.5
+        };
+        default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
+            type : WeaponType::SHOTGUN,
+            bullet : BulletType::SHOTGUN_SHELL,
+            cd : 1.5
+        };
+        default_weapons[WeaponType::SMG] = WeaponPrototype{
+            type : WeaponType::SMG,
+            bullet : BulletType::SMG_BULLET,
+            cd : 1.0 / 30
+        };
+        default_weapons[WeaponType::RIFLE] = WeaponPrototype{
+            type : WeaponType::RIFLE,
+            bullet : BulletType::RIFLE_BULLET,
+            cd : 2
+        };
+    }
+    void initialize() override
+    {
+        bullet_system = findSystem<BulletSystem>();
+        timeserver = findSystem<TimeServer>();
+    }
+    void fire(Entity *ent, float angle)
+    {
+        auto weapon = ent->get<Weapon>();
+        if (weapon.isValid())
+        {
+            const WeaponPrototype &prototype = default_weapons.at(weapon->weapon);
+            if (timeserver->now() - weapon->last > prototype.cd)
+            {
+                bullet_system->fire(ent, prototype.bullet, angle);
+                weapon->last = timeserver->now();
+            }
+        }
     }
 };
 } // namespace Escape

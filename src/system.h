@@ -39,7 +39,7 @@ public:
     {
     }
     template <class T>
-    T *findSystem(bool assert=true)
+    T *findSystem(bool assertion=true)
     {
         System *root = this;
         while (root->parent != nullptr)
@@ -50,7 +50,7 @@ public:
             if (casted != nullptr)
                 objective = casted;
         });
-        if(assert)
+        if(assertion)
             assert(objective != nullptr);
         return objective;
     }

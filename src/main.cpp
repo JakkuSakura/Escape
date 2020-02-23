@@ -39,6 +39,7 @@ public:
     Entity *player;
     MovementSystem *movement_system;
     BulletSystem *bullet_system;
+    WeaponSystem *weapon_system;
     LifespanSystem *lifespan_system;
     AgentSystem *agent_system;
     TimeServer *timeserver;
@@ -52,8 +53,19 @@ public:
         addSubSystem(movement_system = new MovementSystem());
         addSubSystem(lifespan_system = new LifespanSystem());
         addSubSystem(bullet_system = new BulletSystem());
+        addSubSystem(weapon_system = new WeaponSystem());
         addSubSystem(agent_system = new AgentSystem());
         addSubSystem(new PostInit(this));
+    }
+
+
+    void fire(Entity *ent, float angle)
+    {
+        weapon_system->fire(ent, angle);
+    }
+    void move(Entity *ent, const glm::vec2 &vel)
+    {
+        movement_system->move(ent, vel);
     }
 };
 
@@ -74,7 +86,6 @@ public:
     {
         Window::initialize();
         logic = findSystem<Logic>();
-        assert(logic != nullptr);
         world = logic->getWorld();
     }
     void windowResized(int width, int height) override
@@ -99,7 +110,7 @@ public:
             auto pos = logic->player->get<Position>();
             assert(pos.isValid());
             float angle = atan2(y - pos->y, x - pos->x);
-            logic->bullet_system->fire(logic->player, BulletType::MINIGUN_BULLET, angle);
+            logic->fire(logic->player, angle);
         }
 
         glm::vec2 vel(0, 0);
@@ -120,7 +131,7 @@ public:
             }
             vel *= 64.0f;
         }
-        logic->movement_system->move(logic->player, vel);
+        logic->move(logic->player, vel);
     }
     void render() override
     {

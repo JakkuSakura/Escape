@@ -37,9 +37,7 @@ public:
     void initialize() override
     {
         system_manager = findSystem<SystemManager>();
-        assert(system_manager != nullptr);
         world = system_manager->getWorld();
-        assert(world != nullptr);
     }
 };
 struct Name : public std::string

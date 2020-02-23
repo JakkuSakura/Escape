@@ -15,6 +15,7 @@ public:
         agent->assign<Position>(pos);
         agent->assign<Health>(100);
         agent->assign<Hitbox>(Hitbox{radius: 16});
+        agent->assign<Weapon>(Weapon{WeaponType::HANDGUN, 0});
         return agent;
     }
 
