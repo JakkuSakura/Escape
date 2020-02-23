@@ -4,9 +4,6 @@
 namespace Escape
 {
 
-namespace Render
-{
-
 class SeparateApplication : public Application
 {
 public:
@@ -34,7 +31,6 @@ private:
     Window *window;
     System *core;
 };
-} // namespace Render
 } // namespace Escape
 
 #endif // SEPARATE_APPLICATION_H
