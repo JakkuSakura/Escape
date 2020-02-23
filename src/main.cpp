@@ -176,7 +176,7 @@ public:
             {
                 vel /= spd;
             }
-            vel *= 64.0f;
+            vel *= 120.0f;
         }
         logic->move(logic->player, vel);
 
