@@ -64,7 +64,7 @@ public:
         };
         default_bullets[BulletType::SMG_BULLET] = BulletPrototype{
             type : BulletType::SMG_BULLET,
-            damage : 7,
+            damage : 3,
             speed : 300
         };
         default_bullets[BulletType::RIFLE_BULLET] = BulletPrototype{
@@ -161,8 +161,8 @@ public:
         default_weapons[WeaponType::SMG] = WeaponPrototype{
             type : WeaponType::SMG,
             bullet : BulletType::SMG_BULLET,
-            cd : 1.0 / 60,
-            accuracy : 93,
+            cd : 1.0 / 40,
+            accuracy : 85,
             peice_number: 1
         };
         default_weapons[WeaponType::RIFLE] = WeaponPrototype{
