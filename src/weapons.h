@@ -133,6 +133,7 @@ struct Weapon
 {
     WeaponType weapon;
     float last;
+    float next;
 };
 class WeaponSystem : public ECSSystem
 {
@@ -160,7 +161,7 @@ public:
         default_weapons[WeaponType::SMG] = WeaponPrototype{
             type : WeaponType::SMG,
             bullet : BulletType::SMG_BULLET,
-            cd : 1.0 / 30,
+            cd : 1.0 / 60,
             accuracy : 93,
             peice_number: 1
         };
@@ -183,7 +184,7 @@ public:
         if (weapon.isValid())
         {
             const WeaponPrototype &prototype = default_weapons.at(weapon->weapon);
-            if (timeserver->now() - weapon->last > prototype.cd)
+            if (timeserver->now() >= weapon->next)
             {
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
                 std::uniform_real_distribution<double> u(-angle_diff, angle_diff);
@@ -192,6 +193,7 @@ public:
                     bullet_system->fire(ent, prototype.bullet, angle + u(engine));
                 }
                 weapon->last = timeserver->now();
+                weapon->next = timeserver->now() + prototype.cd;
                 
             }
         }

@@ -62,6 +62,21 @@ public:
     {
         movement_system->move(ent, vel);
     }
+    void changeWeapon(Entity *ent, WeaponType type)
+    {
+        // FIXME By changing weapon quickly, the player has a change of shooting each frame
+        auto w = ent->get<Weapon>();
+        if(w.isValid())
+        {
+            if(type != w->weapon)
+                ent->assign<Weapon>(Weapon{type, 0, 0});
+        }
+        else
+        {
+            ent->assign<Weapon>(Weapon{type, 0});
+        }
+            
+    }
 };
 
 using namespace Escape::Render;
@@ -164,6 +179,18 @@ public:
             vel *= 64.0f;
         }
         logic->move(logic->player, vel);
+
+        if (input.keys['1'])
+            logic->changeWeapon(logic->player, WeaponType::HANDGUN);
+
+        if (input.keys['2'])
+            logic->changeWeapon(logic->player, WeaponType::SHOTGUN);
+
+        if (input.keys['3'])
+            logic->changeWeapon(logic->player, WeaponType::SMG);
+
+        if (input.keys['4'])
+            logic->changeWeapon(logic->player, WeaponType::RIFLE);
     }
     void render() override
     {
