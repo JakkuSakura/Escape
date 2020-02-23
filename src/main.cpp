@@ -14,6 +14,7 @@
 #include "weapons.h"
 #include "movement.h"
 #include "agent.h"
+#include "window_ogre.h"
 
 namespace Escape
 {

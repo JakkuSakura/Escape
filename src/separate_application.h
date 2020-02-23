@@ -19,7 +19,7 @@ public:
     }
     virtual bool isRunning() override
     {
-        return (is_running = window->isRunning());
+        return window->isRunning();
     }
     Window *getWindow() const
     {

@@ -14,7 +14,6 @@ public:
     Application()
     {
         addSubSystem(timeserver = new TimeServer(30));
-        is_running = true;
     }
     virtual void loop()
     {
@@ -27,17 +26,7 @@ public:
     virtual ~Application()
     {
     }
-    virtual bool isRunning()
-    {
-        return is_running;
-    }
-    void stop()
-    {
-        is_running = false;
-    }
-
-protected:
-    bool is_running;
+    virtual bool isRunning() = 0;
 };
 
 } // namespace Escape
