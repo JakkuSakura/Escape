@@ -1022,4 +1022,3 @@ dkms.conf
 devel/
 build/
 .vscode/
-vendor/
