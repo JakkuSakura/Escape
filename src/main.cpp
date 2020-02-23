@@ -69,162 +69,67 @@ public:
 };
 
 using namespace Escape::Render;
-class Display : public WindowGLFW
-{
-    Scene scene;
-    Renderer2D renderer;
-    Logic *logic;
-    World *world;
-
-public:
-    Display() : WindowGLFW("Escape", 800, 600)
-    {
-        windowResized(800, 600);
-    }
-    void initialize() override
-    {
-        WindowGLFW::initialize();
-        logic = findSystem<Logic>();
-        world = logic->getWorld();
-    }
-    void windowResized(int width, int height) override
-    {
-        WindowGLFW::windowResized(width, height);
-        scene.mat = glm::ortho<float>(-width / 2, width / 2, -height / 2, height / 2);
-    }
-    virtual void processInput() override
-    {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
-
-        if (logic->player == nullptr)
-            return;
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-        {
-            double x, y;
-            glfwGetCursorPos(window, &x, &y);
-            x -= width / 2;
-            y = height / 2 - y;
-            // std::cerr << "Cursor: " << x << " " << y << std::endl;
-            auto pos = logic->player->get<Position>();
-            assert(pos.isValid());
-            float angle = atan2(y - pos->y, x - pos->x);
-            logic->fire(logic->player, angle);
-        }
-
-        glm::vec2 vel(0, 0);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            vel.y += 1;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            vel.y += -1;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            vel.x += -1;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            vel.x += 1;
-        float spd = glm::length(*(glm::vec2 *)&vel);
-        if (spd > 0)
-        {
-            if (spd > 1)
-            {
-                vel /= spd;
-            }
-            vel *= 64.0f;
-        }
-        logic->move(logic->player, vel);
-    }
-    void render() override
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.applyScene(scene);
-        world->each<Name>([&, this](Entity *ent, ComponentHandle<Name> name) {
-            if (name.get() == "agent")
-            {
-                renderAgent(ent);
-            }
-            if (name.get() == "bullet")
-            {
-                renderBullet(ent);
-            }
-        });
-    }
-    void renderAgent(Entity *ent)
-    {
-        auto &&pos = ent->get<Position>();
-        assert(pos.isValid());
-        auto &&health = ent->get<Health>();
-        assert(health.isValid());
-        float percent = health->health / health->max_health;
-        renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1 - percent, percent, 0));
-    }
-    void renderBullet(Entity *ent)
-    {
-        auto &&pos = ent->get<Position>();
-        assert(pos.isValid());
-        renderer.drawRect(Rectangle(pos->x, pos->y, 2, 2, 1, 0, 0));
-    }
-};
-
-class SelectionBox : public Ogre::ManualObject
-{
-public:
-    SelectionBox(const Ogre::String &name)
-        : Ogre::ManualObject(name)
-    {
-        setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
-        setUseIdentityProjection(true);
-        setUseIdentityView(true);
-        setQueryFlags(0);
-    }
-    virtual ~SelectionBox() {}
-
-    void setCorners(float left, float top, float right, float bottom)
-    {
-        left = 2 * left - 1;
-        right = 2 * right - 1;
-        top = 1 - 2 * top;
-        bottom = 1 - 2 * bottom;
-
-        clear();
-        begin("", Ogre::RenderOperation::OT_LINE_STRIP);
-        position(left, top, -1);
-        position(right, top, -1);
-        position(right, bottom, -1);
-        position(left, bottom, -1);
-        position(left, top, -1);
-        end();
-
-        setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
-    }
-    void setCorners(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &bottomRight)
-    {
-
-        setCorners(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
-    }
-};
 
 class DisplayOgre : public WindowOgre
 {
     Logic *logic;
     World *world;
+    Ogre::SceneNode *rects;
 
-    SelectionBox *mSelectionBox = nullptr;
 public:
     DisplayOgre() : WindowOgre("Escape", 800, 600) {}
-    ~DisplayOgre() 
+    ~DisplayOgre()
     {
-        if(mSelectionBox)
-            delete mSelectionBox;
+    }
+    
+    std::pair<Ogre::SceneNode *, Ogre::Entity *> newBox(float cx, float cy, float width, float height, float r, float g, float b)
+    {
+        auto pair = newBox(cx, cy, width, height);
+        Ogre::Entity *cube = pair.second;
+        char name[32];
+        sprintf(name, "Color(%d,%d,%d)", (int)(r * 255), (int)(g * 255), (int)(b * 255));
+        auto material = Ogre::MaterialManager::getSingleton().getByName(name);
+        if (!material)
+        {
+            material = Ogre::MaterialManager::getSingleton().getByName("white")->clone(name);
+            material->setDiffuse(r, g, b, 1);
+        }
+        cube->setMaterial(material);
+        return pair;
+    }
+
+    std::pair<Ogre::SceneNode *, Ogre::Entity *> newBox(float cx, float cy, float width, float height)
+    {
+        Ogre::SceneNode *cubeNode = rects->createChildSceneNode();
+        cubeNode->setScale(width / 100, height / 100, 1.0 / 100);
+        cubeNode->setPosition(cx, cy, 0);
+
+        Ogre::Entity *cube = scnMgr->createEntity("Prefab_Cube");
+        cube->setMaterialName("white");
+
+        cubeNode->attachObject(cube);
+        return std::make_pair(cubeNode, cube);
+    }
+    Ogre::Vector3 pickUp(unsigned int absoluteX, unsigned int absoluteY)
+    {
+        float width = (float)cam->getViewport()->getActualWidth();   // viewport width
+        float height = (float)cam->getViewport()->getActualHeight(); // viewport height
+
+        Ogre::Ray ray = cam->getCameraToViewportRay((float)absoluteX / width, (float)absoluteY / height);
+        float t = ray.getOrigin().z / ray.getDirection().z;
+
+        return ray.getOrigin() + ray.getDirection() * t;
     }
     void initialize() override
     {
         Window::initialize();
         logic = findSystem<Logic>();
         world = logic->getWorld();
-
-        mSelectionBox = new SelectionBox("SelectionBox");
-        scnMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mSelectionBox);
-        mSelectionBox->setCorners(-0.5, -0.5, 0.5, 0.5);
-        mSelectionBox->setVisible(true);
+        rects = scnMgr->getRootSceneNode()->createChildSceneNode();
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Popular");
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation("assets", "FileSystem", "Popular");
+        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Popular");
+        Ogre::ResourceGroupManager::getSingleton().loadResourceGroup("Popular");
     }
     virtual void processInput() override
     {
@@ -235,10 +140,9 @@ public:
             return;
         if (input.mouse[OgreBites::BUTTON_LEFT])
         {
-            double x = input.mouse_x, y = input.mouse_y;
-            x -= width / 2;
-            y = height / 2 - y;
-            // std::cerr << "Cursor: " << x << " " << y << std::endl;
+            auto click = pickUp(input.mouse_x, input.mouse_y);
+            double x = click.x, y = click.y;
+            std::cerr << "Cursor: " << x << " " << y << std::endl;
             auto pos = logic->player->get<Position>();
             assert(pos.isValid());
             float angle = atan2(y - pos->y, x - pos->x);
@@ -267,6 +171,7 @@ public:
     }
     void render() override
     {
+        // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
         world->each<Name>([&, this](Entity *ent, ComponentHandle<Name> name) {
             if (name.get() == "agent")
             {
@@ -278,24 +183,28 @@ public:
             }
         });
     }
+    virtual void postProcess() override
+    {
+        rects->removeAndDestroyAllChildren();
+    }
     void renderAgent(Entity *ent)
     {
-        // auto &&pos = ent->get<Position>();
-        // assert(pos.isValid());
-        // auto &&health = ent->get<Health>();
-        // assert(health.isValid());
-        // float percent = health->health / health->max_health;
-        // renderer.drawRect(Rectangle(pos->x, pos->y, 32, 32, 1 - percent, percent, 0));
+        auto &&pos = ent->get<Position>();
+        assert(pos.isValid());
+        auto &&health = ent->get<Health>();
+        assert(health.isValid());
+        float percent = health->health / health->max_health;
+        newBox(pos->x, pos->y, 32, 32, 1 - percent, percent, 0);
     }
     void renderBullet(Entity *ent)
     {
-        // auto &&pos = ent->get<Position>();
-        // assert(pos.isValid());
-        // renderer.drawRect(Rectangle(pos->x, pos->y, 2, 2, 1, 0, 0));
+        auto &&pos = ent->get<Position>();
+        assert(pos.isValid());
+        newBox(pos->x, pos->y, 2, 2);
     }
     void windowResized(int width, int height) override
     {
-        std::cerr << "Resized "  << width << " " << height << std::endl;
+        std::cerr << "Resized " << width << " " << height << std::endl;
     }
 };
 } // namespace Escape

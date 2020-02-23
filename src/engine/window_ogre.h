@@ -61,6 +61,8 @@ protected:
     bool running;
     Ogre::Root *root;
     Ogre::SceneManager *scnMgr;
+    Ogre::SceneNode *camNode;
+    Ogre::Camera *cam;
     bool closed = false;
 
 public:
@@ -83,7 +85,7 @@ public:
         this->delta = delta;
         processInput();
         render();
-        root->renderOneFrame();
+        root->renderOneFrame(delta);
         postProcess();
     }
     virtual void render()
@@ -123,17 +125,19 @@ public:
         shadergen->addSceneManager(scnMgr);
 
         Ogre::Light *light = scnMgr->createLight("MainLight");
+        light->setType(Ogre::Light::LT_DIRECTIONAL);
         Ogre::SceneNode *lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-        lightNode->setPosition(0, 10, 15);
+        lightNode->setPosition(0, 0, 100);
         lightNode->attachObject(light);
 
-        Ogre::SceneNode *camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-        camNode->setPosition(0, 0, 15);
-        camNode->lookAt(Ogre::Vector3(0, 0, -1), Ogre::Node::TS_PARENT);
+        camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+        camNode->setPosition(0, 0, 100);
+        camNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
 
-        Ogre::Camera *cam = scnMgr->createCamera("myCam");
+        cam = scnMgr->createCamera("myCam");
         cam->setNearClipDistance(5); // specific to this sample
         cam->setAutoAspectRatio(true);
+        cam->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
         camNode->attachObject(cam);
 
         // and tell it to render into the main window
