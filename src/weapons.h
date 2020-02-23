@@ -1,6 +1,6 @@
 #if !defined(WEAPONS_H)
 #define WEAPONS_H
-#include "MyECS.h"
+#include "engine/MyECS.h"
 #include "movement.h"
 #include "lifespan.h"
 #include <glm/glm.hpp>

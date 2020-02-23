@@ -11,7 +11,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/) 
-file(GLOB SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES src/*.cpp)
+
 
 include_directories(vendor/glm/ vendor/stb/ vendor/ECS/ vendor/asio/asio/include)
 

@@ -3,18 +3,18 @@
 #include <iostream>
 #include <fstream>
 #include <glm/mat4x4.hpp>
-#include "scene.h"
-#include "window_glfw.h"
-#include "separate_application.h"
-#include "renderer2d.h"
-#include "system.h"
-#include "sprite2d.h"
-#include "MyECS.h"
-#include "utils.h"
+#include "engine/scene.h"
+#include "engine/window_glfw.h"
+#include "engine/separate_application.h"
+#include "engine/renderer2d.h"
+#include "engine/window_ogre.h"
+
+#include "engine/sprite2d.h"
+#include "engine/MyECS.h"
+#include "engine/utils.h"
 #include "weapons.h"
 #include "movement.h"
 #include "agent.h"
-#include "window_ogre.h"
 
 namespace Escape
 {
