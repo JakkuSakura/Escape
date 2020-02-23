@@ -4,7 +4,7 @@
 #include <fstream>
 #include <glm/mat4x4.hpp>
 #include "scene.h"
-#include "window.h"
+#include "window_glfw.h"
 #include "separate_application.h"
 #include "renderer2d.h"
 #include "system.h"
@@ -70,7 +70,7 @@ public:
 };
 
 using namespace Escape::Render;
-class Display : public Window
+class Display : public WindowGLFW
 {
     Scene scene;
     Renderer2D renderer;
@@ -78,7 +78,7 @@ class Display : public Window
     World *world;
 
 public:
-    Display() : Window("Display", 800, 600)
+    Display() : WindowGLFW("Display", 800, 600)
     {
         windowResized(800, 600);
     }
@@ -93,7 +93,7 @@ public:
         Window::windowResized(width, height);
         scene.mat = glm::ortho<float>(-width / 2, width / 2, -height / 2, height / 2);
     }
-    virtual void processInput(GLFWwindow *window) override
+    virtual void processInput() override
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
