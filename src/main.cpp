@@ -192,14 +192,31 @@ public:
 
         if (input.keys['4'])
             logic->changeWeapon(logic->player, WeaponType::RIFLE);
+        if (input.keys['o'])
+        {
+            try
+            {
+                std::cerr << "Writing map file" << std::endl;
+                SerializationHelper helper("map.txt");
+                helper.serialize_ptr(world);
+            }
+            catch (std::runtime_error &e)
+            {
+                std::cerr << "error " << e.what() << std::endl;
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "error " << e.what() << std::endl;
+            }
+        }
         if (input.keys['i'])
         {
             try
             {
+                std::cerr << "Reading map file" << std::endl;
                 SerializationHelper helper("map.txt");
-                helper.serialize_ptr(logic->player);
-                Entity *entity = world->create();
-                helper.deserialize_ptr(entity);
+                helper.deserialize_ptr(world);
+                logic->player = world->getById(1);
             }
             catch (std::runtime_error &e)
             {

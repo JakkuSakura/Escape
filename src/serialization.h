@@ -137,13 +137,63 @@ class EntityHacked
 {
 public:
     typedef std::unordered_map<ECS::TypeIndex, ECS::Internal::BaseComponentContainer *> map;
-    typedef std::pair<const std::type_index, ECS::Internal::BaseComponentContainer *> pair;
+    typedef std::pair<std::type_index, ECS::Internal::BaseComponentContainer *> pair;
     map components;
     ECS::World *world;
 
     size_t id;
     bool bPendingDestroy = false;
 };
+template <typename Archive>
+inline void serialize(Archive &ar, EntityHacked::pair &p, const unsigned int version)
+{
+
+    split_free(ar, p, version);
+}
+
+template <class Archive>
+void save(Archive &ar, const EntityHacked::pair &pair, unsigned int version)
+{
+    ar &pair.first;
+#define DISPATCH(type)                                                           \
+    if (typeid(*pair.second) == typeid(ECS::Internal::ComponentContainer<type>)) \
+    ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
+
+    DISPATCH(Escape::Position);
+    else DISPATCH(Escape::Name);
+    else DISPATCH(Escape::Velocity);
+    else DISPATCH(Escape::Health);
+    else DISPATCH(Escape::Weapon);
+    else DISPATCH(Escape::WeaponPrototype);
+    else DISPATCH(Escape::Hitbox);
+    else DISPATCH(Escape::BulletData);
+    else DISPATCH(Escape::Lifespan);
+
+#undef DISPATCH
+}
+
+template <class Archive>
+void load(Archive &ar, EntityHacked::pair &pair, unsigned int version)
+{
+    ar &pair.first;
+#define DISPATCH(type)                                           \
+    if (pair.first == ECS::TypeIndex(typeid(type)))              \
+                                                                 \
+    pair.second = new ECS::Internal::ComponentContainer<type>(), \
+    ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
+
+    DISPATCH(Escape::Position);
+    else DISPATCH(Escape::Name);
+    else DISPATCH(Escape::Velocity);
+    else DISPATCH(Escape::Health);
+    else DISPATCH(Escape::Weapon);
+    else DISPATCH(Escape::WeaponPrototype);
+    else DISPATCH(Escape::Hitbox);
+    else DISPATCH(Escape::BulletData);
+    else DISPATCH(Escape::Lifespan);
+    else throw std::runtime_error("Cannot read");
+#undef DISPATCH
+}
 
 template <typename Archive>
 inline void serialize(Archive &ar, EntityHacked &p, const unsigned int version)
@@ -160,22 +210,7 @@ void save(Archive &ar, const EntityHacked &p, unsigned int version)
     ar &p.components.size();
     for (const EntityHacked::pair &pair : p.components)
     {
-        ar &pair.first;
-#define DISPATCH(type)                                                           \
-    if (typeid(*pair.second) == typeid(ECS::Internal::ComponentContainer<type>)) \
-    ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
-
-        DISPATCH(Escape::Position);
-        else DISPATCH(Escape::Name);
-        else DISPATCH(Escape::Velocity);
-        else DISPATCH(Escape::Health);
-        else DISPATCH(Escape::Weapon);
-        else DISPATCH(Escape::WeaponPrototype);
-        else DISPATCH(Escape::Hitbox);
-        else DISPATCH(Escape::BulletData);
-        else DISPATCH(Escape::Lifespan);
-
-#undef DISPATCH
+        ar &pair;
     }
 }
 template <class Archive>
@@ -187,20 +222,9 @@ void load(Archive &ar, EntityHacked &p, unsigned int version)
     ar &size;
     for (size_t i = 0; i < size; i++)
     {
-        ECS::TypeIndex id(typeid(void *));
-        ar &id;
-#define DISPATCH(type)                                                                              \
-    if (id == ECS::TypeIndex(typeid(type)))                                                         \
-    {                                                                                               \
-                                                                                                    \
-        ECS::Internal::BaseComponentContainer *ptr = new ECS::Internal::ComponentContainer<type>(); \
-        ar &reinterpret_cast<ComponentContainerHacked<type> *>(ptr)->data;                          \
-        p.components.insert(std::make_pair(id, ptr));                                                          \
-    }
-
-        DISPATCH(Escape::Position)
-        else DISPATCH(Escape::Name) else DISPATCH(Escape::Velocity) else DISPATCH(Escape::Health) else DISPATCH(Escape::Weapon) else DISPATCH(Escape::WeaponPrototype) else DISPATCH(Escape::Hitbox) else DISPATCH(Escape::BulletData) else DISPATCH(Escape::Lifespan) else throw std::runtime_error("Cannot read");
-#undef DISPATCH
+        auto pair = std::make_pair<std::type_index, ECS::Internal::BaseComponentContainer *>(std::type_index(typeid(0)), 0);
+        ar &pair;
+        p.components.insert(pair);
     }
 }
 template <typename Archive>
@@ -220,12 +244,41 @@ void load(Archive &ar, ECS::TypeIndex &p, unsigned int version)
 {
     std::string name;
     ar &name;
-    std::cerr << "Get name " << name << std::endl;
     p = Escape::ComponentRegister::getInstance().getTypeInfo(name);
 }
 
 template <typename Archive>
 inline void serialize(Archive &ar, ECS::TypeIndex &p, const unsigned int version)
+{
+    split_free(ar, p, version);
+}
+
+template <class Archive>
+void save(Archive &ar, const ECS::World &p, unsigned int version)
+{
+    ECS::World &world = const_cast<ECS::World &>(p);
+    ar & world.getCount();
+    world.all([&](ECS::Entity *ent)
+    {
+        ar & *ent;
+    });
+
+}
+template <class Archive>
+void load(Archive &ar, ECS::World &p, unsigned int version)
+{
+    p.reset();
+    size_t size;
+    ar & size;
+    for (size_t i = 0; i < size; i++)
+    {
+        ECS::Entity *ent = p.create();
+        ar & *ent;
+    }
+}
+
+template <typename Archive>
+inline void serialize(Archive &ar, ECS::World &p, const unsigned int version)
 {
     split_free(ar, p, version);
 }
