@@ -14,14 +14,23 @@ class TimeServer : public System
     std::chrono::high_resolution_clock::time_point benchmark, _now;
     size_t tick;
     std::default_random_engine engine;
+
 public:
-    TimeServer(float rate) : freq(rate), delta(1.0f / rate), benchmark(std::chrono::high_resolution_clock::now()), _now(benchmark), tick(0)
+    TimeServer(float rate) : benchmark(std::chrono::high_resolution_clock::now()), _now(benchmark), tick(0)
     {
+        setRate(rate);
     }
-    
+    void setRate(float rate)
+    {
+        if (tick > 0)
+            std::cerr << "warning: change rate of a running server" << std::endl;
+        freq = rate;
+        delta = 1.0f / rate;
+    }
+
     void update(float delta) override
     {
-        if(_now == benchmark)
+        if (_now == benchmark)
             _now = std::chrono::high_resolution_clock::now();
         tick += 1;
         std::chrono::high_resolution_clock::time_point next = _now + std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<double>(this->delta));
@@ -34,16 +43,18 @@ public:
         std::uniform_real_distribution<double> u(l, h);
         return u(engine);
     }
-    size_t getTick() const {
+    size_t getTick() const
+    {
         return tick;
     }
-    clock_type now() const {
+    clock_type now() const
+    {
         return std::chrono::duration<double>(_now - benchmark).count();
     }
     clock_type getDelta() const
     {
         return delta;
-    } 
+    }
 };
 } // namespace Escape
 

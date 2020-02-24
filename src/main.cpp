@@ -45,6 +45,7 @@ public:
     {
         SystemManager::initialize();
         timeserver = findSystem<Application>()->timeserver;
+        timeserver->setRate(60);
     }
     Logic()
     {
@@ -221,6 +222,7 @@ public:
                 SerializationHelper helper("map.txt");
                 helper.deserialize_ptr(world);
                 logic->player = world->getById(1);
+                // FIXME sometimes with bullets flying it chrushes
             }
             catch (std::runtime_error &e)
             {
