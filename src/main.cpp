@@ -193,6 +193,13 @@ public:
 
         if (input.keys['4'])
             logic->changeWeapon(logic->player, WeaponType::RIFLE);
+        if (input.keys[' '])
+        {
+            
+            // SerializationHelper helper;
+            // helper.serialize(logic->player);
+            // std::cerr << logic->player << std::endl;
+        }
     }
     void render() override
     {

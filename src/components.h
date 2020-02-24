@@ -1,25 +1,26 @@
 #if !defined(COMPONENTS_H)
 #define COMPONENTS_H
 #include "engine/utils.h"
+#include "engine/MyECS.h"
 namespace Escape
 {
-NEW_TYPE(Name, std::string);
-NEW_TYPE(Position, glm::vec2);
-NEW_TYPE(Velocity, glm::vec2);
+COMPONENT_AS(Name, std::string);
+COMPONENT_AS(Position, glm::vec2);
+COMPONENT_AS(Velocity, glm::vec2);
 
-struct Hitbox
-{
+COMPONENT_NEW(Hitbox,
+
     float radius;
-};
+);
 
-struct Lifespan
-{
+COMPONENT_NEW(Lifespan,
+
     clock_type begin;
     clock_type end;
-};
+);
 
-struct Health
-{
+COMPONENT_NEW(Health,
+
     float health;
     float max_health;
     Health(const Health &h) = default;
@@ -28,7 +29,7 @@ struct Health
         health = h;
         max_health = h;
     }
-};
+);
 
 enum class BulletType
 {
@@ -37,13 +38,13 @@ enum class BulletType
     SMG_BULLET,
     RIFLE_BULLET
 };
-struct BulletData
-{
+COMPONENT_NEW(BulletData,
+
     size_t firer_id;
     BulletType type;
     float damage;
     bool hit;
-};
+);
 
 enum class WeaponType
 {
@@ -52,8 +53,8 @@ enum class WeaponType
     SMG,
     RIFLE
 };
-struct WeaponPrototype
-{
+COMPONENT_NEW(WeaponPrototype,
+
     WeaponType type;
     BulletType bullet_type;
     float cd;
@@ -61,14 +62,13 @@ struct WeaponPrototype
     float peice_number;
     float bullet_damage;
     float bullet_speed;
-};
+);
 
-struct Weapon
-{
+COMPONENT_NEW(Weapon,
     WeaponType weapon;
     float last;
     float next;
-};
+);
 
 } // namespace Escape
 
