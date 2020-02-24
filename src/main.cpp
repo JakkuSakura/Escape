@@ -9,7 +9,9 @@
 #include "engine/utils.h"
 #include "weapons.h"
 #include "movement.h"
+#include "serialization.h"
 #include "agent.h"
+#include <sstream>
 
 namespace Escape
 {

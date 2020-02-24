@@ -11,6 +11,7 @@ struct Hitbox
 {
     float radius;
 };
+
 struct Lifespan
 {
     clock_type begin;
@@ -61,12 +62,14 @@ struct WeaponPrototype
     float bullet_damage;
     float bullet_speed;
 };
+
 struct Weapon
 {
     WeaponType weapon;
     float last;
     float next;
 };
+
 } // namespace Escape
 
 #endif // COMPONENTS_H
