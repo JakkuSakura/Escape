@@ -21,7 +21,7 @@ COMPONENT_NEW(Health,
     float health;
     float max_health;
     Health(const Health &h) = default;
-    Health(float h)
+    Health(float h = 100)
     {
         health = h;
         max_health = h;
