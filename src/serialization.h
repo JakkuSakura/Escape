@@ -145,42 +145,14 @@ public:
     bool bPendingDestroy = false;
 };
 template <typename Archive>
-inline void serialize(Archive &ar, EntityHacked::pair &p, const unsigned int version)
-{
-
-    split_free(ar, p, version);
-}
-
-template <class Archive>
-void save(Archive &ar, const EntityHacked::pair &pair, unsigned int version)
+inline void serialize(Archive &ar, EntityHacked::pair &pair, const unsigned int version)
 {
     ar &pair.first;
-#define DISPATCH(type)                                                           \
-    if (typeid(*pair.second) == typeid(ECS::Internal::ComponentContainer<type>)) \
-    ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
-
-    DISPATCH(Escape::Position);
-    else DISPATCH(Escape::Name);
-    else DISPATCH(Escape::Velocity);
-    else DISPATCH(Escape::Health);
-    else DISPATCH(Escape::Weapon);
-    else DISPATCH(Escape::WeaponPrototype);
-    else DISPATCH(Escape::Hitbox);
-    else DISPATCH(Escape::BulletData);
-    else DISPATCH(Escape::Lifespan);
-
-#undef DISPATCH
-}
-
-template <class Archive>
-void load(Archive &ar, EntityHacked::pair &pair, unsigned int version)
-{
-    ar &pair.first;
-#define DISPATCH(type)                                           \
-    if (pair.first == ECS::TypeIndex(typeid(type)))              \
-                                                                 \
-    pair.second = new ECS::Internal::ComponentContainer<type>(), \
-    ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
+#define DISPATCH(type)                                                             \
+    if (pair.first == ECS::TypeIndex(typeid(type)))                                \
+                                                                                   \
+    pair.second ? 0 : pair.second = new ECS::Internal::ComponentContainer<type>(), \
+                      ar &reinterpret_cast<ComponentContainerHacked<type> *>(pair.second)->data
 
     DISPATCH(Escape::Position);
     else DISPATCH(Escape::Name);
@@ -195,10 +167,10 @@ void load(Archive &ar, EntityHacked::pair &pair, unsigned int version)
 #undef DISPATCH
 }
 
+
 template <typename Archive>
 inline void serialize(Archive &ar, EntityHacked &p, const unsigned int version)
 {
-
     split_free(ar, p, version);
 }
 
@@ -257,23 +229,21 @@ template <class Archive>
 void save(Archive &ar, const ECS::World &p, unsigned int version)
 {
     ECS::World &world = const_cast<ECS::World &>(p);
-    ar & world.getCount();
-    world.all([&](ECS::Entity *ent)
-    {
-        ar & *ent;
+    ar &world.getCount();
+    world.all([&](ECS::Entity *ent) {
+        ar &*ent;
     });
-
 }
 template <class Archive>
 void load(Archive &ar, ECS::World &p, unsigned int version)
 {
     p.reset();
     size_t size;
-    ar & size;
+    ar &size;
     for (size_t i = 0; i < size; i++)
     {
         ECS::Entity *ent = p.create();
-        ar & *ent;
+        ar &*ent;
     }
 }
 
