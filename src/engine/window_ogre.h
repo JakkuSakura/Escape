@@ -14,19 +14,28 @@ namespace Render
 class InputState : public OgreBites::InputListener
 {
 public:
-    bool keys[5000] = {0};
+    static const size_t MAX_KEY_NUM = 4096;
+    bool keys[MAX_KEY_NUM] = {0};
     float mouse_x, mouse_y;
     bool mouse[4];
 
     virtual void frameRendered(const Ogre::FrameEvent &evt) {}
     virtual bool keyPressed(const OgreBites::KeyboardEvent &evt)
     {
-        keys[evt.keysym.sym] = true;
+        if(evt.keysym.sym < MAX_KEY_NUM)
+            keys[evt.keysym.sym] = true;
+        else {
+            // std::cerr << "Cannot handle key down " << evt.keysym.sym << std::endl;
+        }
         return false;
     }
     virtual bool keyReleased(const OgreBites::KeyboardEvent &evt)
     {
-        keys[evt.keysym.sym] = false;
+        if(evt.keysym.sym < MAX_KEY_NUM)
+            keys[evt.keysym.sym] = false;
+        else {
+            // std::cerr << "Cannot handle key up " << evt.keysym.sym << std::endl;
+        }
         return false;
     }
     virtual bool touchMoved(const OgreBites::TouchFingerEvent &evt) { return false; }

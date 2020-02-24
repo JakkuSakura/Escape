@@ -9,18 +9,15 @@ COMPONENT_AS(Position, glm::vec2);
 COMPONENT_AS(Velocity, glm::vec2);
 
 COMPONENT_NEW(Hitbox,
-
     float radius;
 );
 
 COMPONENT_NEW(Lifespan,
-
     clock_type begin;
     clock_type end;
 );
 
 COMPONENT_NEW(Health,
-
     float health;
     float max_health;
     Health(const Health &h) = default;
@@ -39,7 +36,6 @@ enum class BulletType
     RIFLE_BULLET
 };
 COMPONENT_NEW(BulletData,
-
     size_t firer_id;
     BulletType type;
     float damage;
@@ -54,7 +50,6 @@ enum class WeaponType
     RIFLE
 };
 COMPONENT_NEW(WeaponPrototype,
-
     WeaponType type;
     BulletType bullet_type;
     float cd;

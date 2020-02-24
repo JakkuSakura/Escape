@@ -44,25 +44,23 @@ public:
     }
 };
 
-class ComponentRegister
+class ComponentRegister : public boost::bimap<std::string, ECS::TypeIndex>
 {
-    typedef boost::bimap<std::string, ECS::TypeIndex> mp;
-    mp bimap;
     ComponentRegister(){};
 
 public:
     static ComponentRegister &getInstance();
     void registerPair(const std::string &str, ECS::TypeIndex info)
     {
-        bimap.insert(mp::value_type(str, info));
+        insert(value_type(str, info));
     }
-    ECS::TypeIndex findTypeInfo(const std::string &str)
+    ECS::TypeIndex getTypeInfo(const std::string &str) const
     {
-        return bimap.left.at(str);
+        return left.at(str);
     }
-    std::string findName(ECS::TypeIndex info)
+    std::string getName(ECS::TypeIndex info) const
     {
-        return bimap.right.at(info);
+        return right.at(info);
     }
 };
 #define REGISTER(New) RUN( \

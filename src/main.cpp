@@ -68,16 +68,15 @@ public:
     {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
         auto w = ent->get<Weapon>();
-        if(w.isValid())
+        if (w.isValid())
         {
-            if(type != w->weapon)
+            if (type != w->weapon)
                 ent->assign<Weapon>(Weapon{type, 0, 0});
         }
         else
         {
             ent->assign<Weapon>(Weapon{type, 0});
         }
-            
     }
 };
 
@@ -94,7 +93,7 @@ public:
     ~DisplayOgre()
     {
     }
-    
+
     std::pair<Ogre::SceneNode *, Ogre::Entity *> newBox(float cx, float cy, float width, float height, float r, float g, float b)
     {
         auto pair = newBox(cx, cy, width, height);
@@ -155,7 +154,7 @@ public:
         {
             auto click = pickUp(input.mouse_x, input.mouse_y);
             double x = click.x, y = click.y;
-            std::cerr << "Cursor: " << x << " " << y << std::endl;
+            // std::cerr << "Cursor: " << x << " " << y << std::endl;
             auto pos = logic->player->get<Position>();
             assert(pos.isValid());
             float angle = atan2(y - pos->y, x - pos->x);
@@ -195,10 +194,22 @@ public:
             logic->changeWeapon(logic->player, WeaponType::RIFLE);
         if (input.keys[' '])
         {
-            
-            // SerializationHelper helper;
-            // helper.serialize(logic->player);
-            // std::cerr << logic->player << std::endl;
+            SerializationHelper helper;
+            try
+            {
+
+                helper.serialize(10);
+                Entity *entity = world->create();
+                std::cerr << helper.buffer << std::endl;
+                std::cerr << "----------------" << std::endl;
+                int value;
+                helper.deserialize(value);
+                std::cerr << "Has " << value << std::endl;
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "error " << e.what() << std::endl;
+            }
         }
     }
     void render() override
