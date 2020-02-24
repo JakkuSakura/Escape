@@ -12,8 +12,8 @@ using ECS::Entity;
 using ECS::World;
 class SystemManager : public System
 {
+protected:
     World *world = World::createWorld();
-
 public:
     SystemManager()
     {

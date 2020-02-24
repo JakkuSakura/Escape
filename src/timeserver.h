@@ -46,7 +46,7 @@ public:
     size_t getTick()
     {
         size_t tick = -1;
-        world->each<Tick>([&](Entity *ent, ComponentHandle<Tick> p) {
+        world->each<TimeServerInfo>([&](Entity *ent, ComponentHandle<TimeServerInfo> p) {
             tick = p->tick;
         });
         if(tick == (size_t)(-1))
@@ -56,14 +56,14 @@ public:
     void setTick(size_t tick)
     {
         bool find = false;
-        world->each<Tick>([&](Entity *ent, ComponentHandle<Tick> p) {
+        world->each<TimeServerInfo>([&](Entity *ent, ComponentHandle<TimeServerInfo> p) {
             p->tick = tick;
             find = true;
         });
         if (!find)
         {
             Entity *time_ent = world->create();
-            time_ent->assign<Tick>(Tick{0});
+            time_ent->assign<TimeServerInfo>(TimeServerInfo{tick: 0});
             std::cerr << "Set tick to zero" << std::endl;
         }
     }

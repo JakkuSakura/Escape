@@ -26,7 +26,8 @@ class Logic : public SystemManager
         PostInit(Logic *logic) : logic(logic) {}
         void initialize() override
         {
-            logic->player = logic->agent_system->createAgent(Position(0, 0));
+            Entity *player = logic->agent_system->createAgent(Position(0, 0));
+            player->assign<Control>(Control{player : 1});
             logic->agent_system->createAgent(Position(-200, 200));
             logic->agent_system->createAgent(Position(0, 200));
             logic->agent_system->createAgent(Position(200, 200));
@@ -34,13 +35,23 @@ class Logic : public SystemManager
     };
 
 public:
-    Entity *player;
     MovementSystem *movement_system;
     BulletSystem *bullet_system;
     WeaponSystem *weapon_system;
     LifespanSystem *lifespan_system;
     AgentSystem *agent_system;
     TimeServer *timeserver;
+    Entity *getPlayer()
+    {
+        Entity *player = nullptr;
+        for (Entity *ent : world->each<Control>())
+        {
+            if (ent->get<Control>()->player == 1)
+                player = ent;
+        }
+        assert(player != nullptr);
+        return player;
+    }
     void initialize() override
     {
         SystemManager::initialize();
@@ -149,17 +160,17 @@ public:
         // ESC exit
         WindowOgre::processInput();
 
-        if (logic->player == nullptr)
+        if (logic->getPlayer() == nullptr)
             return;
         if (input.mouse[OgreBites::BUTTON_LEFT])
         {
             auto click = pickUp(input.mouse_x, input.mouse_y);
             double x = click.x, y = click.y;
             // std::cerr << "Cursor: " << x << " " << y << std::endl;
-            auto pos = logic->player->get<Position>();
+            auto pos = logic->getPlayer()->get<Position>();
             assert(pos.isValid());
             float angle = atan2(y - pos->y, x - pos->x);
-            logic->fire(logic->player, angle);
+            logic->fire(logic->getPlayer(), angle);
         }
 
         glm::vec2 vel(0, 0);
@@ -180,19 +191,19 @@ public:
             }
             vel *= 120.0f;
         }
-        logic->move(logic->player, vel);
+        logic->move(logic->getPlayer(), vel);
 
         if (input.keys['1'])
-            logic->changeWeapon(logic->player, WeaponType::HANDGUN);
+            logic->changeWeapon(logic->getPlayer(), WeaponType::HANDGUN);
 
         if (input.keys['2'])
-            logic->changeWeapon(logic->player, WeaponType::SHOTGUN);
+            logic->changeWeapon(logic->getPlayer(), WeaponType::SHOTGUN);
 
         if (input.keys['3'])
-            logic->changeWeapon(logic->player, WeaponType::SMG);
+            logic->changeWeapon(logic->getPlayer(), WeaponType::SMG);
 
         if (input.keys['4'])
-            logic->changeWeapon(logic->player, WeaponType::RIFLE);
+            logic->changeWeapon(logic->getPlayer(), WeaponType::RIFLE);
 
         if (input.keys['p'])
             logic->agent_system->createAgent(Position(logic->timeserver->random(-200, 200), logic->timeserver->random(-200, 200)));
@@ -216,22 +227,10 @@ public:
         }
         if (input.keys['i'])
         {
-            try
-            {
-                std::cerr << "Reading map file" << std::endl;
-                SerializationHelper helper("map.txt");
-                helper.deserialize_ptr(world);
-                logic->player = world->getById(1);
-                // FIXME sometimes with bullets flying it chrushes
-            }
-            catch (std::runtime_error &e)
-            {
-                std::cerr << "error " << e.what() << std::endl;
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "error " << e.what() << std::endl;
-            }
+            std::cerr << "Reading map file" << std::endl;
+            SerializationHelper helper("map.txt");
+            helper.deserialize_ptr(world);
+            // FIXME sometimes with bullets flying it chrushes
         }
     }
     void render() override

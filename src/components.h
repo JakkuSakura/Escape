@@ -13,7 +13,11 @@ COMPONENT_NEW(Hitbox,
     float radius;
 );
 
-COMPONENT_NEW(Tick,
+COMPONENT_NEW(Control,
+    int player;
+);
+
+COMPONENT_NEW(TimeServerInfo,
     size_t tick;
 );
 
