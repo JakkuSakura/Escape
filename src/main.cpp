@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
-#include "engine/separate_application.h"
+#include "separate_application.h"
 #include "engine/window_ogre.h"
 #include <OgreRenderSystem.h>
 #include "engine/MyECS.h"

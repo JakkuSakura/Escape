@@ -10,8 +10,6 @@ class MovementSystem : public ECSSystem
 public:
     void move(Entity *ent, const glm::vec2 &speed)
     {
-        if (speed.x == 0 && speed.y == 0)
-            ent->remove<Velocity>();
         ent->assign<Velocity>(speed.x, speed.y);
     }
     void update(clock_type delta) override
@@ -19,6 +17,7 @@ public:
         world->each<Velocity>([&](Entity *ent, ComponentHandle<Velocity> vel) {
             auto &&pos = ent->get<Position>();
             assert(pos.isValid());
+            // FIXME assertion failed after loading map
             pos.get() += vel.get() * delta;
         });
     }

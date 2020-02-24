@@ -14,7 +14,7 @@ namespace Render
 class InputState : public OgreBites::InputListener
 {
 public:
-    static const size_t MAX_KEY_NUM = 4096;
+    static const int MAX_KEY_NUM = 4096;
     bool keys[MAX_KEY_NUM] = {0};
     float mouse_x, mouse_y;
     bool mouse[4];

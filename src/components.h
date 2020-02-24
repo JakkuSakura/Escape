@@ -2,6 +2,7 @@
 #define COMPONENTS_H
 #include "engine/utils.h"
 #include "engine/MyECS.h"
+#include <glm/glm.hpp>
 namespace Escape
 {
 COMPONENT_AS(Name, std::string);
@@ -10,6 +11,10 @@ COMPONENT_AS(Velocity, glm::vec2);
 
 COMPONENT_NEW(Hitbox,
     float radius;
+);
+
+COMPONENT_NEW(Tick,
+    size_t tick;
 );
 
 COMPONENT_NEW(Lifespan,

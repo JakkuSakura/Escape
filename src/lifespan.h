@@ -1,6 +1,6 @@
 #if !defined(LIFESPAN_H)
 #define LIFESPAN_H
-#include "engine/timeserver.h"
+#include "timeserver.h"
 #include "components.h"
 namespace Escape
 {

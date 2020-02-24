@@ -1,8 +1,8 @@
 #if !defined(APPLICATION_H)
 #define APPLICATION_H
-#include "window.h"
-#include "system.h"
-#include "utils.h"
+#include "engine/window.h"
+#include "engine/system.h"
+#include "engine/utils.h"
 #include "timeserver.h"
 namespace Escape
 {

@@ -81,6 +81,11 @@ inline void serialize(Archive &ar, Escape::Hitbox &p, const unsigned int version
 }
 
 template <typename Archive>
+inline void serialize(Archive &ar, Escape::Tick &p, const unsigned int version)
+{
+    ar &p.tick;
+}
+template <typename Archive>
 inline void serialize(Archive &ar, Escape::Lifespan &p, const unsigned int version)
 {
     ar &p.begin &p.end;
@@ -163,7 +168,8 @@ inline void serialize(Archive &ar, EntityHacked::pair &pair, const unsigned int 
     else DISPATCH(Escape::Hitbox);
     else DISPATCH(Escape::BulletData);
     else DISPATCH(Escape::Lifespan);
-    else throw std::runtime_error("Cannot read");
+    else DISPATCH(Escape::Tick);
+    else throw std::runtime_error("Cannot read/write");
 #undef DISPATCH
 }
 
