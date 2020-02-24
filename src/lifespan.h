@@ -1,13 +1,10 @@
 #if !defined(LIFESPAN_H)
 #define LIFESPAN_H
 #include "engine/timeserver.h"
+#include "components.h"
 namespace Escape
 {
-struct Lifespan
-{
-    clock_type begin;
-    clock_type end;
-};
+
 class LifespanSystem : public ECSSystem
 {
     TimeServer *timeserver;

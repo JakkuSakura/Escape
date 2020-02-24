@@ -40,10 +40,6 @@ public:
         world = system_manager->getWorld();
     }
 };
-struct Name : public std::string
-{
-    using std::string::string;
-};
 
 } // namespace Escape
 

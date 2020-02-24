@@ -27,4 +27,16 @@ inline void show_vec(const T &vec)
     std::cerr << std::endl;
 }
 using clock_type = float;
+
+#define NEW_TYPE(NewName, BaseName) struct NewName final : public BaseName\
+{ \
+    template<typename ... Args> \
+    NewName (Args&& ... args) : BaseName (std::forward<Args>(args) ...) {} \
+    BaseName &unwrap() { \
+        return *reinterpret_cast<BaseName *>(this); \
+    }\
+    const BaseName &unwrap() const { \
+        return *reinterpret_cast<const BaseName *>(this); \
+    }\
+}
 #endif // UTILS_H

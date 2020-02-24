@@ -2,6 +2,7 @@
 #define AGENT_H
 #include "engine/MyECS.h"
 #include "weapons.h"
+#include "components.h"
 namespace Escape
 {
 class AgentSystem : public ECSSystem

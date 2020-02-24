@@ -2,6 +2,8 @@
 #define WEAPONS_H
 #include "engine/MyECS.h"
 #include "movement.h"
+#include "engine/utils.h"
+#include "components.h"
 #include "lifespan.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
@@ -11,33 +13,6 @@
 
 namespace Escape
 {
-struct Health
-{
-    float health;
-    float max_health;
-    Health(const Health &h) = default;
-    Health(float h)
-    {
-        health = h;
-        max_health = h;
-    }
-};
-
-enum class BulletType
-{
-    HANDGUN_BULLET,
-    SHOTGUN_SHELL,
-    SMG_BULLET,
-    RIFLE_BULLET
-};
-struct BulletData
-{
-    size_t firer_id;
-    BulletType type;
-    float damage;
-    bool hit;
-};
-
 class BulletSystem : public ECSSystem
 {
     LifespanSystem *lifespan;
@@ -75,7 +50,7 @@ public:
                         return;
                     auto position_bullet = bullet->get<Position>();
                     // assert(position_bullet.isValid());
-                    if (glm::distance2(position_bullet->as_vec2(), position->as_vec2()) <= hitbox->radius * hitbox->radius) // hit
+                    if (glm::distance2(position_bullet->unwrap(), position->unwrap()) <= hitbox->radius * hitbox->radius) // hit
                     {
                         health->health -= bullet_data->damage;
                         bullet_data->hit = true;
@@ -86,29 +61,6 @@ public:
             }
         });
     }
-};
-enum class WeaponType
-{
-    HANDGUN,
-    SHOTGUN,
-    SMG,
-    RIFLE
-};
-struct WeaponPrototype
-{
-    WeaponType type;
-    BulletType bullet_type;
-    float cd;
-    float accuracy;
-    float peice_number;
-    float bullet_damage;
-    float bullet_speed;
-};
-struct Weapon
-{
-    WeaponType weapon;
-    float last;
-    float next;
 };
 class WeaponSystem : public ECSSystem
 {

@@ -24,6 +24,14 @@ add_definitions(${OGRE_DEFINITIONS})
 # copy resource.cfg next to our binaries where OGRE looks for it
 file(COPY ${OGRE_CONFIG_DIR}/resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF)
+
+find_package(Boost REQUIRED COMPONENTS system serialization)
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+add_definitions(${Boost_DEFINITIONS})
 
 #########################################################
 # Include Files
@@ -33,7 +41,7 @@ add_executable(main ${SOURCES})
 ########################################################
 # Linking & stuff
 #########################################################
-target_link_libraries(main ${OGRE_LIBRARIES})
+target_link_libraries(main ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_custom_command(
         TARGET main POST_BUILD
