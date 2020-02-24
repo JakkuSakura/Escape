@@ -67,7 +67,7 @@ class WeaponSystem : public ECSSystem
     BulletSystem *bullet_system;
     TimeServer *timeserver;
     std::map<WeaponType, WeaponPrototype> default_weapons;
-    std::default_random_engine engine;
+
 public:
     WeaponSystem()
     {
@@ -122,10 +122,10 @@ public:
             if (timeserver->now() >= weapon->next)
             {
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
-                std::uniform_real_distribution<double> u(-angle_diff, angle_diff);
+                
                 for (size_t i = 0; i < prototype.peice_number; i++)
                 {
-                    bullet_system->fire(ent, prototype.bullet_type, angle + u(engine), prototype.bullet_speed, prototype.bullet_damage);
+                    bullet_system->fire(ent, prototype.bullet_type, angle + timeserver->random(-angle_diff, angle_diff), prototype.bullet_speed, prototype.bullet_damage);
                 }
                 weapon->last = timeserver->now();
                 weapon->next = timeserver->now() + prototype.cd;

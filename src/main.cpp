@@ -192,6 +192,10 @@ public:
 
         if (input.keys['4'])
             logic->changeWeapon(logic->player, WeaponType::RIFLE);
+
+        if (input.keys['p'])
+            logic->agent_system->createAgent(Position(logic->timeserver->random(-200, 200), logic->timeserver->random(-200, 200)));
+
         if (input.keys['o'])
         {
             try

@@ -1,6 +1,7 @@
 #if !defined(TIMESERVER_H)
 #define TIMESERVER_H
 #include <chrono>
+#include <random>
 #include <thread>
 #include "system.h"
 #include "utils.h"
@@ -12,7 +13,7 @@ class TimeServer : public System
     float freq, delta;
     std::chrono::high_resolution_clock::time_point benchmark, _now;
     size_t tick;
-
+    std::default_random_engine engine;
 public:
     TimeServer(float rate) : freq(rate), delta(1.0f / rate), benchmark(std::chrono::high_resolution_clock::now()), _now(benchmark), tick(0)
     {
@@ -27,6 +28,11 @@ public:
 
         std::this_thread::sleep_until(next);
         _now = next;
+    }
+    float random(float l, float h)
+    {
+        std::uniform_real_distribution<double> u(l, h);
+        return u(engine);
     }
     size_t getTick() const {
         return tick;
