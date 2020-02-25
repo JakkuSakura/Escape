@@ -8,3 +8,6 @@
 [submodule "vendor/ECS"]
 	path = vendor/ECS
 	url = https://github.com/redxdev/ECS
+[submodule "vendor/entt"]
+	path = vendor/entt
+	url = https://github.com/qiujiangkun/entt
