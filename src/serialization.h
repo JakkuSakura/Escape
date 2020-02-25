@@ -143,6 +143,9 @@ void save(Archive &ar, const entt::entity &p, unsigned int version, entt::regist
         count += 1;
     });
     ar &count;
+#define DISPATCHALL() FOREACH_COMPONENT_TYPE(DISPATCH)
+
+
 #define DISPATCH(type)          \
     if (reg.has<type>(p))       \
     {                           \
@@ -150,18 +153,8 @@ void save(Archive &ar, const entt::entity &p, unsigned int version, entt::regist
         ar &reg.get<type>(p);   \
     }
 
-    DISPATCH(Escape::Position);
-    DISPATCH(Escape::Name);
-    DISPATCH(Escape::ID);
-    DISPATCH(Escape::Velocity);
-    DISPATCH(Escape::Health);
-    DISPATCH(Escape::Weapon);
-    DISPATCH(Escape::WeaponPrototype);
-    DISPATCH(Escape::Hitbox);
-    DISPATCH(Escape::BulletData);
-    DISPATCH(Escape::Lifespan);
-    DISPATCH(Escape::TimeServerInfo);
-    DISPATCH(Escape::Control);
+    DISPATCHALL();
+
 #undef DISPATCH
 }
 template <class Archive>
@@ -180,19 +173,9 @@ void load(Archive &ar, entt::entity &p, unsigned int version, entt::registry &re
         ar &comp;                \
         reg.assign<type>(p, comp); \
     }
+    
+    DISPATCHALL();
 
-        DISPATCH(Escape::Position);
-        DISPATCH(Escape::Name);
-        DISPATCH(Escape::ID);
-        DISPATCH(Escape::Velocity);
-        DISPATCH(Escape::Health);
-        DISPATCH(Escape::Weapon);
-        DISPATCH(Escape::WeaponPrototype);
-        DISPATCH(Escape::Hitbox);
-        DISPATCH(Escape::BulletData);
-        DISPATCH(Escape::Lifespan);
-        DISPATCH(Escape::TimeServerInfo);
-        DISPATCH(Escape::Control);
 #undef DISPATCH
     }
 }

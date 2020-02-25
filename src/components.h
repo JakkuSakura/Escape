@@ -79,5 +79,18 @@ COMPONENT_NEW(Weapon,
 );
 
 } // namespace Escape
-
+#define FOREACH_COMPONENT_TYPE(func) \
+    func(Escape::Position); \
+    func(Escape::Name); \
+    func(Escape::ID); \
+    func(Escape::Velocity); \
+    func(Escape::Health); \
+    func(Escape::Weapon); \
+    func(Escape::WeaponPrototype); \
+    func(Escape::Hitbox); \
+    func(Escape::BulletData); \
+    func(Escape::Lifespan); \
+    func(Escape::TimeServerInfo); \
+    func(Escape::Control);
+    
 #endif // COMPONENTS_H
