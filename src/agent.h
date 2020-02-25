@@ -1,6 +1,6 @@
 #if !defined(AGENT_H)
 #define AGENT_H
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include "weapons.h"
 #include "components.h"
 namespace Escape
@@ -8,23 +8,23 @@ namespace Escape
 class AgentSystem : public ECSSystem
 {
 public:
-    Entity *createAgent(const Position &pos)
+    Entity createAgent(const Position &pos)
     {
         assert(world != nullptr);
-        Entity *agent = world->create();
-        agent->assign<Name>("agent");
-        agent->assign<Position>(pos);
-        agent->assign<Health>(100);
-        agent->assign<Hitbox>(Hitbox{radius: 16});
-        agent->assign<Weapon>(Weapon{WeaponType::HANDGUN, 0});
+        Entity agent = world->create();
+        world->assign<Name>(agent, "agent");
+        world->assign<Position>(agent, pos);
+        world->assign<Health>(agent, 100);
+        world->assign<Hitbox>(agent, Hitbox{radius: 16});
+        world->assign<Weapon>(agent, Weapon{WeaponType::HANDGUN, 0});
         return agent;
     }
 
     void update(clock_type delta) override
     {
-        world->each<Health>([&](Entity *ent, ComponentHandle<Health> health){
-            if(health->health <= 0)
-                world->destroy(ent, false);
+        world->view<Health>().each([&](Entity ent, auto &health){
+            if(health.health <= 0)
+                world->destroy(ent);
         });
     }
 };

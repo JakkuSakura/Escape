@@ -17,10 +17,10 @@ public:
     void update(clock_type delta) override
     {
         clock_type now = timeserver->now();
-        world->each<Lifespan>([&](Entity *ent, ComponentHandle<Lifespan> lifespan) {
-            if (lifespan->end < now)
+        world->view<Lifespan>().each([&](Entity ent, auto &lifespan) {
+            if (lifespan.end < now)
             {
-                world->destroy(ent, false);
+                world->destroy(ent);
             }
         });
     }

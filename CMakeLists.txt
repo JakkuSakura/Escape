@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 # Project Name
 PROJECT(Escape)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+#
+# Building in-tree is not allowed (we take care of your craziness).
+#
+ 
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the source code and call cmake          from there. Thank you.")
+endif()
 
 # SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
@@ -14,7 +21,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 
-include_directories(vendor/glm/ vendor/stb/ vendor/ECS/ vendor/asio/asio/include)
+include_directories(vendor/glm/ vendor/stb/ vendor/ECS/ vendor/entt/src)
 
 # specify which version and components you need
 find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)

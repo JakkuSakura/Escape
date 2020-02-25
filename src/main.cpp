@@ -5,11 +5,11 @@
 #include "separate_application.h"
 #include "engine/window_ogre.h"
 #include <OgreRenderSystem.h>
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include "engine/utils.h"
 #include "weapons.h"
 #include "movement.h"
-#include "serialization.h"
+// #include "serialization.h"
 #include "agent.h"
 #include <sstream>
 
@@ -26,8 +26,8 @@ class Logic : public SystemManager
         PostInit(Logic *logic) : logic(logic) {}
         void initialize() override
         {
-            Entity *player = logic->agent_system->createAgent(Position(0, 0));
-            player->assign<Control>(Control{player : 1});
+            Entity player = logic->agent_system->createAgent(Position(0, 0));
+            logic->world->assign<Control>(player, Control{player : 1});
             logic->agent_system->createAgent(Position(-200, 200));
             logic->agent_system->createAgent(Position(0, 200));
             logic->agent_system->createAgent(Position(200, 200));
@@ -41,15 +41,16 @@ public:
     LifespanSystem *lifespan_system;
     AgentSystem *agent_system;
     TimeServer *timeserver;
-    Entity *getPlayer()
+    Entity getPlayer()
     {
-        Entity *player = nullptr;
-        for (Entity *ent : world->each<Control>())
-        {
-            if (ent->get<Control>()->player == 1)
+        Entity player = entt::null;
+        world->view<Control>().each([&](Entity ent, auto &control) {
+            if (control.player == 1)
+            {
                 player = ent;
-        }
-        assert(player != nullptr);
+            }
+        });
+        assert(player != entt::null);
         return player;
     }
     void initialize() override
@@ -68,26 +69,26 @@ public:
         addSubSystem(new PostInit(this));
     }
 
-    void fire(Entity *ent, float angle)
+    void fire(Entity ent, float angle)
     {
         weapon_system->fire(ent, angle);
     }
-    void move(Entity *ent, const glm::vec2 &vel)
+    void move(Entity ent, const Velocity &vel)
     {
         movement_system->move(ent, vel);
     }
-    void changeWeapon(Entity *ent, WeaponType type)
+    void changeWeapon(Entity ent, WeaponType type)
     {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
-        auto w = ent->get<Weapon>();
-        if (w.isValid())
+        if (world->has<Weapon>(ent))
         {
-            if (type != w->weapon)
-                ent->assign<Weapon>(Weapon{type, 0, 0});
+            auto &w = world->get<Weapon>(ent);
+            if (type != w.weapon)
+                world->assign_or_replace<Weapon>(ent, Weapon{type, 0, 0});
         }
         else
         {
-            ent->assign<Weapon>(Weapon{type, 0});
+            world->assign<Weapon>(ent, Weapon{type, 0});
         }
     }
 };
@@ -159,21 +160,21 @@ public:
     {
         // ESC exit
         WindowOgre::processInput();
-
-        if (logic->getPlayer() == nullptr)
+        auto player = logic->getPlayer();
+        if (player == entt::null)
             return;
         if (input.mouse[OgreBites::BUTTON_LEFT])
         {
             auto click = pickUp(input.mouse_x, input.mouse_y);
             double x = click.x, y = click.y;
             // std::cerr << "Cursor: " << x << " " << y << std::endl;
-            auto pos = logic->getPlayer()->get<Position>();
-            assert(pos.isValid());
-            float angle = atan2(y - pos->y, x - pos->x);
-            logic->fire(logic->getPlayer(), angle);
+            assert(world->has<Position>(player));
+            auto pos = world->get<Position>(player);
+            float angle = atan2(y - pos.y, x - pos.x);
+            logic->fire(player, angle);
         }
 
-        glm::vec2 vel(0, 0);
+        Velocity vel(0, 0);
         if (input.keys['w'])
             vel.y += 1;
         if (input.keys['s'])
@@ -182,7 +183,7 @@ public:
             vel.x += -1;
         if (input.keys['d'])
             vel.x += 1;
-        float spd = glm::length(*(glm::vec2 *)&vel);
+        float spd = glm::length(vel.unwrap());
         if (spd > 0)
         {
             if (spd > 1)
@@ -191,57 +192,57 @@ public:
             }
             vel *= 120.0f;
         }
-        logic->move(logic->getPlayer(), vel);
+        logic->move(player, vel);
 
         if (input.keys['1'])
-            logic->changeWeapon(logic->getPlayer(), WeaponType::HANDGUN);
+            logic->changeWeapon(player, WeaponType::HANDGUN);
 
         if (input.keys['2'])
-            logic->changeWeapon(logic->getPlayer(), WeaponType::SHOTGUN);
+            logic->changeWeapon(player, WeaponType::SHOTGUN);
 
         if (input.keys['3'])
-            logic->changeWeapon(logic->getPlayer(), WeaponType::SMG);
+            logic->changeWeapon(player, WeaponType::SMG);
 
         if (input.keys['4'])
-            logic->changeWeapon(logic->getPlayer(), WeaponType::RIFLE);
+            logic->changeWeapon(player, WeaponType::RIFLE);
 
         if (input.keys['p'])
             logic->agent_system->createAgent(Position(logic->timeserver->random(-200, 200), logic->timeserver->random(-200, 200)));
 
-        if (input.keys['o'])
-        {
-            try
-            {
-                std::cerr << "Writing map file" << std::endl;
-                SerializationHelper helper("map.txt");
-                helper.serialize_ptr(world);
-            }
-            catch (std::runtime_error &e)
-            {
-                std::cerr << "error " << e.what() << std::endl;
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "error " << e.what() << std::endl;
-            }
-        }
-        if (input.keys['i'])
-        {
-            std::cerr << "Reading map file" << std::endl;
-            SerializationHelper helper("map.txt");
-            helper.deserialize_ptr(world);
-            // FIXME sometimes with bullets flying it chrushes
-        }
+        // if (input.keys['o'])
+        // {
+        //     try
+        //     {
+        //         std::cerr << "Writing map file" << std::endl;
+        //         SerializationHelper helper("map.txt");
+        //         helper.serialize_ptr(world);
+        //     }
+        //     catch (std::runtime_error &e)
+        //     {
+        //         std::cerr << "error " << e.what() << std::endl;
+        //     }
+        //     catch (std::exception &e)
+        //     {
+        //         std::cerr << "error " << e.what() << std::endl;
+        //     }
+        // }
+        // if (input.keys['i'])
+        // {
+        //     std::cerr << "Reading map file" << std::endl;
+        //     SerializationHelper helper("map.txt");
+        //     helper.deserialize_ptr(world);
+        //     // FIXME sometimes with bullets flying it chrushes
+        // }
     }
     void render() override
     {
         // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
-        world->each<Name>([&, this](Entity *ent, ComponentHandle<Name> name) {
-            if (name.get() == "agent")
+        world->view<Name>().each([&](Entity ent, auto &name) {
+            if (name == "agent")
             {
                 renderAgent(ent);
             }
-            if (name.get() == "bullet")
+            if (name == "bullet")
             {
                 renderBullet(ent);
             }
@@ -251,20 +252,16 @@ public:
     {
         rects->removeAndDestroyAllChildren();
     }
-    void renderAgent(Entity *ent)
+    void renderAgent(Entity ent)
     {
-        auto &&pos = ent->get<Position>();
-        assert(pos.isValid());
-        auto &&health = ent->get<Health>();
-        assert(health.isValid());
-        float percent = health->health / health->max_health;
-        newBox(pos->x, pos->y, 32, 32, 1 - percent, percent, 0);
+        auto [pos, health] = world->get<Position, Health>(ent);
+        float percent = health.health / health.max_health;
+        newBox(pos.x, pos.y, 32, 32, 1 - percent, percent, 0);
     }
-    void renderBullet(Entity *ent)
+    void renderBullet(Entity ent)
     {
-        auto &&pos = ent->get<Position>();
-        assert(pos.isValid());
-        newBox(pos->x, pos->y, 2, 2);
+        auto &&pos = world->get<Position>(ent);
+        newBox(pos.x, pos.y, 2, 2);
     }
     void windowResized(int width, int height) override
     {

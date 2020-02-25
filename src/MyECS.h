@@ -1,19 +1,18 @@
 #if !defined(ECSCORE_H)
 #define ECSCORE_H
 #include <ECS.h>
-#include "system.h"
-#include "utils.h"
+#include "engine/system.h"
+#include "engine/utils.h"
 #include <boost/bimap.hpp>
-
+#include <entt/entity/registry.hpp>
 namespace Escape
 {
-using ECS::ComponentHandle;
-using ECS::Entity;
-using ECS::World;
+using Entity = entt::entity;
+using World = entt::registry;
 class SystemManager : public System
 {
 protected:
-    World *world = World::createWorld();
+    World *world = new World();
 public:
     SystemManager()
     {
@@ -24,11 +23,11 @@ public:
     }
     virtual void update(clock_type delta)
     {
-        world->tick(delta);
+        // TODO some update
     };
     virtual ~SystemManager()
     {
-        world->destroyWorld();
+        delete world;
     }
 };
 

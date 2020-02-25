@@ -1,6 +1,6 @@
 #if !defined(WEAPONS_H)
 #define WEAPONS_H
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include "movement.h"
 #include "engine/utils.h"
 #include "components.h"
@@ -20,45 +20,38 @@ class BulletSystem : public ECSSystem
 public:
     BulletSystem()
     {
-        
     }
     void initialize() override
     {
         ECSSystem::initialize();
         lifespan = findSystem<LifespanSystem>();
     }
-    void fire(Entity *firer, BulletType type, float angle, float speed, float damage)
+    void fire(Entity firer, BulletType type, float angle, float speed, float damage)
     {
-        Entity *bullet = world->create();
-        bullet->assign<Name>("bullet");
-        bullet->assign<BulletData>(BulletData{firer_id : firer->getEntityId(), type : type, damage : damage, hit : false});
-        bullet->assign<Velocity>(speed * cos(angle), speed * sin(angle));
-        bullet->assign<Position>(firer->get<Position>().get());
-        bullet->assign<Lifespan>(lifespan->period(3));
+        Entity bullet = world->create();
+        world->assign<Name>(bullet, "bullet");
+        world->assign<BulletData>(bullet, BulletData{firer_id : entt::to_integer(firer), type : type, damage : damage, hit : false});
+        world->assign<Velocity>(bullet, speed * cos(angle), speed * sin(angle));
+        world->assign<Position>(bullet, world->get<Position>(firer));
+        world->assign<Lifespan>(bullet, lifespan->period(3));
     }
     void update(clock_type delta) override
     {
-        world->each<Hitbox>([&](Entity *ent, ComponentHandle<Hitbox> hitbox) {
-            auto health = ent->get<Health>();
-            if (health <= 0)
+        world->view<Hitbox, Position, Health>().each([&](Entity ent, auto &hitbox, auto &position, auto &health) {
+            if (health.health <= 0)
                 return;
-            auto position = ent->get<Position>();
-            if (health.isValid() && position.isValid())
-            {
-                world->each<BulletData>([&](Entity *bullet, ComponentHandle<BulletData> bullet_data) {
-                    if (bullet_data->firer_id == ent->getEntityId())
-                        return;
-                    auto position_bullet = bullet->get<Position>();
-                    // assert(position_bullet.isValid());
-                    if (glm::distance2(position_bullet->unwrap(), position->unwrap()) <= hitbox->radius * hitbox->radius) // hit
-                    {
-                        health->health -= bullet_data->damage;
-                        bullet_data->hit = true;
-                        world->destroy(bullet);
-                        return;
-                    }
-                });
-            }
+
+            world->view<BulletData, Position>().each([&](Entity bullet, auto &bullet_data, auto &position_bullet) {
+                if (bullet_data.firer_id == entt::to_integer(ent))
+                    return;
+                if (glm::distance2(position_bullet.unwrap(), position.unwrap()) <= hitbox.radius * hitbox.radius) // hit
+                {
+                    health.health -= bullet_data.damage;
+                    bullet_data.hit = true;
+                    world->destroy(bullet);
+                    return;
+                }
+            });
         });
     }
 };
@@ -76,7 +69,7 @@ public:
             bullet_type : BulletType::HANDGUN_BULLET,
             cd : 0.5,
             accuracy : 95,
-            peice_number: 1,
+            peice_number : 1,
             bullet_damage : 10,
             bullet_speed : 300,
         };
@@ -85,7 +78,7 @@ public:
             bullet_type : BulletType::SHOTGUN_SHELL,
             cd : 1.5,
             accuracy : 80,
-            peice_number: 10,
+            peice_number : 10,
             bullet_damage : 8,
             bullet_speed : 300,
         };
@@ -94,7 +87,7 @@ public:
             bullet_type : BulletType::SMG_BULLET,
             cd : 1.0 / 40,
             accuracy : 85,
-            peice_number: 1,
+            peice_number : 1,
             bullet_damage : 3,
             bullet_speed : 300,
         };
@@ -103,33 +96,44 @@ public:
             bullet_type : BulletType::RIFLE_BULLET,
             cd : 2,
             accuracy : 97,
-            peice_number: 1,
+            peice_number : 1,
             bullet_damage : 55,
             bullet_speed : 500,
         };
     }
     void initialize() override
     {
+        ECSSystem::initialize();
         bullet_system = findSystem<BulletSystem>();
         timeserver = findSystem<TimeServer>();
     }
-    void fire(Entity *ent, float angle)
+    void fire(Entity ent, float angle)
     {
-        auto weapon = ent->get<Weapon>();
-        if (weapon.isValid())
+        TRACE();
+        if (world->has<Weapon>(ent))
         {
-            const WeaponPrototype &prototype = default_weapons.at(weapon->weapon);
-            if (timeserver->now() >= weapon->next)
+            TRACE();
+            auto weapon = world->get<Weapon>(ent);
+            TRACE();
+
+            const WeaponPrototype &prototype = default_weapons.at(weapon.weapon);
+            if (timeserver->now() >= weapon.next)
             {
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
-                
+                TRACE();
+
                 for (size_t i = 0; i < prototype.peice_number; i++)
                 {
+                    TRACE();
+
                     bullet_system->fire(ent, prototype.bullet_type, angle + timeserver->random(-angle_diff, angle_diff), prototype.bullet_speed, prototype.bullet_damage);
+
+                    TRACE();
                 }
-                weapon->last = timeserver->now();
-                weapon->next = timeserver->now() + prototype.cd;
-                
+                weapon.last = timeserver->now();
+                TRACE();
+
+                weapon.next = timeserver->now() + prototype.cd;
             }
         }
     }

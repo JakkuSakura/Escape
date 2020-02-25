@@ -1,7 +1,7 @@
 #if !defined(COMPONENTS_H)
 #define COMPONENTS_H
 #include "engine/utils.h"
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include <glm/glm.hpp>
 namespace Escape
 {

@@ -1,6 +1,6 @@
 #if !defined(MOVEMENT_H)
 #define MOVEMENT_H
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include <glm/glm.hpp>
 #include "components.h"
 namespace Escape
@@ -8,17 +8,14 @@ namespace Escape
 class MovementSystem : public ECSSystem
 {
 public:
-    void move(Entity *ent, const glm::vec2 &speed)
+    void move(Entity ent, const glm::vec2 &speed)
     {
-        ent->assign<Velocity>(speed.x, speed.y);
+        world->assign_or_replace<Velocity>(ent, speed.x, speed.y);
     }
     void update(clock_type delta) override
     {
-        world->each<Velocity>([&](Entity *ent, ComponentHandle<Velocity> vel) {
-            auto &&pos = ent->get<Position>();
-            assert(pos.isValid());
-            // FIXME assertion failed after loading map
-            pos.get() += vel.get() * delta;
+        world->view<Velocity, Position>().each([&](auto Ent, auto &vel, auto &pos){
+            pos += vel * delta;
         });
     }
 

@@ -4,7 +4,7 @@
 #include <random>
 #include <thread>
 #include "components.h"
-#include "engine/MyECS.h"
+#include "MyECS.h"
 #include "engine/system.h"
 #include "engine/utils.h"
 namespace Escape
@@ -46,8 +46,8 @@ public:
     size_t getTick()
     {
         size_t tick = -1;
-        world->each<TimeServerInfo>([&](Entity *ent, ComponentHandle<TimeServerInfo> p) {
-            tick = p->tick;
+        world->view<TimeServerInfo>().each([&](Entity ent, auto &p) {
+            tick = p.tick;
         });
         if(tick == (size_t)(-1))
             throw std::runtime_error("No tick component");
@@ -56,14 +56,14 @@ public:
     void setTick(size_t tick)
     {
         bool find = false;
-        world->each<TimeServerInfo>([&](Entity *ent, ComponentHandle<TimeServerInfo> p) {
-            p->tick = tick;
+        world->view<TimeServerInfo>().each([&](Entity ent, auto &p) {
+            p.tick = tick;
             find = true;
         });
         if (!find)
         {
-            Entity *time_ent = world->create();
-            time_ent->assign<TimeServerInfo>(TimeServerInfo{tick: 0});
+            Entity time_ent = world->create();
+            world->assign<TimeServerInfo>(time_ent, TimeServerInfo{tick: 0});
             std::cerr << "Set tick to zero" << std::endl;
         }
     }
