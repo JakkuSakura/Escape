@@ -1,9 +1,7 @@
 #if !defined(ECSCORE_H)
 #define ECSCORE_H
-#include <ECS.h>
 #include "engine/system.h"
 #include "engine/utils.h"
-// #include <boost/bimap.hpp>
 #include <entt/entity/registry.hpp>
 namespace Escape
 {
