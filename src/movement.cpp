@@ -49,9 +49,9 @@ void Escape::MovementSystem::update(clock_type delta)
         fixtureDef.shape = &circle;
         if (world->has<BulletData>(ent))
         {
-            fixtureDef.density = 7.0f;
+            fixtureDef.density = 7e3f;
         } else {
-            fixtureDef.density = 1.0f;
+            fixtureDef.density = 1e3f;
         }
         // FIXME bullet will still slip
         fixtureDef.friction = 1e8f;
