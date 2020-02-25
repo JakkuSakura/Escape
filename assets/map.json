@@ -8,20 +8,20 @@
         },
         {
             "TYPE" : "AGENT",
-            "X" : 50,
-            "Y" : 200,
+            "X" : 5,
+            "Y" : 20,
             "WEAPON" : "HANDGUN"
         },
         {
             "TYPE" : "AGENT",
             "X" : 0,
-            "Y" : 200,
+            "Y" : 20,
             "WEAPON" : "HANDGUN"
         },
         {
             "TYPE" : "AGENT",
-            "X" : -50,
-            "Y" : 200,
+            "X" : -5,
+            "Y" : 20,
             "WEAPON" : "HANDGUN"
         }
     ],
@@ -29,9 +29,9 @@
         {
             "TYPE" : "BOX",
             "X" : 0,
-            "Y" : 100,
-            "WIDTH" : 300,
-            "HEIGHT" : 10,
+            "Y" : 10,
+            "WIDTH" : 20,
+            "HEIGHT" : 5,
             "ROTATION" : 30
         }
     ]

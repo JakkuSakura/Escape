@@ -40,6 +40,11 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 add_definitions(${Boost_DEFINITIONS})
 
+find_package(Box2D REQUIRED)
+include_directories(${BOX2D_INCLUDE_DIRS})
+link_directories(${BOX2D_LIBRARY_DIRS})
+add_definitions(${BOX2D_DEFINITIONS})
+
 #########################################################
 # Include Files
 #########################################################
@@ -48,7 +53,7 @@ add_executable(main ${SOURCES})
 ########################################################
 # Linking & stuff
 #########################################################
-target_link_libraries(main ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(main ${OGRE_LIBRARIES} ${Boost_LIBRARIES} ${BOX2D_LIBRARIES})
 
 add_custom_command(
         TARGET main POST_BUILD

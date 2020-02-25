@@ -87,7 +87,7 @@ void Escape::DisplayOgre::processInput() {
         {
             vel /= spd;
         }
-        vel *= 120.0f;
+        vel *= 12.0f;
     }
     logic->move(player, vel);
 
@@ -157,7 +157,7 @@ void Escape::DisplayOgre::postProcess() {
 void Escape::DisplayOgre::renderAgent(Escape::Entity ent) {
     auto [pos, health] = world->get<Position, Health>(ent);
     float percent = health.health / health.max_health;
-    auto pair = newBox(pos.x, pos.y, 32, 32, 1 - percent, percent, 0);
+    auto pair = newBox(pos.x, pos.y, 2, 2, 1 - percent, percent, 0);
     if(world->has<Rotation>(ent))
     {
         auto rotation = world->get<Rotation>(ent);
@@ -178,7 +178,7 @@ void Escape::DisplayOgre::renderTerrain(Escape::Entity ent) {
 
 void Escape::DisplayOgre::renderBullet(Escape::Entity ent) {
     auto &&pos = world->get<Position>(ent);
-    newBox(pos.x, pos.y, 2, 2);
+    newBox(pos.x, pos.y, .2, .2);
 }
 
 void Escape::DisplayOgre::windowResized(int width, int height) {

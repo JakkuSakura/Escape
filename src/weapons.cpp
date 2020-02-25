@@ -60,7 +60,7 @@ Escape::WeaponSystem::WeaponSystem()
         accuracy : 95,
         peice_number : 1,
         bullet_damage : 10,
-        bullet_speed : 300,
+        bullet_speed : 30,
     };
     default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
         type : WeaponType::SHOTGUN,
@@ -69,7 +69,7 @@ Escape::WeaponSystem::WeaponSystem()
         accuracy : 80,
         peice_number : 10,
         bullet_damage : 8,
-        bullet_speed : 300,
+        bullet_speed : 30,
     };
     default_weapons[WeaponType::SMG] = WeaponPrototype{
         type : WeaponType::SMG,
@@ -78,7 +78,7 @@ Escape::WeaponSystem::WeaponSystem()
         accuracy : 85,
         peice_number : 1,
         bullet_damage : 4,
-        bullet_speed : 300,
+        bullet_speed : 30,
     };
     default_weapons[WeaponType::RIFLE] = WeaponPrototype{
         type : WeaponType::RIFLE,
@@ -87,7 +87,7 @@ Escape::WeaponSystem::WeaponSystem()
         accuracy : 97,
         peice_number : 1,
         bullet_damage : 55,
-        bullet_speed : 500,
+        bullet_speed : 50,
     };
 }
 

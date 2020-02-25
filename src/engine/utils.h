@@ -27,16 +27,25 @@ inline void show_vec(const T &vec)
     std::cerr << std::endl;
 }
 using clock_type = float;
-#define FORWARD_CONSTRUCTORS(NewName, BaseName)                         \
-    template <typename... Args>                                         \
-    NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {} \
-    BaseName &unwrap()                                                  \
-    {                                                                   \
-        return *reinterpret_cast<BaseName *>(this);                     \
-    }                                                                   \
-    const BaseName &unwrap() const                                      \
-    {                                                                   \
-        return *reinterpret_cast<const BaseName *>(this);               \
+#define FORWARD_CONSTRUCTORS(NewName, BaseName)                              \
+    template <typename... Args>                                              \
+    NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {}      \
+    BaseName &unwrap()                                                       \
+    {                                                                        \
+        return *reinterpret_cast<BaseName *>(this);                          \
+    }                                                                        \
+    const BaseName &unwrap() const                                           \
+    {                                                                        \
+        return *reinterpret_cast<const BaseName *>(this);                    \
+    }                                                                        \
+    template <typename T>                                                    \
+    NewName &from(T &&src)                                                   \
+    {                                                                        \
+        /*static_assert(std::is_pod_v<T>,                                    \
+                      "The argument should be POD");  */                     \
+        static_assert(sizeof(NewName) == sizeof(T),                          \
+                      "The argument should have the same memory structure"); \
+        return *this = std::move(*reinterpret_cast<const BaseName *>(this)); \
     }
 
 class NewTypeBase

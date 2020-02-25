@@ -14,8 +14,8 @@ class InputState : public OgreBites::InputListener
 public:
     static const int MAX_KEY_NUM = 4096;
     bool keys[MAX_KEY_NUM] = {0};
-    float mouse_x, mouse_y;
-    bool mouse[4];
+    float mouse_x = 0, mouse_y = 0;
+    bool mouse[4]={0};
 
     virtual void frameRendered(const Ogre::FrameEvent &evt);
     virtual bool keyPressed(const OgreBites::KeyboardEvent &evt);
