@@ -26,24 +26,44 @@ inline void show_vec(const T &vec)
 
     std::cerr << std::endl;
 }
+#include <cstring>
+// template <typename... Args>
+// NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {}
 using clock_type = float;
 #define FORWARD_CONSTRUCTORS(NewName, BaseName)                              \
-    template <typename... Args>                                              \
-    NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {}      \
-    BaseName &unwrap()                                                       \
+    using base_type__ = BaseName;                                            \
+    using new_type__ = NewName;                                              \
+    using base_type__::base_type__;                                          \
+    NewName(const base_type__ &old) : base_type__(old)                       \
     {                                                                        \
-        return *reinterpret_cast<BaseName *>(this);                          \
     }                                                                        \
-    const BaseName &unwrap() const                                           \
+    base_type__ &unwrap()                                                    \
     {                                                                        \
-        return *reinterpret_cast<const BaseName *>(this);                    \
+        return *reinterpret_cast<base_type__ *>(this);                       \
+    }                                                                        \
+    const base_type__ &unwrap() const                                        \
+    {                                                                        \
+        return *reinterpret_cast<const base_type__ *>(this);                 \
     }                                                                        \
     template <typename T>                                                    \
-    NewName &from(T &&src)                                                   \
+    T &to()                                                                  \
     {                                                                        \
         static_assert(sizeof(NewName) == sizeof(T),                          \
                       "The argument should have the same memory structure"); \
-        return *this = std::move(*reinterpret_cast<const BaseName *>(&src)); \
+        return *reinterpret_cast<T *>(this);                                 \
+    }                                                                        \
+    template <typename T>                                                    \
+    const T &to() const                                                      \
+    {                                                                        \
+        static_assert(sizeof(NewName) == sizeof(T),                          \
+                      "The argument should have the same memory structure"); \
+        return *reinterpret_cast<const T *>(this);                           \
+    }                                                                        \
+    template <typename T>                                                    \
+    NewName &from(const T &src)                                              \
+    {                                                                        \
+        this->to<T>() = src;                                                 \
+        return *this;                                                        \
     }
 
 class NewTypeBase

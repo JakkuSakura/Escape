@@ -10,6 +10,7 @@ Escape::Entity Escape::AgentSystem::createAgent(Escape::World *world, const Esca
     world->assign<ID>(agent, ID{++index});
     world->assign<Health>(agent, 100);
     world->assign<Hitbox>(agent, Hitbox{radius: 1});
+    world->assign<Velocity>(agent);
     world->assign<Weapon>(agent, Weapon{WeaponType::HANDGUN, 0});
     return agent;
 

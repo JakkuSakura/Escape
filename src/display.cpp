@@ -130,7 +130,7 @@ void Escape::DisplayOgre::processInput() {
         logic->changeWeapon(player, WeaponType::RIFLE);
 
     if (input.keys['p'])
-        logic->agent_system->createAgent(Position(logic->timeserver->random(-200, 200), logic->timeserver->random(-200, 200)));
+        logic->agent_system->createAgent(Position(logic->timeserver->random(-50, 50), logic->timeserver->random(-50, 50)));
 
     if (input.keys['o'])
     {

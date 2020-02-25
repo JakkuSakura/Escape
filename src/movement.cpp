@@ -1,12 +1,21 @@
 #include "movement.h"
+#include <glm/glm.hpp>
 #include <Box2D/Box2D.h>
 #include <map>
 Escape::MovementSystem::MovementSystem()
 {
 }
-void Escape::MovementSystem::move(Entity ent, const glm::vec2 &speed)
+
+void Escape::MovementSystem::move(Entity ent, const Velocity &vel)
 {
-    world->assign_or_replace<Velocity>(ent, speed.x, speed.y);
+    if (!world->has<Velocity>(ent))
+    {
+        world->assign<Velocity>(ent, 0, 0);
+    }
+    world->replace<Velocity>(ent, [&](auto &v) {
+        v *= 0.93f;
+        v += vel * 0.7f;
+    });
 }
 
 void Escape::MovementSystem::update(clock_type delta)
@@ -34,7 +43,6 @@ void Escape::MovementSystem::update(clock_type delta)
         }
     });
 
-    // FIXME two agents will overlap
     // put agents and bullets in box2d
     world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
         b2BodyDef bodyDef;
@@ -45,21 +53,26 @@ void Escape::MovementSystem::update(clock_type delta)
         b2Body *body = b2d_world.CreateBody(&bodyDef);
         b2FixtureDef fixtureDef;
         b2CircleShape circle;
-        circle.m_radius = hit.radius;
+        // FIXME bullets not hitting
+        // TODO add some listener
+        circle.m_radius = hit.radius * 0.95;
         fixtureDef.shape = &circle;
         if (world->has<BulletData>(ent))
         {
             fixtureDef.density = 7e3f;
-        } else {
+            fixtureDef.friction = 1e6f;
+        }
+        else
+        {
             fixtureDef.density = 1e3f;
+            fixtureDef.friction = 0.1;
         }
         // FIXME bullet will still slip
-        fixtureDef.friction = 1e8f;
         body->CreateFixture(&fixtureDef);
 
         mapping[ent] = body;
     });
-    int velocityIterations = 6;
+    int velocityIterations = 2;
     int positionIterations = 2;
     b2d_world.Step(delta, velocityIterations, positionIterations);
 
@@ -70,7 +83,8 @@ void Escape::MovementSystem::update(clock_type delta)
         b2Vec2 velocity = body->GetLinearVelocity();
         pos.from(position);
         vel.from(velocity);
-
+        if (!world->has<BulletData>(ent))
+            vel *= .93;
     });
 
     // Only movement
