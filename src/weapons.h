@@ -20,7 +20,7 @@ class BulletSystem : public ECSSystem
 public:
     BulletSystem();
     void initialize() override;
-    void fire(Entity firer, BulletType type, float angle, float speed, float damage);
+    void fire(Entity firer, BulletType type, float angle, float speed, float damage, float distance);
     void update(clock_type delta) override;
 };
 class WeaponSystem : public ECSSystem

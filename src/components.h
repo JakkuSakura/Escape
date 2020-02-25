@@ -66,7 +66,9 @@ COMPONENT_NEW(WeaponPrototype,
               float accuracy;
               float peice_number;
               float bullet_damage;
-              float bullet_speed;);
+              float bullet_speed;
+              float gun_length;
+              );
 
 COMPONENT_NEW(Weapon,
               WeaponType weapon;

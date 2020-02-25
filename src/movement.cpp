@@ -19,6 +19,7 @@ void Escape::MovementSystem::update(clock_type delta)
         {
             b2BodyDef wallDef;
             wallDef.position.Set(pos.x, pos.y);
+            wallDef.angle = rot.radian;
             b2Body *wall = b2d_world.CreateBody(&wallDef);
             b2PolygonShape wallBox;
             wallBox.SetAsBox(ter.arguments[0] / 2, ter.arguments[1] / 2);
@@ -27,7 +28,7 @@ void Escape::MovementSystem::update(clock_type delta)
         }
     });
 
-    // put agents in box2d
+    // put agents and bullets in box2d
     world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
@@ -36,11 +37,11 @@ void Escape::MovementSystem::update(clock_type delta)
         bodyDef.linearVelocity.y = vel.y;
         b2Body *body = b2d_world.CreateBody(&bodyDef);
         b2FixtureDef fixtureDef;
-        b2PolygonShape dynamicBox;
-        dynamicBox.SetAsBox(hit.radius, hit.radius);
-        fixtureDef.shape = &dynamicBox;
+        b2CircleShape circle;
+        circle.m_radius = hit.radius;
+        fixtureDef.shape = &circle;
         fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0;
+        fixtureDef.friction = 3.0f;
         body->CreateFixture(&fixtureDef);
 
         mapping[ent] = body;

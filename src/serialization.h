@@ -138,6 +138,7 @@ inline void serialize(Archive &ar, Escape::WeaponPrototype &p, const unsigned in
     ar &p.peice_number;
     ar &p.bullet_damage;
     ar &p.bullet_speed;
+    ar &p.gun_length;
 }
 template <typename Archive>
 inline void serialize(Archive &ar, Escape::Weapon &p, const unsigned int version)

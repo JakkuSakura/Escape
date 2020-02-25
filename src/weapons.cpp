@@ -13,19 +13,21 @@ void Escape::BulletSystem::initialize()
     lifespan = findSystem<LifespanSystem>();
 }
 
-void Escape::BulletSystem::fire(Entity firer, BulletType type, float angle, float speed, float damage)
+void Escape::BulletSystem::fire(Entity firer, BulletType type, float angle, float speed, float damage, float distance)
 {
     Entity bullet = world->create();
     world->assign<Name>(bullet, "bullet");
-    world->assign<BulletData>(bullet, BulletData{firer_id : world->get<ID>(
-                                                                     firer)
-                                                     .id,
-                                                 type : type,
-                                                 damage : damage,
-                                                 hit : false});
-    world->assign<Hitbox>(bullet, Hitbox{radius: 0.2});
-    world->assign<Velocity>(bullet, speed * cos(angle), speed * sin(angle));
-    world->assign<Position>(bullet, world->get<Position>(firer));
+    auto data = BulletData{firer_id : world->get<ID>(firer).id,
+                           type : type,
+                           damage : damage,
+                           hit : false};
+    world->assign<BulletData>(bullet, data);
+    world->assign<Hitbox>(bullet, Hitbox{radius : 0.2});
+
+    glm::vec2 ang(cos(angle), sin(angle));
+
+    world->assign<Velocity>(bullet, speed * ang);
+    world->assign<Position>(bullet, world->get<Position>(firer) + ang * distance);
     world->assign<Lifespan>(bullet, lifespan->period(3));
 }
 
@@ -62,6 +64,7 @@ Escape::WeaponSystem::WeaponSystem()
         peice_number : 1,
         bullet_damage : 10,
         bullet_speed : 30,
+        gun_length : 2.1,
     };
     default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
         type : WeaponType::SHOTGUN,
@@ -71,6 +74,7 @@ Escape::WeaponSystem::WeaponSystem()
         peice_number : 10,
         bullet_damage : 8,
         bullet_speed : 30,
+        gun_length : 2.5,
     };
     default_weapons[WeaponType::SMG] = WeaponPrototype{
         type : WeaponType::SMG,
@@ -80,6 +84,7 @@ Escape::WeaponSystem::WeaponSystem()
         peice_number : 1,
         bullet_damage : 4,
         bullet_speed : 30,
+        gun_length : 2.3,
     };
     default_weapons[WeaponType::RIFLE] = WeaponPrototype{
         type : WeaponType::RIFLE,
@@ -89,6 +94,7 @@ Escape::WeaponSystem::WeaponSystem()
         peice_number : 1,
         bullet_damage : 55,
         bullet_speed : 50,
+        gun_length : 3,
     };
 }
 
@@ -113,7 +119,7 @@ void Escape::WeaponSystem::fire(Entity ent, float angle)
             {
 
                 bullet_system->fire(ent, prototype.bullet_type, angle + timeserver->random(-angle_diff, angle_diff),
-                                    prototype.bullet_speed, prototype.bullet_damage);
+                                    prototype.bullet_speed, prototype.bullet_damage, prototype.gun_length);
             }
             weapon.last = timeserver->now();
             weapon.next = timeserver->now() + prototype.cd;

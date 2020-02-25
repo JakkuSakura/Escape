@@ -33,6 +33,32 @@ std::pair<Ogre::SceneNode *, Ogre::Entity *> Escape::DisplayOgre::newBox(float c
     return std::make_pair(cubeNode, cube);
 }
 
+std::pair<Ogre::SceneNode *, Ogre::Entity *> Escape::DisplayOgre::newCircle(float cx, float cy, float width, float height, float r, float g, float b) {
+    auto pair = newCircle(cx, cy, width, height);
+    Ogre::Entity *cube = pair.second;
+    char name[32];
+    sprintf(name, "Color(%d,%d,%d)", (int)(r * 255), (int)(g * 255), (int)(b * 255));
+    auto material = Ogre::MaterialManager::getSingleton().getByName(name);
+    if (!material)
+    {
+        material = Ogre::MaterialManager::getSingleton().getByName("white")->clone(name);
+        material->setDiffuse(r, g, b, 1);
+    }
+    cube->setMaterial(material);
+    return pair;
+}
+
+std::pair<Ogre::SceneNode *, Ogre::Entity *> Escape::DisplayOgre::newCircle(float cx, float cy, float width, float height) {
+    Ogre::SceneNode *cubeNode = rects->createChildSceneNode();
+    cubeNode->setScale(width / 100, height / 100, 1.0 / 100);
+    cubeNode->setPosition(cx, cy, 0);
+
+    Ogre::Entity *cube = scnMgr->createEntity("Prefab_Sphere");
+    cube->setMaterialName("white");
+
+    cubeNode->attachObject(cube);
+    return std::make_pair(cubeNode, cube);
+}
 Ogre::Vector3 Escape::DisplayOgre::pickUp(unsigned int absoluteX, unsigned int absoluteY) {
     float width = (float)cam->getViewport()->getActualWidth();   // viewport width
     float height = (float)cam->getViewport()->getActualHeight(); // viewport height
@@ -157,7 +183,7 @@ void Escape::DisplayOgre::postProcess() {
 void Escape::DisplayOgre::renderAgent(Escape::Entity ent) {
     auto [pos, health] = world->get<Position, Health>(ent);
     float percent = health.health / health.max_health;
-    auto pair = newBox(pos.x, pos.y, 2, 2, 1 - percent, percent, 0);
+    auto pair = newCircle(pos.x, pos.y, 2, 2, 1 - percent, percent, 0);
     if(world->has<Rotation>(ent))
     {
         auto rotation = world->get<Rotation>(ent);
