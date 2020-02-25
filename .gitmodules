@@ -5,9 +5,7 @@
 [submodule "vendor/stb"]
 	path = vendor/stb
 	url = https://github.com/nothings/stb
-[submodule "vendor/entt"]
-	path = vendor/entt
-	url = https://github.com/qiujiangkun/entt
+	
 [submodule "vendor/json"]
 	path = vendor/json
 	url = https://github.com/nlohmann/json
