@@ -9,7 +9,7 @@
 #include "engine/utils.h"
 #include "weapons.h"
 #include "movement.h"
-// #include "serialization.h"
+#include "serialization.h"
 #include "agent.h"
 #include <sstream>
 
@@ -209,30 +209,30 @@ public:
         if (input.keys['p'])
             logic->agent_system->createAgent(Position(logic->timeserver->random(-200, 200), logic->timeserver->random(-200, 200)));
 
-        // if (input.keys['o'])
-        // {
-        //     try
-        //     {
-        //         std::cerr << "Writing map file" << std::endl;
-        //         SerializationHelper helper("map.txt");
-        //         helper.serialize_ptr(world);
-        //     }
-        //     catch (std::runtime_error &e)
-        //     {
-        //         std::cerr << "error " << e.what() << std::endl;
-        //     }
-        //     catch (std::exception &e)
-        //     {
-        //         std::cerr << "error " << e.what() << std::endl;
-        //     }
-        // }
-        // if (input.keys['i'])
-        // {
-        //     std::cerr << "Reading map file" << std::endl;
-        //     SerializationHelper helper("map.txt");
-        //     helper.deserialize_ptr(world);
-        //     // FIXME sometimes with bullets flying it chrushes
-        // }
+        if (input.keys['o'])
+        {
+            try
+            {
+                std::cerr << "Writing map file" << std::endl;
+                SerializationHelper helper("map.txt");
+                helper.serialize_ptr(world);
+            }
+            catch (std::runtime_error &e)
+            {
+                std::cerr << "error " << e.what() << std::endl;
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "error " << e.what() << std::endl;
+            }
+        }
+        if (input.keys['i'])
+        {
+            std::cerr << "Reading map file" << std::endl;
+            SerializationHelper helper("map.txt");
+            helper.deserialize_ptr(world);
+            // FIXME sometimes with bullets flying it chrushes
+        }
     }
     void render() override
     {

@@ -30,19 +30,19 @@ public:
     {
         Entity bullet = world->create();
         world->assign<Name>(bullet, "bullet");
-        world->assign<BulletData>(bullet, BulletData{firer_id : entt::to_integer(firer), type : type, damage : damage, hit : false});
+        world->assign<BulletData>(bullet, BulletData{firer_id : world->get<ID>(firer).id, type : type, damage : damage, hit : false});
         world->assign<Velocity>(bullet, speed * cos(angle), speed * sin(angle));
         world->assign<Position>(bullet, world->get<Position>(firer));
         world->assign<Lifespan>(bullet, lifespan->period(3));
     }
     void update(clock_type delta) override
     {
-        world->view<Hitbox, Position, Health>().each([&](Entity ent, auto &hitbox, auto &position, auto &health) {
+        world->view<Hitbox, Position, Health, ID>().each([&](Entity ent, auto &hitbox, auto &position, auto &health, auto id) {
             if (health.health <= 0)
                 return;
 
             world->view<BulletData, Position>().each([&](Entity bullet, auto &bullet_data, auto &position_bullet) {
-                if (bullet_data.firer_id == entt::to_integer(ent))
+                if (bullet_data.firer_id == id.id)
                     return;
                 if (glm::distance2(position_bullet.unwrap(), position.unwrap()) <= hitbox.radius * hitbox.radius) // hit
                 {
@@ -109,29 +109,21 @@ public:
     }
     void fire(Entity ent, float angle)
     {
-        TRACE();
         if (world->has<Weapon>(ent))
         {
-            TRACE();
             auto weapon = world->get<Weapon>(ent);
-            TRACE();
 
             const WeaponPrototype &prototype = default_weapons.at(weapon.weapon);
             if (timeserver->now() >= weapon.next)
             {
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
-                TRACE();
 
                 for (size_t i = 0; i < prototype.peice_number; i++)
                 {
-                    TRACE();
 
                     bullet_system->fire(ent, prototype.bullet_type, angle + timeserver->random(-angle_diff, angle_diff), prototype.bullet_speed, prototype.bullet_damage);
-
-                    TRACE();
                 }
                 weapon.last = timeserver->now();
-                TRACE();
 
                 weapon.next = timeserver->now() + prototype.cd;
             }

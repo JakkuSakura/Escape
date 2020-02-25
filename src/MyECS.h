@@ -3,7 +3,7 @@
 #include <ECS.h>
 #include "engine/system.h"
 #include "engine/utils.h"
-#include <boost/bimap.hpp>
+// #include <boost/bimap.hpp>
 #include <entt/entity/registry.hpp>
 namespace Escape
 {
@@ -43,29 +43,30 @@ public:
     }
 };
 
-class ComponentRegister : public boost::bimap<std::string, ECS::TypeIndex>
-{
-    ComponentRegister(){};
+// class ComponentRegister : public boost::bimap<std::string, ECS::TypeIndex>
+// {
+//     ComponentRegister(){};
 
-public:
-    static ComponentRegister &getInstance();
-    void registerPair(const std::string &str, ECS::TypeIndex info)
-    {
-        insert(value_type(str, info));
-    }
-    ECS::TypeIndex getTypeInfo(const std::string &str) const
-    {
-        return left.at(str);
-    }
-    std::string getName(ECS::TypeIndex info) const
-    {
-        return right.at(info);
-    }
-};
-#define REGISTER(New) RUN( \
-                            \
-    ComponentRegister::getInstance().registerPair(#New, ECS::getTypeIndex<New>()); \
-    )
+// public:
+//     static ComponentRegister &getInstance();
+//     void registerPair(const std::string &str, ECS::TypeIndex info)
+//     {
+//         insert(value_type(str, info));
+//     }
+//     ECS::TypeIndex getTypeInfo(const std::string &str) const
+//     {
+//         return left.at(str);
+//     }
+//     std::string getName(ECS::TypeIndex info) const
+//     {
+//         return right.at(info);
+//     }
+// };
+#define REGISTER(New)
+// #define REGISTER(New) RUN( \
+//                             \
+//     ComponentRegister::getInstance().registerPair(#New, ECS::getTypeIndex<New>()); \
+//     )
 
 #define COMPONENT_AS(New, Old) \
     NEW_TYPE(New, Old);        \

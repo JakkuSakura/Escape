@@ -7,6 +7,7 @@ namespace Escape
 {
 class AgentSystem : public ECSSystem
 {
+    size_t index = 0;
 public:
     Entity createAgent(const Position &pos)
     {
@@ -14,6 +15,7 @@ public:
         Entity agent = world->create();
         world->assign<Name>(agent, "agent");
         world->assign<Position>(agent, pos);
+        world->assign<ID>(agent, ID{++index});
         world->assign<Health>(agent, 100);
         world->assign<Hitbox>(agent, Hitbox{radius: 16});
         world->assign<Weapon>(agent, Weapon{WeaponType::HANDGUN, 0});

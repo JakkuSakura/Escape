@@ -9,6 +9,10 @@ COMPONENT_AS(Name, std::string);
 COMPONENT_AS(Position, glm::vec2);
 COMPONENT_AS(Velocity, glm::vec2);
 
+COMPONENT_NEW(ID, 
+    size_t id;
+);
+
 COMPONENT_NEW(Hitbox,
     float radius;
 );
