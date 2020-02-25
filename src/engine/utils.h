@@ -41,11 +41,9 @@ using clock_type = float;
     template <typename T>                                                    \
     NewName &from(T &&src)                                                   \
     {                                                                        \
-        /*static_assert(std::is_pod_v<T>,                                    \
-                      "The argument should be POD");  */                     \
         static_assert(sizeof(NewName) == sizeof(T),                          \
                       "The argument should have the same memory structure"); \
-        return *this = std::move(*reinterpret_cast<const BaseName *>(this)); \
+        return *this = std::move(*reinterpret_cast<const BaseName *>(&src)); \
     }
 
 class NewTypeBase
@@ -56,6 +54,7 @@ class NewTypeBase
     {                                                             \
         FORWARD_CONSTRUCTORS(NewName, BaseName);                  \
     }
+
 #define TOKENPASTE(x, y) x##y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)
 #define RUN(codes)                  \
