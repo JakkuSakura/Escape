@@ -27,18 +27,20 @@ void Escape::MovementSystem::update(clock_type delta)
         }
     });
 
-    // put stuff in box2d
-    world->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
+    // put agents in box2d
+    world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
         bodyDef.position.Set(pos.x, pos.y);
+        bodyDef.linearVelocity.x = vel.x;
+        bodyDef.linearVelocity.y = vel.y;
         b2Body *body = b2d_world.CreateBody(&bodyDef);
         b2FixtureDef fixtureDef;
         b2PolygonShape dynamicBox;
-        dynamicBox.SetAsBox(1.0f, 1.0f);
+        dynamicBox.SetAsBox(hit.radius, hit.radius);
         fixtureDef.shape = &dynamicBox;
         fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
+        fixtureDef.friction = 0;
         body->CreateFixture(&fixtureDef);
 
         mapping[ent] = body;

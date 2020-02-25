@@ -59,15 +59,11 @@ World *ReadMap::readMapFile(World *world)
         auto &ter = js["TERRAINS"][i];
         if (ter["TYPE"] == "BOX")
         {
-            TRACE();
+
             Position pos(ter["X"].get<float>(), ter["Y"].get<float>());
-            TRACE();
-
             Rotation rot{ter["ROTATION"].get<float>() / (float)M_PI * 180};
-            TRACE();
-
             TerrainData data{type : TerrainType::BOX, {ter["WIDTH"].get<float>(), ter["HEIGHT"].get<float>()}};
-            TRACE();
+
             auto entity = world->create();
             world->assign<Name>(entity, "box");
             world->assign<Position>(entity, pos);

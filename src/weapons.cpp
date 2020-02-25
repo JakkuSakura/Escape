@@ -1,5 +1,5 @@
 #include "weapons.h"
-
+#include "components.h"
 namespace Escape
 {
 
@@ -23,6 +23,7 @@ void Escape::BulletSystem::fire(Entity firer, BulletType type, float angle, floa
                                                  type : type,
                                                  damage : damage,
                                                  hit : false});
+    world->assign<Hitbox>(bullet, Hitbox{radius: 0.2});
     world->assign<Velocity>(bullet, speed * cos(angle), speed * sin(angle));
     world->assign<Position>(bullet, world->get<Position>(firer));
     world->assign<Lifespan>(bullet, lifespan->period(3));
