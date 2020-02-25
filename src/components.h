@@ -17,6 +17,10 @@ COMPONENT_NEW(Hitbox,
     float radius;
 );
 
+COMPONENT_NEW(Rotation,
+    float radian;
+);
+
 COMPONENT_NEW(Control,
     int player;
 );
@@ -83,12 +87,14 @@ enum class Terrain {
 };
 COMPONENT_NEW(TerrainData,
     Terrain type;
+    float arguments[16];
 );
 
 } // namespace Escape
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Escape::Position); \
     func(Escape::Name); \
+    func(Escape::Rotation); \
     func(Escape::ID); \
     func(Escape::Velocity); \
     func(Escape::Health); \

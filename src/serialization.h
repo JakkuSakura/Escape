@@ -79,6 +79,11 @@ inline void serialize(Archive &ar, Escape::Hitbox &p, const unsigned int version
 {
     ar &p.radius;
 }
+template <typename Archive>
+inline void serialize(Archive &ar, Escape::Rotation &p, const unsigned int version)
+{
+    ar &p.radian;
+}
 
 template <typename Archive>
 inline void serialize(Archive &ar, Escape::ID &p, const unsigned int version)
@@ -102,6 +107,7 @@ template <typename Archive>
 inline void serialize(Archive &ar, Escape::TerrainData &p, const unsigned int version)
 {
     ar &p.type;
+    ar &p.arguments;
 }
 
 template <typename Archive>

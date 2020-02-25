@@ -7,11 +7,13 @@ namespace Escape
 {
 class ReadMap
 {
-private:
-    std::vector<>
 public:
+typedef std::vector<std::tuple<TerrainData, Position, Rotation>> EleListType;
     ReadMap(const std::string &filaname);
+    const EleListType &readMapFile();
     ~ReadMap();
+private:
+    EleListType data;
 };
 
 
