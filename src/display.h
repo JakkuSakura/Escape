@@ -49,7 +49,7 @@ namespace Escape {
         virtual void postProcess() override;
 
         void renderAgent(Entity ent);
-
+        void renderTerrain(Escape::Entity ent);
         void renderBullet(Entity ent);
 
         void windowResized(int width, int height) override;

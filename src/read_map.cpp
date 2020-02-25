@@ -69,6 +69,7 @@ World *ReadMap::readMapFile(World *world)
             TerrainData data{type : TerrainType::BOX, {ter["WIDTH"].get<float>(), ter["HEIGHT"].get<float>()}};
             TRACE();
             auto entity = world->create();
+            world->assign<Name>(entity, "box");
             world->assign<Position>(entity, pos);
             world->assign<Rotation>(entity, rot);
             world->assign<TerrainData>(entity, data);

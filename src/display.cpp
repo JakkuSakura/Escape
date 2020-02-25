@@ -4,6 +4,7 @@
 
 #include "display.h"
 #include "logic.h"
+#include <OgreQuaternion.h>
 std::pair<Ogre::SceneNode *, Ogre::Entity *>
 Escape::DisplayOgre::newBox(float cx, float cy, float width, float height, float r, float g, float b) {
     auto pair = newBox(cx, cy, width, height);
@@ -142,6 +143,10 @@ void Escape::DisplayOgre::render() {
         {
             renderBullet(ent);
         }
+        if (name == "box")
+        {
+            renderTerrain(ent);
+        }
     });
 }
 
@@ -152,7 +157,23 @@ void Escape::DisplayOgre::postProcess() {
 void Escape::DisplayOgre::renderAgent(Escape::Entity ent) {
     auto [pos, health] = world->get<Position, Health>(ent);
     float percent = health.health / health.max_health;
-    newBox(pos.x, pos.y, 32, 32, 1 - percent, percent, 0);
+    auto pair = newBox(pos.x, pos.y, 32, 32, 1 - percent, percent, 0);
+    if(world->has<Rotation>(ent))
+    {
+        auto rotation = world->get<Rotation>(ent);
+        pair.first->setOrientation(Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
+        
+    }
+}
+void Escape::DisplayOgre::renderTerrain(Escape::Entity ent) {
+    auto [pos, ter] = world->get<Position, TerrainData>(ent);
+    auto pair = newBox(pos.x, pos.y, ter.arguments[0], ter.arguments[1], .5, .5, .5);
+    if(world->has<Rotation>(ent))
+    {
+        auto rotation = world->get<Rotation>(ent);
+        pair.first->setOrientation(Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
+        
+    }
 }
 
 void Escape::DisplayOgre::renderBullet(Escape::Entity ent) {
