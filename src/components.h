@@ -77,6 +77,13 @@ COMPONENT_NEW(Weapon,
     float last;
     float next;
 );
+enum class Terrain {
+    BOX,
+    CIRCLE
+};
+COMPONENT_NEW(TerrainData,
+    Terrain type;
+);
 
 } // namespace Escape
 #define FOREACH_COMPONENT_TYPE(func) \
@@ -91,6 +98,8 @@ COMPONENT_NEW(Weapon,
     func(Escape::BulletData); \
     func(Escape::Lifespan); \
     func(Escape::TimeServerInfo); \
-    func(Escape::Control);
+    func(Escape::Control); \
+    func(Escape::TerrainData);
+
     
 #endif // COMPONENTS_H

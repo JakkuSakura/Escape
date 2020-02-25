@@ -99,6 +99,12 @@ inline void serialize(Archive &ar, Escape::Control &p, const unsigned int versio
 }
 
 template <typename Archive>
+inline void serialize(Archive &ar, Escape::TerrainData &p, const unsigned int version)
+{
+    ar &p.type;
+}
+
+template <typename Archive>
 inline void serialize(Archive &ar, Escape::Lifespan &p, const unsigned int version)
 {
     ar &p.begin &p.end;
