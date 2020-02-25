@@ -15,36 +15,15 @@ protected:
     clock_type delta;
 
 public:
-    Window(const std::string &title, int width, int height)
-    {
-        this->title = title;
-        this->width = width;
-        this->height = height;
-    };
+    Window(const std::string &title, int width, int height);;
     virtual void render() = 0;
-    virtual void update(clock_type delta)
-    {
-        this->delta = delta;
-        processInput();
-        render();
-        postProcess();
-    }
-    virtual void postProcess()
-    {
-    }
+    virtual void update(clock_type delta);
+    virtual void postProcess();
     virtual bool isRunning() { return true; };
-    virtual void processInput()
-    {
-    }
-    virtual ~Window()
-    {
-    }
+    virtual void processInput();
+    virtual ~Window();
 
-    virtual void windowResized(int width, int height)
-    {
-        this->width = width;
-        this->height = height;
-    }
+    virtual void windowResized(int width, int height);
 };
 
 } // namespace Escape

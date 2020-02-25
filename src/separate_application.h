@@ -7,25 +7,10 @@ namespace Escape
 class SeparateApplication : public Application
 {
 public:
-    SeparateApplication(Window *window, System *core)
-    {
-        this->window = window;
-        this->core = core;
-        addSubSystem(window);
-        addSubSystem(core);
-    }
-    virtual bool isRunning() override
-    {
-        return window->isRunning();
-    }
-    Window *getWindow() const
-    {
-        return window;
-    }
-    System *getCore() const
-    {
-        return core;
-    }
+    SeparateApplication(Window *window, System *core);
+    virtual bool isRunning() override;
+    Window *getWindow() const;
+    System *getCore() const;
 
 private:
     Window *window;
