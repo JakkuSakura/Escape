@@ -20,14 +20,21 @@ void Escape::MovementSystem::update(clock_type delta)
             b2BodyDef wallDef;
             wallDef.position.Set(pos.x, pos.y);
             wallDef.angle = rot.radian;
-            b2Body *wall = b2d_world.CreateBody(&wallDef);
+
             b2PolygonShape wallBox;
             wallBox.SetAsBox(ter.arguments[0] / 2, ter.arguments[1] / 2);
-            wall->CreateFixture(&wallBox, 0.0f);
+            b2FixtureDef fixtureDef;
+            fixtureDef.shape = &wallBox;
+            fixtureDef.density = 0;
+            fixtureDef.friction = 1e6f;
+            b2Body *wall = b2d_world.CreateBody(&wallDef);
+            wall->CreateFixture(&fixtureDef);
+
             mapping[ent] = wall;
         }
     });
 
+    // FIXME two agents will overlap
     // put agents and bullets in box2d
     world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
         b2BodyDef bodyDef;
@@ -40,8 +47,14 @@ void Escape::MovementSystem::update(clock_type delta)
         b2CircleShape circle;
         circle.m_radius = hit.radius;
         fixtureDef.shape = &circle;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 3.0f;
+        if (world->has<BulletData>(ent))
+        {
+            fixtureDef.density = 7.0f;
+        } else {
+            fixtureDef.density = 1.0f;
+        }
+        // FIXME bullet will still slip
+        fixtureDef.friction = 1e8f;
         body->CreateFixture(&fixtureDef);
 
         mapping[ent] = body;
