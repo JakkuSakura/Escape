@@ -81,12 +81,12 @@ COMPONENT_NEW(Weapon,
     float last;
     float next;
 );
-enum class Terrain {
+enum class TerrainType {
     BOX,
     CIRCLE
 };
 COMPONENT_NEW(TerrainData,
-    Terrain type;
+    TerrainType type;
     float arguments[16];
 );
 

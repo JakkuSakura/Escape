@@ -1,0 +1,38 @@
+{
+    "AGENTS" : [
+        {
+            "TYPE" : "PLAYER",
+            "X" : 0,
+            "Y" : 0,
+            "WEAPON" : "HANDGUN"
+        },
+        {
+            "TYPE" : "AGENT",
+            "X" : 50,
+            "Y" : 200,
+            "WEAPON" : "HANDGUN"
+        },
+        {
+            "TYPE" : "AGENT",
+            "X" : 0,
+            "Y" : 200,
+            "WEAPON" : "HANDGUN"
+        },
+        {
+            "TYPE" : "AGENT",
+            "X" : -50,
+            "Y" : 200,
+            "WEAPON" : "HANDGUN"
+        }
+    ],
+    "TERRAINS" : [
+        {
+            "TYPE" : "BOX",
+            "X" : 0,
+            "Y" : 100,
+            "WIDTH" : 300,
+            "HEIGHT" : 10,
+            "ROTATION" : 0
+        }
+    ]
+}

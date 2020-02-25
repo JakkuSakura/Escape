@@ -3,7 +3,7 @@
 //
 
 #include "logic.h"
-
+#include "read_map.h"
 namespace Escape {
     class InitMap : public Escape::ECSSystem {
         Escape::Logic *logic;
@@ -15,11 +15,13 @@ namespace Escape {
     };
 
     void InitMap::initialize() {
-        Escape::Entity player = logic->agent_system->createAgent(Position(0, 0));
-        logic->world->assign<Control>(player, Control{player : 1});
-        logic->agent_system->createAgent(Position(-200, 200));
-        logic->agent_system->createAgent(Position(0, 200));
-        logic->agent_system->createAgent(Position(200, 200));
+        ReadMap reader("assets/map.json");
+        reader.readMapFile(logic->world);
+        // Escape::Entity player = logic->agent_system->createAgent(Position(0, 0));
+        // logic->world->assign<Control>(player, Control{player : 1});
+        // logic->agent_system->createAgent(Position(-200, 200));
+        // logic->agent_system->createAgent(Position(0, 200));
+        // logic->agent_system->createAgent(Position(200, 200));
     }
 
     Escape::Entity Escape::Logic::getPlayer() {
@@ -29,7 +31,6 @@ namespace Escape {
                 player = ent;
             }
         });
-        assert(player != entt::null);
         return player;
     }
 

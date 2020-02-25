@@ -3,17 +3,17 @@
 #include "components.h"
 #include <string>
 #include <vector>
+#include "MyECS.h"
 namespace Escape
 {
 class ReadMap
 {
-public:
-typedef std::vector<std::tuple<TerrainData, Position, Rotation>> EleListType;
-    ReadMap(const std::string &filaname);
-    const EleListType &readMapFile();
-    ~ReadMap();
 private:
-    EleListType data;
+    std::string filename;
+public:
+    ReadMap(const std::string &filaname);
+    World *readMapFile(World *world);
+    ~ReadMap();
 };
 
 

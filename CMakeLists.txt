@@ -21,7 +21,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 
-include_directories(vendor/glm/ vendor/stb/ vendor/ECS/ vendor/entt/src)
+include_directories(vendor/glm vendor/stb vendor/ECS vendor/entt/src vendor/json/single_include/nlohmann)
 
 # specify which version and components you need
 find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)
