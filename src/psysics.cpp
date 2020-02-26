@@ -1,36 +1,34 @@
 #include "psysics.h"
-#include <glm/glm.hpp>
 #include <Box2D/Box2D.h>
 #include <map>
 
 namespace Escape {
-    struct StickyInfo {
-        b2Body *arrowBody;
-        b2Body *targetBody;
-    };
+    struct ContactListener : public b2ContactListener {
+        World *world;
 
-    struct ContactListener : b2ContactListener {
-        std::vector<StickyInfo> m_collisionsToMakeSticky;
-
-        void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
-            b2Fixture *fixtureA = contact->GetFixtureA();
-            b2Fixture *fixtureB = contact->GetFixtureB();
-
-            StickyInfo si;
-            si.targetBody = fixtureA->GetBody();
-            si.arrowBody = fixtureB->GetBody();
-            m_collisionsToMakeSticky.push_back(si);
+        ContactListener(World *world) : world(world) {
         }
 
-        void process(World *world) {
+        void process(entt::entity a, entt::entity b) {
 
-            //in Step function, immediately after calling world step
-            for (int i = 0; i < m_collisionsToMakeSticky.size(); i++) {
-                StickyInfo &si = m_collisionsToMakeSticky[i];
-                si.arrowBody->SetLinearVelocity(b2Vec2(0, 0));
-                si.targetBody->SetLinearVelocity(b2Vec2(0, 0));
+            if (!world->has<CollisionResults>(a)) {
+                world->assign<CollisionResults>(a);
             }
-            m_collisionsToMakeSticky.clear();
+            CollisionResults &results = world->get<CollisionResults>(a);
+            results.results.push_back(Collision{.hit_with = b});
+        }
+
+        void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
+            void *A = contact->GetFixtureA()->GetBody()->GetUserData();
+            void *B = contact->GetFixtureB()->GetBody()->GetUserData();
+            entt::entity a = *(entt::entity *) &A;
+            entt::entity b = *(entt::entity *) &B;
+            process(a, b);
+            process(b, a);
+        }
+
+        void PostPostProcess() {
+
         }
 
     };
@@ -39,15 +37,17 @@ namespace Escape {
     }
 
     void PhysicsSystem::update(clock_type delta) {
+        ContactListener listener(world);
         b2World b2d_world(b2Vec2(0, 0));
+
         std::map<entt::entity, b2Body *> mapping;
+        world->clear<CollisionResults>();
         // Put walls into box2d
         world->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
             if (ter.type == TerrainType::BOX) {
                 b2BodyDef wallDef;
                 wallDef.position.Set(pos.x, pos.y);
                 wallDef.angle = rot.radian;
-                wallDef.userData = (void *) ent;
                 b2PolygonShape wallBox;
                 wallBox.SetAsBox(ter.arguments[0] / 2, ter.arguments[1] / 2);
                 b2FixtureDef fixtureDef;
@@ -56,21 +56,21 @@ namespace Escape {
                 fixtureDef.friction = 1e6f;
                 b2Body *wall = b2d_world.CreateBody(&wallDef);
                 wall->CreateFixture(&fixtureDef);
+                wall->SetUserData((void *) (ent));
 
                 mapping[ent] = wall;
+
             }
         });
 
         // put agents and bullets in box2d
         world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
             b2BodyDef bodyDef;
-            bodyDef.userData = (void *) ent;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(pos.x, pos.y);
             bodyDef.linearVelocity.x = vel.x;
             bodyDef.linearVelocity.y = vel.y;
-            // FIXME bullets not hitting
-            // TODO add some listener
+
             b2CircleShape circle;
             circle.m_radius = hit.radius;
 
@@ -88,10 +88,11 @@ namespace Escape {
                 fixtureDef.friction = 0.1;
                 bodyDef.linearDamping = 15;
             }
-            // FIXME bullet will still slip
+
             b2Body *body = b2d_world.CreateBody(&bodyDef);
             body->CreateFixture(&fixtureDef);
 
+            body->SetUserData((void *) (ent));
             mapping[ent] = body;
         });
 
@@ -104,13 +105,17 @@ namespace Escape {
                     }
                 });
 
-        ContactListener listener;
+
+        b2d_world.SetContactListener(&listener);
+
+        // set very fast options
         int velocityIterations = 1;
         int positionIterations = 1;
         b2d_world.SetSubStepping(false);
-        b2d_world.SetContactListener(&listener);
+        b2d_world.SetContinuousPhysics(false);
+
         b2d_world.Step(delta, velocityIterations, positionIterations);
-        listener.process(world);
+        listener.PostPostProcess();
 
         // fetch data
         world->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {

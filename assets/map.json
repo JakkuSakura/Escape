@@ -31,8 +31,16 @@
             "X" : 0,
             "Y" : 10,
             "WIDTH" : 20,
-            "HEIGHT" : 5,
+            "HEIGHT" : 2,
             "ROTATION" : 30
+        },
+        {
+            "TYPE" : "BOX",
+            "X" : 0,
+            "Y" : 10,
+            "WIDTH" : 20,
+            "HEIGHT" : 2,
+            "ROTATION" : 120
         }
     ]
 }

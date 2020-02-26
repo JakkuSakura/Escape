@@ -19,7 +19,9 @@ namespace Escape {
     };
 
     class TimeServer : public ECSSystem {
+        typedef std::chrono::steady_clock clock_type;
         float freq, delta;
+        clock_type::time_point last;
         std::default_random_engine engine;
 
     public:
@@ -37,9 +39,9 @@ namespace Escape {
 
         void setTick(size_t tick);
 
-        clock_type now();
+        ::clock_type now();
 
-        clock_type getDelta();
+        ::clock_type getDelta();
     };
 } // namespace Escape
 

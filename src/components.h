@@ -43,8 +43,9 @@ namespace Escape {
             ar & unwrap();
         }
     };
+
     struct Collision {
-        entt::entity hit_by;
+        entt::entity hit_with;
     };
     struct CollisionResults {
         std::vector<Collision> results;
@@ -130,11 +131,10 @@ namespace Escape {
         float damage;
         float density;
         float radius;
-        bool hit;
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & firer_id & type & damage & hit;
+            ar & firer_id & type & damage & density & radius;
         }
 
     };

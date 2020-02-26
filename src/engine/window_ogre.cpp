@@ -124,7 +124,7 @@ void WindowOgre::setup() {
     cam->setNearClipDistance(5); // specific to this sample
     cam->setAutoAspectRatio(true);
     cam->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
-    cam->setOrthoWindowHeight(60);
+    cam->setOrthoWindowHeight(50);
     camNode->attachObject(cam);
 
     // and tell it to render into the main window

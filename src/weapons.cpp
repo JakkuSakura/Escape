@@ -18,8 +18,10 @@ namespace Escape {
                 .type =  type,
                 .damage =  damage,
                 .density = 7.6,
-                .radius = 0.2,
-                .hit =  false};
+                .radius = 0.3,
+        };
+        if(type == BulletType::SHOTGUN_SHELL)
+            data.radius = 0.1;
         world->assign<BulletData>(bullet, data);
         world->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
 
@@ -31,24 +33,26 @@ namespace Escape {
     }
 
     void BulletSystem::update(clock_type delta) {
-        world->view<Hitbox, Position, Health, AgentData>().each(
-                [&](Entity ent, auto &hitbox, auto &position, auto &health, auto id) {
-                    if (health.health <= 0)
-                        return;
+        world->view<BulletData, CollisionResults>().each(
+                [&](Entity ent, auto &bullet, auto &col) {
+                    bool hit = false;
+                    for (Collision &c : col.results) {
+                        if(world->valid(c.hit_with))
+                        {
+                            if (world->has<BulletData>(c.hit_with) &&
+                                world->get<BulletData>(c.hit_with).firer_id == bullet.firer_id)
+                                continue;
 
-                    world->view<BulletData, Position>().each(
-                            [&](Entity bullet, auto &bullet_data, auto &position_bullet) {
-                                if (bullet_data.firer_id == id.id)
-                                    return;
-                                if (glm::distance2(position_bullet.unwrap(), position.unwrap()) <=
-                                    hitbox.radius * hitbox.radius) // hit
-                                {
-                                    health.health -= bullet_data.damage;
-                                    bullet_data.hit = true;
-                                    world->destroy(bullet);
-                                    return;
-                                }
-                            });
+                            hit = true;
+                            if (world->has<Health>(c.hit_with)) {
+                                auto &health = world->get<Health>(c.hit_with);
+                                health.health -= bullet.damage;
+                            }
+                            break;
+                        }
+                    }
+                    if (hit)
+                        world->destroy(ent);
                 });
     }
 
@@ -118,6 +122,7 @@ namespace Escape {
             }
         }
     }
+
     void WeaponSystem::changeWeapon(Entity ent, WeaponType type) {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
         if (world->has<Weapon>(ent)) {

@@ -60,8 +60,8 @@ World *ReadMap::readMapFile(World *world)
         {
 
             Position pos(ter["X"].get<float>(), ter["Y"].get<float>());
-            Rotation rot{ter["ROTATION"].get<float>() / (float)M_PI * 180};
-            TerrainData data{type : TerrainType::BOX, {ter["WIDTH"].get<float>(), ter["HEIGHT"].get<float>()}};
+            Rotation rot{ter["ROTATION"].get<float>() * (float)M_PI / 180};
+            TerrainData data{TerrainType::BOX, {ter["WIDTH"].get<float>(), ter["HEIGHT"].get<float>()}};
 
             auto entity = world->create();
             world->assign<Name>(entity, "box");

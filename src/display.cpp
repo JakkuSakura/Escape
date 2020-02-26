@@ -33,7 +33,7 @@ namespace Escape {
 
     std::pair<Ogre::SceneNode *, Ogre::Entity *> DisplayOgre::newCircle(float cx, float cy, float radius) {
         Ogre::SceneNode *cubeNode = rects->createChildSceneNode();
-        cubeNode->setScale(radius / 100, radius / 100, 1.0 / 100);
+        cubeNode->setScale(radius / 50, radius / 50, 1.0 / 50);
         cubeNode->setPosition(cx, cy, 0);
 
         Ogre::Entity *cube = scnMgr->createEntity("Prefab_Sphere");
@@ -146,14 +146,13 @@ namespace Escape {
 
     void DisplayOgre::render() {
         // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
-        world->view<AgentData, Position, Health>().each([&](auto ent, auto &agt, auto &pos, auto &health) {
+        world->view<AgentData, Position, Health, Hitbox>().each([&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
             float percent = health.health / health.max_health;
-            auto pair = newCircle(pos.x, pos.y, 2);
+            auto pair = newCircle(pos.x, pos.y, hitbox.radius);
             setColor(pair.second, 1 - percent, percent, 0);
             if (world->has<Rotation>(ent)) {
                 auto rotation = world->get<Rotation>(ent);
                 pair.first->setOrientation(Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
-
             }
         });
         world->view<TerrainData, Position>().each([&](auto ent, auto &ter, auto &pos) {
@@ -166,7 +165,11 @@ namespace Escape {
 
         });
         world->view<BulletData, Position>().each([&](auto ent, auto &data, auto &pos) {
-            newBox(pos.x, pos.y, .2, .2);
+            auto pair = newCircle(pos.x, pos.y, data.radius);
+            if (world->has<Rotation>(ent)) {
+                auto rotation = world->get<Rotation>(ent);
+                pair.first->setOrientation(Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
+            }
         });
     }
 
