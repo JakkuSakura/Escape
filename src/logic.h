@@ -28,17 +28,10 @@ namespace Escape {
         AgentSystem *agent_system;
         TimeServer *timeserver;
 
-        Entity getPlayer();
-
         void initialize() override;
 
         Logic();
 
-        void fire(Entity ent, float angle);
-
-        void move(Entity ent, const Velocity &vel);
-
-        void changeWeapon(Entity ent, WeaponType type);
     };
 
 }

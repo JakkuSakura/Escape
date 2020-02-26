@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <iostream>
+
 template <typename T>
 inline void show_mat(const T &mat)
 {
@@ -16,6 +17,7 @@ inline void show_mat(const T &mat)
     }
     std::cerr << std::endl;
 }
+
 template <typename T>
 inline void show_vec(const T &vec)
 {
@@ -26,6 +28,7 @@ inline void show_vec(const T &vec)
 
     std::cerr << std::endl;
 }
+
 #include <cstring>
 // template <typename... Args>
 // NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {}
@@ -37,30 +40,30 @@ using clock_type = float;
     NewName(const base_type__ &old) : base_type__(old)                       \
     {                                                                        \
     }                                                                        \
-    base_type__ &unwrap()                                                    \
+    constexpr base_type__ &unwrap()                                          \
     {                                                                        \
-        return *reinterpret_cast<base_type__ *>(this);                       \
+        return *static_cast<base_type__ *>((void *)this);                    \
     }                                                                        \
-    const base_type__ &unwrap() const                                        \
+    constexpr const base_type__ &unwrap() const                              \
     {                                                                        \
-        return *reinterpret_cast<const base_type__ *>(this);                 \
+        return *static_cast<const base_type__ *>((void *)this);              \
     }                                                                        \
     template <typename T>                                                    \
-    T &to()                                                                  \
+    constexpr T &to()                                                        \
     {                                                                        \
         static_assert(sizeof(NewName) == sizeof(T),                          \
                       "The argument should have the same memory structure"); \
-        return *reinterpret_cast<T *>(this);                                 \
+        return *static_cast<T *>((void *)this);                              \
     }                                                                        \
     template <typename T>                                                    \
-    const T &to() const                                                      \
+    constexpr const T &to() const                                            \
     {                                                                        \
         static_assert(sizeof(NewName) == sizeof(T),                          \
                       "The argument should have the same memory structure"); \
-        return *reinterpret_cast<const T *>(this);                           \
+        return *static_cast<const T *>((void *)this);                        \
     }                                                                        \
     template <typename T>                                                    \
-    NewName &from(const T &src)                                              \
+    constexpr NewName &from(const T &src)                                    \
     {                                                                        \
         this->to<T>() = src;                                                 \
         return *this;                                                        \
@@ -69,6 +72,7 @@ using clock_type = float;
 class NewTypeBase
 {
 };
+
 #define NEW_TYPE(NewName, BaseName)                               \
     struct NewName final : public BaseName, protected NewTypeBase \
     {                                                             \

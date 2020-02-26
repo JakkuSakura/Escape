@@ -55,7 +55,7 @@ namespace Escape {
     };
 
     struct AgentData {
-        size_t id;
+        int id;
         int player;
 
         template<class Archive>
@@ -110,7 +110,7 @@ namespace Escape {
     };
 
     struct BulletData {
-        size_t firer_id;
+        int firer_id;
         BulletType type;
         float damage;
         bool hit;
@@ -180,6 +180,26 @@ namespace Escape {
             ar & arguments;
         }
 
+    };
+
+    // Controls
+    // These shouldn't be saved nor assigned as component at all
+    struct Impulse {
+        int agent_id;
+        float angle;
+        float impulse;
+        bool processed;
+    };
+
+    struct Shooting {
+        int agent_id;
+        float angle;
+        bool processed;
+    };
+    struct ChaneWeapon {
+        int agent_id;
+        WeaponType weapon;
+        bool processed;
     };
 
 } // namespace Escape

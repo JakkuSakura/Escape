@@ -2,30 +2,27 @@
 #include <glm/glm.hpp>
 #include <Box2D/Box2D.h>
 #include <map>
-Escape::MovementSystem::MovementSystem()
-{
+
+Escape::MovementSystem::MovementSystem() {
 }
 
-void Escape::MovementSystem::move(Entity ent, const Velocity &vel)
-{
-    if (!world->has<Velocity>(ent))
-    {
-        world->assign<Velocity>(ent, 0, 0);
-    }
-    world->replace<Velocity>(ent, [&](auto &v) {
-        v *= 0.93f;
-        v += vel * 0.7f;
+void Escape::MovementSystem::update(clock_type delta) {
+    // Impulsion control
+    world->view<Velocity, Impulse>().each([&](auto ent, auto &vel, auto &impulse) {
+        if(!impulse.processed)
+        {
+            glm::vec2 im(cos(impulse.angle), sin(impulse.angle));
+            im *= impulse.impulse;
+            vel += im;
+            impulse.processed = true;
+        }
     });
-}
 
-void Escape::MovementSystem::update(clock_type delta)
-{
     b2World b2d_world(b2Vec2(0, 0));
     std::map<entt::entity, b2Body *> mapping;
     // Put walls into box2d
     world->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
-        if (ter.type == TerrainType::BOX)
-        {
+        if (ter.type == TerrainType::BOX) {
             b2BodyDef wallDef;
             wallDef.position.Set(pos.x, pos.y);
             wallDef.angle = rot.radian;
@@ -57,13 +54,10 @@ void Escape::MovementSystem::update(clock_type delta)
         // TODO add some listener
         circle.m_radius = hit.radius * 0.95;
         fixtureDef.shape = &circle;
-        if (world->has<BulletData>(ent))
-        {
+        if (world->has<BulletData>(ent)) {
             fixtureDef.density = 7e3f;
             fixtureDef.friction = 1e6f;
-        }
-        else
-        {
+        } else {
             fixtureDef.density = 1e3f;
             fixtureDef.friction = 0.1;
         }
@@ -83,8 +77,15 @@ void Escape::MovementSystem::update(clock_type delta)
         b2Vec2 velocity = body->GetLinearVelocity();
         pos.from(position);
         vel.from(velocity);
-        if (!world->has<BulletData>(ent))
-            vel *= .93;
+        if (world->has<AgentData>(ent)) {
+            float friction = 12 / delta;
+            float speed = glm::length(vel.unwrap());
+            if (speed <= friction)
+                vel *= 0;
+            else {
+                vel *= (speed - friction);
+            }
+        }
     });
 
     // Only movement

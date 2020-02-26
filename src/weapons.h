@@ -32,7 +32,10 @@ class WeaponSystem : public ECSSystem
 public:
     WeaponSystem();
     void initialize() override;
+    void update(clock_type delta) override;
     void fire(Entity ent, float angle);
+
+    void changeWeapon(Entity ent, WeaponType type);
 };
 } // namespace Escape
 

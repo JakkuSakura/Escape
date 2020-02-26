@@ -10,7 +10,6 @@ class MovementSystem : public ECSSystem
 {
 public:
     MovementSystem();
-    void move(Entity ent, const Velocity &vel);
     void update(clock_type delta) override;
 
 };

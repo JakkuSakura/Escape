@@ -3,7 +3,7 @@
 //
 
 #include "display.h"
-#include "logic.h"
+
 #include <OgreQuaternion.h>
 
 namespace Escape {
@@ -55,8 +55,8 @@ namespace Escape {
 
     void DisplayOgre::initialize() {
         Window::initialize();
-        logic = findSystem<Logic>();
-        world = logic->getWorld();
+        world = findSystem<SystemManager>()->getWorld();
+        timeserver = findSystem<Application>()->timeserver;
         rects = scnMgr->getRootSceneNode()->createChildSceneNode();
         Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Popular");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation("assets", "FileSystem", "Popular");
@@ -67,17 +67,19 @@ namespace Escape {
     void DisplayOgre::processInput() {
         // ESC exit
         WindowOgre::processInput();
-        auto player = logic->getPlayer();
+        const int player_id = 1;
+        auto player = AgentSystem::getPlayer(world, player_id);
         if (player == entt::null)
             return;
+        auto[pos, agt] = world->get<Position, AgentData>(player);
         if (input.mouse[OgreBites::BUTTON_LEFT]) {
             auto click = pickUp(input.mouse_x, input.mouse_y);
             double x = click.x, y = click.y;
             // std::cerr << "Cursor: " << x << " " << y << std::endl;
-            assert(world->has<Position>(player));
-            auto pos = world->get<Position>(player);
             float angle = atan2(y - pos.y, x - pos.x);
-            logic->fire(player, angle);
+
+            world->assign_or_replace<Shooting>(player, Shooting{.agent_id =  agt.id,
+                    .angle =  angle});
         }
 
         Velocity vel(0, 0);
@@ -94,25 +96,27 @@ namespace Escape {
             if (spd > 1) {
                 vel /= spd;
             }
-            vel *= 6.0f;
+            world->assign_or_replace<Impulse>(player, Impulse{.agent_id = agt.id, .angle = atan2f(vel.y,
+                                                                                                  vel.x), .impulse = 6.0f});
         }
-        logic->move(player, vel);
 
         if (input.keys['1'])
-            logic->changeWeapon(player, WeaponType::HANDGUN);
+            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::HANDGUN});
 
         if (input.keys['2'])
-            logic->changeWeapon(player, WeaponType::SHOTGUN);
+            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::SHOTGUN});
 
         if (input.keys['3'])
-            logic->changeWeapon(player, WeaponType::SMG);
+            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::SMG});
 
         if (input.keys['4'])
-            logic->changeWeapon(player, WeaponType::RIFLE);
+            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::RIFLE});
+
 
         if (input.keys['p'])
-            logic->agent_system->createAgent(
-                    Position(logic->timeserver->random(-50, 50), logic->timeserver->random(-50, 50)));
+            AgentSystem::createAgent(world,
+                                     Position(timeserver->random(-50, 50), timeserver->random(-50, 50)),
+                                     false);
 
         if (input.keys['o']) {
             try {

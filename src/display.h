@@ -24,8 +24,8 @@
 namespace Escape {
 
     class DisplayOgre : public WindowOgre {
-        Logic *logic;
         World *world;
+        TimeServer *timeserver;
         Ogre::SceneNode *rects;
 
     public:
