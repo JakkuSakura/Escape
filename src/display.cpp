@@ -119,6 +119,7 @@ namespace Escape {
                                      false);
 
         if (input.keys['o']) {
+
             try {
                 std::cerr << "Writing map file" << std::endl;
                 SerializationHelper helper("map.txt");

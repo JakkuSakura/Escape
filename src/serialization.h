@@ -4,30 +4,32 @@
 #include <glm/glm.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 #include <fstream>
 #include <string>
-#include <type_traits>
 #include "MyECS.h"
 #include "components.h"
+#include <sstream>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <iostream>
+#include <iomanip>
 #include <sstream>
 
 namespace Escape {
     class SerializationHelper {
-    public:
         std::string filename;
+    public:
 
         SerializationHelper(const std::string &name) : filename(name) {
         }
 
         template<typename T>
         void serialize(const T &obj) {
-            // TODO serialize using entt::snapshot
-            // TODO Or save as json file for read_map
             std::ofstream stream(filename);
-            boost::archive::text_oarchive oa(stream);
-            oa << obj;
+            boost::archive::xml_oarchive oa(stream);
+            oa << BOOST_SERIALIZATION_NVP(obj);
         }
 
         template<typename T>
@@ -38,8 +40,8 @@ namespace Escape {
         template<typename T>
         T &deserialize(T &obj) {
             std::ifstream stream(filename);
-            boost::archive::text_iarchive ia(stream);
-            ia >> obj;
+            boost::archive::xml_iarchive ia(stream);
+            ia >> BOOST_SERIALIZATION_NVP(obj);
             return obj;
         }
 
@@ -53,98 +55,66 @@ namespace Escape {
 
 namespace boost {
     namespace serialization {
+        template<typename Archive>
+        class entt_archive {
+            Archive &ar;
+        public:
+            entt_archive(Archive &ar) : ar(ar) {
+
+            }
+
+            void operator()(int &size) {
+                ar & BOOST_SERIALIZATION_NVP(size);
+            }
+
+            void operator()(int size) {
+                ar & BOOST_SERIALIZATION_NVP(size);
+            }
+
+            template<typename T>
+            void operator()(T &entity) {
+                ar & BOOST_SERIALIZATION_NVP(entity);
+            }
+
+            template<typename Te, typename Td>
+            void operator()(Te &ent, Td &data) {
+                ar & BOOST_SERIALIZATION_NVP(ent);
+                ar & BOOST_SERIALIZATION_NVP(data);
+            }
+
+            template<typename Te, typename Td>
+            void operator()(const Te &ent, const Td &data) {
+                ar & BOOST_SERIALIZATION_NVP(ent);
+                ar & BOOST_SERIALIZATION_NVP(data);
+            }
+        };
+
 
         template<typename Archive>
         inline void serialize(Archive &ar, glm::vec2 &p, const unsigned int version) {
-            ar & p.x & p.y;
+            ar & BOOST_SERIALIZATION_NVP(p.x);
+            ar & BOOST_SERIALIZATION_NVP(p.y);
         }
 
-        template<class Archive>
-        void save(Archive &ar, const entt::entity &p, unsigned int version, entt::registry &reg) {
-            int count = 0;
-#define DISPATCHALL() FOREACH_COMPONENT_TYPE(DISPATCH)
-
-#define DISPATCH(type)          \
-    if (reg.has<type>(p))       \
-    {                           \
-        count += 1; \
-    }
-
-            DISPATCHALL();
-
-#undef DISPATCH
-            ar & count;
-
-#define DISPATCH(type)          \
-    if (reg.has<type>(p))       \
-    {                           \
-        ar &std::string(#type); \
-        ar &reg.get<type>(p);   \
-    }
-
-            DISPATCHALL();
-
-#undef DISPATCH
-        }
-
-        template<class Archive>
-        void load(Archive &ar, entt::entity &p, unsigned int version, entt::registry &reg) {
-            int count;
-            ar & count;
-            for (int i = 0; i < count; ++i) {
-                std::string c_type;
-                ar & c_type;
-#define DISPATCH(type)           \
-    if (c_type == #type)         \
-    {                            \
-        type comp;               \
-        ar &comp;                \
-        reg.assign<type>(p, comp); \
-    }
-
-                DISPATCHALL();
-
-#undef DISPATCH
-            }
-        }
-
-// template <class Archive>
-// void save(Archive &ar, const std::type_index &p, unsigned int version)
-// {
-//     ar &Escape::ComponentRegister::getInstance().getName(p);
-// }
-// template <class Archive>
-// void load(Archive &ar, std::type_index &p, unsigned int version)
-// {
-//     std::string name;
-//     ar &name;
-//     p = Escape::ComponentRegister::getInstance().getTypeInfo(name);
-// }
-
-// template <typename Archive>
-// inline void serialize(Archive &ar, std::type_index &p, const unsigned int version)
-// {
-//     split_free(ar, p, version);
-// }
 
         template<class Archive>
         void save(Archive &ar, const entt::registry &p, unsigned int version) {
             auto &world = const_cast<entt::registry &>(p);
-            ar & world.alive();
-            world.each([&](entt::entity ent) {
-                save(ar, ent, version, world);
-            });
+            entt_archive output(ar);
+            auto snapshot = world.snapshot();
+            snapshot.entities(output);
+            snapshot.component<COMPONENT_LIST>(output);
         }
 
         template<class Archive>
         void load(Archive &ar, entt::registry &p, unsigned int version) {
             p.clear();
-            size_t size;
-            ar & size;
-            for (size_t i = 0; i < size; i++) {
-                entt::entity ent = p.create();
-                load(ar, ent, version, p);
-            }
+            
+            entt_archive input(ar);
+            auto snapshot = p.loader();
+            snapshot.entities(input);
+            snapshot.component<COMPONENT_LIST>(input);
+            snapshot.orphans();
         }
 
         template<typename Archive>

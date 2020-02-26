@@ -6,6 +6,7 @@
 #include "engine/utils.h"
 #include "MyECS.h"
 #include <glm/glm.hpp>
+#include <boost/serialization/nvp.hpp>
 
 namespace Escape {
     struct Name : public std::string {
@@ -13,7 +14,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & unwrap();
+            auto &name = unwrap();
+            ar & BOOST_SERIALIZATION_NVP(name);
         }
     };
 
@@ -22,7 +24,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & unwrap();
+            auto &position = unwrap();
+            ar & BOOST_SERIALIZATION_NVP(position);
         }
     };
 
@@ -31,7 +34,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & unwrap();
+            auto &velocity = unwrap();
+            ar & BOOST_SERIALIZATION_NVP(velocity);
         }
     };
 
@@ -40,7 +44,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & unwrap();
+            auto &impulse = unwrap();
+            ar & BOOST_SERIALIZATION_NVP(impulse);
         }
     };
 
@@ -57,7 +62,7 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & radius;
+            ar & BOOST_SERIALIZATION_NVP(radius);
         }
     };
 
@@ -66,7 +71,7 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & radian;
+            ar & BOOST_SERIALIZATION_NVP(radian);
         }
     };
 
@@ -76,8 +81,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & id;
-            ar & player;
+            ar & BOOST_SERIALIZATION_NVP(id);
+            ar & BOOST_SERIALIZATION_NVP(player);
         }
     };
 
@@ -86,7 +91,7 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & tick;
+            ar & BOOST_SERIALIZATION_NVP(tick);
         }
     };
 
@@ -96,7 +101,8 @@ namespace Escape {
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & begin & end;
+            ar & BOOST_SERIALIZATION_NVP(begin);
+            ar & BOOST_SERIALIZATION_NVP(end);
         }
 
     };
@@ -114,7 +120,8 @@ namespace Escape {
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & health & max_health;
+            ar & BOOST_SERIALIZATION_NVP(health);
+            ar & BOOST_SERIALIZATION_NVP(max_health);
         }
     };
 
@@ -134,7 +141,11 @@ namespace Escape {
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & firer_id & type & damage & density & radius;
+            ar & BOOST_SERIALIZATION_NVP(firer_id);
+            ar & BOOST_SERIALIZATION_NVP(type);
+            ar & BOOST_SERIALIZATION_NVP(damage);
+            ar & BOOST_SERIALIZATION_NVP(density);
+            ar & BOOST_SERIALIZATION_NVP(radius);
         }
 
     };
@@ -158,14 +169,14 @@ namespace Escape {
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & type;
-            ar & bullet_type;
-            ar & cd;
-            ar & accuracy;
-            ar & bullet_number;
-            ar & bullet_damage;
-            ar & bullet_speed;
-            ar & gun_length;
+            ar & BOOST_SERIALIZATION_NVP(type);
+            ar & BOOST_SERIALIZATION_NVP(bullet_type);
+            ar & BOOST_SERIALIZATION_NVP(cd);
+            ar & BOOST_SERIALIZATION_NVP(accuracy);
+            ar & BOOST_SERIALIZATION_NVP(bullet_number);
+            ar & BOOST_SERIALIZATION_NVP(bullet_damage);
+            ar & BOOST_SERIALIZATION_NVP(bullet_speed);
+            ar & BOOST_SERIALIZATION_NVP(gun_length);
         }
     };
 
@@ -176,9 +187,9 @@ namespace Escape {
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & weapon;
-            ar & last;
-            ar & next;
+            ar & BOOST_SERIALIZATION_NVP(weapon);
+            ar & BOOST_SERIALIZATION_NVP(last);
+            ar & BOOST_SERIALIZATION_NVP(next);
         }
     };
 
@@ -193,8 +204,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            ar & type;
-            ar & arguments;
+            ar & BOOST_SERIALIZATION_NVP(type);
+            ar & BOOST_SERIALIZATION_NVP(arguments);
         }
 
     };
@@ -204,6 +215,7 @@ namespace Escape {
     template<typename T>
     struct Control {
         Control(int agent_id, const T &t) : agent_id(agent_id), data(t), processed(false) {}
+
         int agent_id;
         bool processed;
         T data;
@@ -222,6 +234,21 @@ namespace Escape {
     };
 
 } // namespace Escape
+#define COMPONENT_LIST \
+    Escape::Position,          \
+    Escape::Name,              \
+    Escape::Rotation,          \
+    Escape::Velocity,          \
+    Escape::Health,            \
+    Escape::Weapon,            \
+    Escape::WeaponPrototype,   \
+    Escape::Hitbox,            \
+    Escape::BulletData,        \
+    Escape::Lifespan,          \
+    Escape::TimeServerInfo,    \
+    Escape::AgentData,           \
+    Escape::TerrainData
+
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Escape::Position);          \
     func(Escape::Name);              \
