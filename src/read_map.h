@@ -6,6 +6,7 @@
 #include "MyECS.h"
 namespace Escape
 {
+    // TODO implement this using stored results
 class ReadMap
 {
 private:

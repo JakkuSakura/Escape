@@ -29,7 +29,7 @@ void Escape::TimeServer::update(float delta) {
     setTick(getTick() + 1);
     std::chrono::steady_clock::time_point next = std::chrono::steady_clock::now() + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(this->delta));
 
-    std::this_thread::sleep_until(next);
+//    std::this_thread::sleep_until(next);
 }
 
 float Escape::TimeServer::random(float l, float h) {

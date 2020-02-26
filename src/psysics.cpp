@@ -4,11 +4,41 @@
 #include <map>
 
 namespace Escape {
+    struct StickyInfo {
+        b2Body *arrowBody;
+        b2Body *targetBody;
+    };
+
+    struct ContactListener : b2ContactListener {
+        std::vector<StickyInfo> m_collisionsToMakeSticky;
+
+        void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
+            b2Fixture *fixtureA = contact->GetFixtureA();
+            b2Fixture *fixtureB = contact->GetFixtureB();
+
+            StickyInfo si;
+            si.targetBody = fixtureA->GetBody();
+            si.arrowBody = fixtureB->GetBody();
+            m_collisionsToMakeSticky.push_back(si);
+        }
+
+        void process(World *world) {
+
+            //in Step function, immediately after calling world step
+            for (int i = 0; i < m_collisionsToMakeSticky.size(); i++) {
+                StickyInfo &si = m_collisionsToMakeSticky[i];
+                si.arrowBody->SetLinearVelocity(b2Vec2(0, 0));
+                si.targetBody->SetLinearVelocity(b2Vec2(0, 0));
+            }
+            m_collisionsToMakeSticky.clear();
+        }
+
+    };
+
     PhysicsSystem::PhysicsSystem() {
     }
 
     void PhysicsSystem::update(clock_type delta) {
-
         b2World b2d_world(b2Vec2(0, 0));
         std::map<entt::entity, b2Body *> mapping;
         // Put walls into box2d
@@ -17,7 +47,7 @@ namespace Escape {
                 b2BodyDef wallDef;
                 wallDef.position.Set(pos.x, pos.y);
                 wallDef.angle = rot.radian;
-
+                wallDef.userData = (void *) ent;
                 b2PolygonShape wallBox;
                 wallBox.SetAsBox(ter.arguments[0] / 2, ter.arguments[1] / 2);
                 b2FixtureDef fixtureDef;
@@ -34,6 +64,7 @@ namespace Escape {
         // put agents and bullets in box2d
         world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
             b2BodyDef bodyDef;
+            bodyDef.userData = (void *) ent;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(pos.x, pos.y);
             bodyDef.linearVelocity.x = vel.x;
@@ -55,6 +86,7 @@ namespace Escape {
             } else {
                 fixtureDef.density = 1;
                 fixtureDef.friction = 0.1;
+                bodyDef.linearDamping = 15;
             }
             // FIXME bullet will still slip
             b2Body *body = b2d_world.CreateBody(&bodyDef);
@@ -71,9 +103,14 @@ namespace Escape {
                         impulse.processed = true;
                     }
                 });
-        int velocityIterations = 2;
-        int positionIterations = 2;
+
+        ContactListener listener;
+        int velocityIterations = 1;
+        int positionIterations = 1;
+        b2d_world.SetSubStepping(false);
+        b2d_world.SetContactListener(&listener);
         b2d_world.Step(delta, velocityIterations, positionIterations);
+        listener.process(world);
 
         // fetch data
         world->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
@@ -82,15 +119,6 @@ namespace Escape {
             b2Vec2 velocity = body->GetLinearVelocity();
             pos = as<Position>(position);
             vel = as<Velocity>(velocity);
-            if (world->has<AgentData>(ent)) {
-                float friction = 12 / delta;
-                float speed = glm::length(vel.unwrap());
-                if (speed <= friction)
-                    vel *= 0;
-                else {
-                    vel *= (speed - friction);
-                }
-            }
         });
 
         // Only movement

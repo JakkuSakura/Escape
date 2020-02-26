@@ -23,6 +23,8 @@ namespace Escape {
 
         template<typename T>
         void serialize(const T &obj) {
+            // TODO serialize using entt::snapshot
+            // TODO Or save as json file for read_map
             std::ofstream stream(filename);
             boost::archive::text_oarchive oa(stream);
             oa << obj;

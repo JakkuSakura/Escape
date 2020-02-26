@@ -43,6 +43,12 @@ namespace Escape {
             ar & unwrap();
         }
     };
+    struct Collision {
+        entt::entity hit_by;
+    };
+    struct CollisionResults {
+        std::vector<Collision> results;
+    };
 
 
     struct Hitbox {
