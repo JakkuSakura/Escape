@@ -9,7 +9,7 @@ class AgentSystem : public ECSSystem
 {
     static size_t index;
 public:
-    static Entity createAgent(World *world, const Position &pos);
+    static Entity createAgent(World *world, const Position &pos, int player);
     Entity createAgent(const Position &pos);
 
     void update(clock_type delta) override;

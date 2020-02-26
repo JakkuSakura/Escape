@@ -17,7 +17,7 @@ void Escape::BulletSystem::fire(Entity firer, BulletType type, float angle, floa
 {
     Entity bullet = world->create();
     world->assign<Name>(bullet, "bullet");
-    auto data = BulletData{firer_id : world->get<ID>(firer).id,
+    auto data = BulletData{firer_id : world->get<AgentData>(firer).id,
                            type : type,
                            damage : damage,
                            hit : false};
@@ -33,7 +33,7 @@ void Escape::BulletSystem::fire(Entity firer, BulletType type, float angle, floa
 
 void Escape::BulletSystem::update(clock_type delta)
 {
-    world->view<Hitbox, Position, Health, ID>().each(
+    world->view<Hitbox, Position, Health, AgentData>().each(
         [&](Entity ent, auto &hitbox, auto &position, auto &health, auto id) {
             if (health.health <= 0)
                 return;

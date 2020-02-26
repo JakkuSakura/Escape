@@ -41,19 +41,6 @@ public:
     }
 };
 
-#define REGISTER(New)
-
-#define COMPONENT_AS(New, Old) \
-    NEW_TYPE(New, Old);        \
-    REGISTER(New)
-
-#define COMPONENT_NEW(New, df) \
-    struct New                 \
-    {                          \
-        df                     \
-    };                         \
-    REGISTER(New)
-
 } // namespace Escape
 
 #endif // ECSCORE_H

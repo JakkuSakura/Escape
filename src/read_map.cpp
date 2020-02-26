@@ -45,12 +45,11 @@ World *ReadMap::readMapFile(World *world)
         {
             std::cerr << "Undefined weapon type: " << guntype << std::endl;
         }
-
-        auto entity = AgentSystem::createAgent(world, pos);
-
+        int player = 0;
         if (type == "PLAYER")
-            world->assign_or_replace<Control>(entity, Control{player : 1});
-
+            player = 1;
+        
+        auto entity = AgentSystem::createAgent(world, pos, player);
         world->assign_or_replace<Weapon>(entity, wp);
     }
 

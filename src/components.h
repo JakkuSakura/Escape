@@ -1,94 +1,190 @@
 #if !defined(COMPONENTS_H)
 #define COMPONENTS_H
+
 #include "engine/utils.h"
 #include "MyECS.h"
 #include <glm/glm.hpp>
 
-namespace Escape
-{
-COMPONENT_AS(Name, std::string);
-COMPONENT_AS(Position, glm::vec2);
-COMPONENT_AS(Velocity, glm::vec2);
+namespace Escape {
+    struct Name : public std::string {
+        FORWARD_CONSTRUCTORS(Name, std::string);
 
-COMPONENT_NEW(ID,
-              size_t id;);
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & unwrap();
+        }
+    };
 
-COMPONENT_NEW(Hitbox,
-              float radius;);
 
-COMPONENT_NEW(Rotation,
-              float radian;);
+    struct Position : public glm::vec2 {
+        FORWARD_CONSTRUCTORS(Position, glm::vec2);
 
-COMPONENT_NEW(Control,
-              int player;);
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & unwrap();
+        }
+    };
 
-COMPONENT_NEW(TimeServerInfo,
-              size_t tick;);
+    struct Velocity : public glm::vec2 {
+        FORWARD_CONSTRUCTORS(Velocity, glm::vec2);
 
-COMPONENT_NEW(Lifespan,
-              clock_type begin;
-              clock_type end;);
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & unwrap();
+        }
+    };
 
-COMPONENT_NEW(
-    Health,
-    float health;
-    float max_health;
-    Health(const Health &h) = default;
-    Health(float h = 100) {
-        health = h;
-        max_health = h;
-    });
+    struct Hitbox {
+        float radius;
 
-enum class BulletType
-{
-    HANDGUN_BULLET,
-    SHOTGUN_SHELL,
-    SMG_BULLET,
-    RIFLE_BULLET
-};
-COMPONENT_NEW(BulletData,
-              size_t firer_id;
-              BulletType type;
-              float damage;
-              bool hit;);
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & radius;
+        }
+    };
 
-enum class WeaponType
-{
-    HANDGUN,
-    SHOTGUN,
-    SMG,
-    RIFLE
-};
-COMPONENT_NEW(WeaponPrototype,
-              WeaponType type;
-              BulletType bullet_type;
-              float cd;
-              float accuracy;
-              float peice_number;
-              float bullet_damage;
-              float bullet_speed;
-              float gun_length;
-              );
+    struct Rotation {
+        float radian;
 
-COMPONENT_NEW(Weapon,
-              WeaponType weapon;
-              float last;
-              float next;);
-enum class TerrainType
-{
-    BOX,
-    CIRCLE
-};
-COMPONENT_NEW(TerrainData,
-              TerrainType type;
-              float arguments[16];);
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & radian;
+        }
+    };
+
+    struct AgentData {
+        size_t id;
+        int player;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & id;
+            ar & player;
+        }
+    };
+
+    struct TimeServerInfo {
+        size_t tick;
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & tick;
+        }
+    };
+
+    struct Lifespan {
+        clock_type begin;
+        clock_type end;
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & begin & end;
+        }
+
+    };
+
+    struct Health {
+        float health;
+        float max_health;
+
+        Health(const Health &h) = default;
+
+        Health(float h = 100) {
+            health = h;
+            max_health = h;
+        };
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & health & max_health;
+        }
+    };
+
+    enum class BulletType {
+        HANDGUN_BULLET,
+        SHOTGUN_SHELL,
+        SMG_BULLET,
+        RIFLE_BULLET
+    };
+
+    struct BulletData {
+        size_t firer_id;
+        BulletType type;
+        float damage;
+        bool hit;
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & firer_id & type & damage & hit;
+        }
+
+    };
+
+    enum class WeaponType {
+        HANDGUN,
+        SHOTGUN,
+        SMG,
+        RIFLE
+    };
+
+    struct WeaponPrototype {
+        WeaponType type;
+        BulletType bullet_type;
+        float cd;
+        float accuracy;
+        float peice_number;
+        float bullet_damage;
+        float bullet_speed;
+        float gun_length;
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & type;
+            ar & bullet_type;
+            ar & cd;
+            ar & accuracy;
+            ar & peice_number;
+            ar & bullet_damage;
+            ar & bullet_speed;
+            ar & gun_length;
+        }
+    };
+
+    struct Weapon {
+        WeaponType weapon;
+        float last;
+        float next;
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & weapon;
+            ar & last;
+            ar & next;
+        }
+    };
+
+    enum class TerrainType {
+        BOX,
+        CIRCLE
+    };
+
+    struct TerrainData {
+        TerrainType type;
+        float arguments[16];
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & type;
+            ar & arguments;
+        }
+
+    };
 
 } // namespace Escape
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Escape::Position);          \
     func(Escape::Name);              \
     func(Escape::Rotation);          \
-    func(Escape::ID);                \
     func(Escape::Velocity);          \
     func(Escape::Health);            \
     func(Escape::Weapon);            \
@@ -97,7 +193,7 @@ COMPONENT_NEW(TerrainData,
     func(Escape::BulletData);        \
     func(Escape::Lifespan);          \
     func(Escape::TimeServerInfo);    \
-    func(Escape::Control);           \
+    func(Escape::AgentData);           \
     func(Escape::TerrainData);
 
 #endif // COMPONENTS_H

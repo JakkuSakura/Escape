@@ -26,7 +26,7 @@ namespace Escape {
 
     Escape::Entity Escape::Logic::getPlayer() {
         Entity player = entt::null;
-        world->view<Control>().each([&](Entity ent, auto &control) {
+        world->view<AgentData>().each([&](Entity ent, auto &control) {
             if (control.player == 1) {
                 player = ent;
             }
