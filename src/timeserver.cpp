@@ -67,3 +67,21 @@ clock_type Escape::TimeServer::now() {
 clock_type Escape::TimeServer::getDelta() {
     return delta;
 }
+
+void Escape::FPSCounter::update(::clock_type delta) {
+    using namespace std::chrono_literals;
+    count += 1;
+    auto duration = clock_type::now() - last;
+    // assuming that the duration relatively equals 1 second
+    if(duration > 1s)
+    {
+        std::cerr << "FPS: " << count << std::endl;
+        initialize();
+    }
+
+}
+
+void Escape::FPSCounter::initialize() {
+    last = clock_type::now();
+    count = 0;
+}

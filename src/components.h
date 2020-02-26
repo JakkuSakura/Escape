@@ -122,6 +122,8 @@ namespace Escape {
         int firer_id;
         BulletType type;
         float damage;
+        float density;
+        float radius;
         bool hit;
 
         template<typename Archive>
@@ -143,7 +145,7 @@ namespace Escape {
         BulletType bullet_type;
         float cd;
         float accuracy;
-        float peice_number;
+        float bullet_number;
         float bullet_damage;
         float bullet_speed;
         float gun_length;
@@ -154,7 +156,7 @@ namespace Escape {
             ar & bullet_type;
             ar & cd;
             ar & accuracy;
-            ar & peice_number;
+            ar & bullet_number;
             ar & bullet_damage;
             ar & bullet_speed;
             ar & gun_length;

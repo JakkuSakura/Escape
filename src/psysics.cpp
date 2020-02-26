@@ -40,19 +40,20 @@ namespace Escape {
             bodyDef.linearVelocity.y = vel.y;
             // FIXME bullets not hitting
             // TODO add some listener
-
             b2CircleShape circle;
-            circle.m_radius = hit.radius * 0.95;
+            circle.m_radius = hit.radius;
 
             b2FixtureDef fixtureDef;
             fixtureDef.shape = &circle;
 
             if (world->has<BulletData>(ent)) {
-                fixtureDef.density = 7e3f;
+                BulletData &data = world->get<BulletData>(ent);
+                fixtureDef.density = data.density;
                 fixtureDef.friction = 1e6f;
-                bodyDef.bullet = true;
+//                 this slows down fps and is unnecessary for relatively slow speed.
+//                bodyDef.bullet = true;
             } else {
-                fixtureDef.density = 1e3f;
+                fixtureDef.density = 1;
                 fixtureDef.friction = 0.1;
             }
             // FIXME bullet will still slip
@@ -63,12 +64,13 @@ namespace Escape {
         });
 
         // Impulsion control
-        world->view<Position, Velocity, Control<Impulse>>().each([&](auto ent, Position &pos, auto &vel, auto &impulse) {
-            if (!impulse.processed) {
-                mapping[ent]->ApplyLinearImpulse(as<b2Vec2>(impulse.data), as<b2Vec2>(pos), true);
-                impulse.processed = true;
-            }
-        });
+        world->view<Position, Velocity, Control<Impulse>>().each(
+                [&](auto ent, Position &pos, auto &vel, auto &impulse) {
+                    if (!impulse.processed) {
+                        mapping[ent]->ApplyLinearImpulse(as<b2Vec2>(impulse.data), as<b2Vec2>(pos), true);
+                        impulse.processed = true;
+                    }
+                });
         int velocityIterations = 2;
         int positionIterations = 2;
         b2d_world.Step(delta, velocityIterations, positionIterations);

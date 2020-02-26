@@ -17,9 +17,11 @@ namespace Escape {
         auto data = BulletData{.firer_id =  world->get<AgentData>(firer).id,
                 .type =  type,
                 .damage =  damage,
+                .density = 7.6,
+                .radius = 0.2,
                 .hit =  false};
         world->assign<BulletData>(bullet, data);
-        world->assign<Hitbox>(bullet, Hitbox{.radius =  0.2});
+        world->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
 
         glm::vec2 ang(cos(angle), sin(angle));
 
@@ -56,9 +58,9 @@ namespace Escape {
                 .bullet_type =  BulletType::HANDGUN_BULLET,
                 .cd =  0.5,
                 .accuracy =  95,
-                .peice_number =  1,
+                .bullet_number =  1,
                 .bullet_damage =  10,
-                .bullet_speed =  30,
+                .bullet_speed =  60,
                 .gun_length =  2.1,
         };
         default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
@@ -66,9 +68,9 @@ namespace Escape {
                 .bullet_type =  BulletType::SHOTGUN_SHELL,
                 .cd =  1.5,
                 .accuracy = 80,
-                .peice_number = 10,
+                .bullet_number = 10,
                 .bullet_damage = 8,
-                .bullet_speed = 30,
+                .bullet_speed = 60,
                 .gun_length = 2.5,
         };
         default_weapons[WeaponType::SMG] = WeaponPrototype{
@@ -76,9 +78,9 @@ namespace Escape {
                 .bullet_type = BulletType::SMG_BULLET,
                 .cd = 1.0 / 30,
                 .accuracy = 85,
-                .peice_number = 1,
+                .bullet_number = 1,
                 .bullet_damage = 4,
-                .bullet_speed = 30,
+                .bullet_speed = 60,
                 .gun_length = 2.3,
         };
         default_weapons[WeaponType::RIFLE] = WeaponPrototype{
@@ -86,9 +88,9 @@ namespace Escape {
                 .bullet_type = BulletType::RIFLE_BULLET,
                 .cd = 2,
                 .accuracy = 97,
-                .peice_number = 1,
+                .bullet_number = 1,
                 .bullet_damage = 55,
-                .bullet_speed = 50,
+                .bullet_speed = 100,
                 .gun_length = 3,
         };
     }
@@ -106,7 +108,7 @@ namespace Escape {
                 const WeaponPrototype &prototype = default_weapons.at(weapon.weapon);
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
 
-                for (size_t i = 0; i < prototype.peice_number; i++) {
+                for (size_t i = 0; i < prototype.bullet_number; i++) {
 
                     bullet_system->fire(ent, prototype.bullet_type, angle + timeserver->random(-angle_diff, angle_diff),
                                         prototype.bullet_speed, prototype.bullet_damage, prototype.gun_length);

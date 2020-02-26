@@ -4,6 +4,11 @@
 
 #include "logic.h"
 #include "read_map.h"
+#include "application.h"
+#include "psysics.h"
+#include "lifespan.h"
+#include "weapons.h"
+#include "agent.h"
 
 namespace Escape {
     class InitMap : public Escape::ECSSystem {
@@ -26,16 +31,16 @@ namespace Escape {
 
     void Escape::Logic::initialize() {
         SystemManager::initialize();
-        timeserver = findSystem<Application>()->timeserver;
-        timeserver->setRate(60);
+        findSystem<Application>()->timeserver->setRate(60);
+        
     }
 
     Escape::Logic::Logic() {
-        addSubSystem(movement_system = new PhysicsSystem());
-        addSubSystem(lifespan_system = new LifespanSystem());
-        addSubSystem(bullet_system = new BulletSystem());
-        addSubSystem(weapon_system = new WeaponSystem());
-        addSubSystem(agent_system = new AgentSystem());
+        addSubSystem(new PhysicsSystem());
+        addSubSystem(new LifespanSystem());
+        addSubSystem(new BulletSystem());
+        addSubSystem(new WeaponSystem());
+        addSubSystem(new AgentSystem());
         addSubSystem(new InitMap());
     }
 
