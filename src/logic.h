@@ -14,8 +14,6 @@ namespace Escape {
 
         void initialize() override;
 
-        Logic();
-
     };
 
 }

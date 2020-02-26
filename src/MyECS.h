@@ -12,29 +12,16 @@ class SystemManager : public System
 protected:
     World *world = new World();
 public:
-    SystemManager()
-    {
-    }
-    World *getWorld()
-    {
-        return world;
-    }
-    virtual ~SystemManager()
-    {
-        delete world;
-    }
+    SystemManager();
+    World *getWorld();
+    ~SystemManager() override;
 };
 
 class ECSSystem : public System
 {
 public:
-    World *world;
-    SystemManager *system_manager;
-    void initialize() override
-    {
-        system_manager = findSystem<SystemManager>();
-        world = system_manager->getWorld();
-    }
+    World *world = nullptr;
+    void configure() override;
 };
 
 } // namespace Escape

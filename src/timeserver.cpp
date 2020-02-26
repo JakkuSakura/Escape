@@ -14,7 +14,7 @@ Escape::TimeServer::TimeServer(float rate) {
 }
 
 void Escape::TimeServer::initialize() {
-    ECSSystem::initialize();
+    configure();
     std::cerr << "World " << world << std::endl;
     setTick(0);
 }
@@ -25,6 +25,7 @@ void Escape::TimeServer::setRate(float rate) {
 }
 
 void Escape::TimeServer::update(float delta) {
+    using namespace std::chrono_literals;
     setTick(getTick() + 1);
     std::chrono::steady_clock::time_point next = std::chrono::steady_clock::now() + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(this->delta));
 

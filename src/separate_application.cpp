@@ -13,11 +13,3 @@ Escape::SeparateApplication::SeparateApplication(Window *window, System *core) {
 bool Escape::SeparateApplication::isRunning() {
     return window->isRunning();
 }
-
-Window *Escape::SeparateApplication::getWindow() const {
-    return window;
-}
-
-System *Escape::SeparateApplication::getCore() const {
-    return core;
-}

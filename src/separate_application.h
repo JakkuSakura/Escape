@@ -9,8 +9,6 @@ class SeparateApplication : public Application
 public:
     SeparateApplication(Window *window, System *core);
     virtual bool isRunning() override;
-    Window *getWindow() const;
-    System *getCore() const;
 
 private:
     Window *window;

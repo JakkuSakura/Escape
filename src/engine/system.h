@@ -79,6 +79,7 @@ public:
             delete i;
         }
     }
+    // This will retrieve the ownership
     void addSubSystem(System *sub)
     {
         assert(sub->parent == nullptr);
@@ -86,6 +87,7 @@ public:
         subsystems.push_back(sub);
         sub->configure();
     }
+    // Will return the ownership
     bool removeSubSystem(System *sub)
     {
         assert(sub->parent != nullptr);
