@@ -62,12 +62,18 @@ namespace boost {
         template<class Archive>
         void save(Archive &ar, const entt::entity &p, unsigned int version, entt::registry &reg) {
             int count = 0;
-            reg.visit(p, [&](auto component) {
-                count += 1;
-            });
-            ar & count;
 #define DISPATCHALL() FOREACH_COMPONENT_TYPE(DISPATCH)
 
+#define DISPATCH(type)          \
+    if (reg.has<type>(p))       \
+    {                           \
+        count += 1; \
+    }
+
+            DISPATCHALL();
+
+#undef DISPATCH
+            ar & count;
 
 #define DISPATCH(type)          \
     if (reg.has<type>(p))       \

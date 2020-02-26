@@ -3,7 +3,7 @@
 //
 
 #include "display.h"
-
+#include "serialization.h"
 #include <OgreQuaternion.h>
 
 namespace Escape {

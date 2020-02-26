@@ -10,7 +10,7 @@
 #include <OgreRenderSystem.h>
 #include "MyECS.h"
 #include "engine/utils.h"
-#include "serialization.h"
+
 #include "agent.h"
 
 namespace Escape {
