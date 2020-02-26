@@ -123,7 +123,7 @@ namespace Escape {
             try {
                 std::cerr << "Writing map file" << std::endl;
                 SerializationHelper helper("map.txt");
-                helper.serialize_ptr(world);
+                helper.serialize(*world);
             }
             catch (std::runtime_error &e) {
                 std::cerr << "error " << e.what() << std::endl;
@@ -135,7 +135,7 @@ namespace Escape {
         if (input.keys['i']) {
             std::cerr << "Reading map file" << std::endl;
             SerializationHelper helper("map.txt");
-            helper.deserialize_ptr(world);
+            helper.deserialize(*world);
         }
     }
 
