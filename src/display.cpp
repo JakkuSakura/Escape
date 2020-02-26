@@ -96,8 +96,8 @@ namespace Escape {
             if (spd > 1) {
                 vel /= spd;
             }
-            world->assign_or_replace<Impulse>(player, Impulse{.agent_id = agt.id, .angle = atan2f(vel.y,
-                                                                                                  vel.x), .impulse = 6.0f});
+            vel *= 6;
+            world->assign_or_replace<Control<Impulse>>(player, Control(agt.id, Impulse(vel.y, vel.x)));
         }
 
         if (input.keys['1'])

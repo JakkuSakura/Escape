@@ -5,21 +5,13 @@
 #ifndef ESCAPE_DISPLAY_H
 #define ESCAPE_DISPLAY_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <fstream>
 #include "separate_application.h"
 #include "engine/window_ogre.h"
 #include <OgreRenderSystem.h>
 #include "MyECS.h"
 #include "engine/utils.h"
-#include "weapons.h"
-#include "movement.h"
 #include "serialization.h"
 #include "agent.h"
-#include <sstream>
-#include "logic.h"
 
 namespace Escape {
 

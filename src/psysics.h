@@ -6,10 +6,10 @@
 
 namespace Escape
 {
-class MovementSystem : public ECSSystem
+class PhysicsSystem : public ECSSystem
 {
 public:
-    MovementSystem();
+    PhysicsSystem();
     void update(clock_type delta) override;
 
 };

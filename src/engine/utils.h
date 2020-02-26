@@ -3,13 +3,10 @@
 
 #include <iostream>
 
-template <typename T>
-inline void show_mat(const T &mat)
-{
-    for (size_t i = 0; i < mat.length(); i++)
-    {
-        for (size_t j = 0; j < mat[i].length(); j++)
-        {
+template<typename T>
+inline void show_mat(const T &mat) {
+    for (size_t i = 0; i < mat.length(); i++) {
+        for (size_t j = 0; j < mat[i].length(); j++) {
             std::cerr << mat[i][j] << " ";
         }
 
@@ -18,11 +15,9 @@ inline void show_mat(const T &mat)
     std::cerr << std::endl;
 }
 
-template <typename T>
-inline void show_vec(const T &vec)
-{
-    for (size_t j = 0; j < vec.length(); j++)
-    {
+template<typename T>
+inline void show_vec(const T &vec) {
+    for (size_t j = 0; j < vec.length(); j++) {
         std::cerr << vec[j] << " ";
     }
 
@@ -42,35 +37,42 @@ using clock_type = float;
     }                                                                        \
     constexpr base_type__ &unwrap()                                          \
     {                                                                        \
-        return *static_cast<base_type__ *>((void *)this);                    \
+        return ::as<base_type__>(*this);                                     \
     }                                                                        \
     constexpr const base_type__ &unwrap() const                              \
     {                                                                        \
-        return *static_cast<const base_type__ *>((void *)this);              \
+        return ::as<const base_type__>(*this);                               \
     }                                                                        \
     template <typename T>                                                    \
-    constexpr T &to()                                                        \
+    constexpr T &as()                                                        \
     {                                                                        \
-        static_assert(sizeof(NewName) == sizeof(T),                          \
-                      "The argument should have the same memory structure"); \
-        return *static_cast<T *>((void *)this);                              \
+        return as<T>(*this);                                                 \
     }                                                                        \
     template <typename T>                                                    \
-    constexpr const T &to() const                                            \
+    constexpr const T &as() const                                            \
     {                                                                        \
-        static_assert(sizeof(NewName) == sizeof(T),                          \
-                      "The argument should have the same memory structure"); \
-        return *static_cast<const T *>((void *)this);                        \
+        return as<const T>(*this);                                           \
     }                                                                        \
-    template <typename T>                                                    \
-    constexpr NewName &from(const T &src)                                    \
-    {                                                                        \
-        this->to<T>() = src;                                                 \
-        return *this;                                                        \
-    }
 
-class NewTypeBase
-{
+
+// The same as reinterpret_cast<>() but it gets rid of most limitations excluding const and size
+template<typename D, typename S>
+constexpr D &as(S &src) {
+    static_assert(sizeof(S) == sizeof(D),
+                  "The argument should have the same memory structure");
+
+    return *static_cast<D *>(static_cast<void *>(&src));
+}
+
+template<typename D, typename S>
+constexpr const D &as(const S &src) {
+    static_assert(sizeof(S) == sizeof(D),
+                  "The argument should have the same memory structure");
+
+    return *static_cast<const D *>(static_cast<const void *>(&src));
+}
+
+class NewTypeBase {
 };
 
 #define NEW_TYPE(NewName, BaseName)                               \

@@ -17,7 +17,6 @@ namespace Escape {
         }
     };
 
-
     struct Position : public glm::vec2 {
         FORWARD_CONSTRUCTORS(Position, glm::vec2);
 
@@ -35,6 +34,16 @@ namespace Escape {
             ar & unwrap();
         }
     };
+
+    struct Impulse : public glm::vec2 {
+        FORWARD_CONSTRUCTORS(Impulse, glm::vec2);
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version) {
+            ar & unwrap();
+        }
+    };
+
 
     struct Hitbox {
         float radius;
@@ -184,11 +193,12 @@ namespace Escape {
 
     // Controls
     // These shouldn't be saved nor assigned as component at all
-    struct Impulse {
+    template<typename T>
+    struct Control {
+        Control(int agent_id, const T &t) : agent_id(agent_id), data(t), processed(false) {}
         int agent_id;
-        float angle;
-        float impulse;
         bool processed;
+        T data;
     };
 
     struct Shooting {
@@ -196,6 +206,7 @@ namespace Escape {
         float angle;
         bool processed;
     };
+
     struct ChaneWeapon {
         int agent_id;
         WeaponType weapon;

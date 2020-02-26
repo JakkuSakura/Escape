@@ -31,7 +31,7 @@ namespace Escape {
     }
 
     Escape::Logic::Logic() {
-        addSubSystem(movement_system = new MovementSystem());
+        addSubSystem(movement_system = new PhysicsSystem());
         addSubSystem(lifespan_system = new LifespanSystem());
         addSubSystem(bullet_system = new BulletSystem());
         addSubSystem(weapon_system = new WeaponSystem());

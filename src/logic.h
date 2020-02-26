@@ -10,7 +10,7 @@
 #include "MyECS.h"
 #include "engine/utils.h"
 #include "weapons.h"
-#include "movement.h"
+#include "psysics.h"
 #include "serialization.h"
 #include "agent.h"
 #include <sstream>
@@ -21,7 +21,7 @@ namespace Escape {
 
     public:
         using SystemManager::world;
-        MovementSystem *movement_system;
+        PhysicsSystem *movement_system;
         BulletSystem *bullet_system;
         WeaponSystem *weapon_system;
         LifespanSystem *lifespan_system;
