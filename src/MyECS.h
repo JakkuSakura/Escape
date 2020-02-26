@@ -19,10 +19,6 @@ public:
     {
         return world;
     }
-    virtual void update(clock_type delta)
-    {
-        // TODO some update
-    };
     virtual ~SystemManager()
     {
         delete world;

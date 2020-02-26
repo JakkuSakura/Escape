@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-explicit-conversions"
 #if !defined(COMPONENTS_H)
 #define COMPONENTS_H
 
@@ -197,3 +199,5 @@ namespace Escape {
     func(Escape::TerrainData);
 
 #endif // COMPONENTS_H
+
+#pragma clang diagnostic pop

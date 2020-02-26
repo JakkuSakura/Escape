@@ -33,15 +33,9 @@ namespace Escape {
 
         ~DisplayOgre() = default;
 
-        std::pair<Ogre::SceneNode *, Ogre::Entity *>
-        newBox(float cx, float cy, float width, float height, float r, float g, float b);
-
         std::pair<Ogre::SceneNode *, Ogre::Entity *> newBox(float cx, float cy, float width, float height);
 
-        std::pair<Ogre::SceneNode *, Ogre::Entity *>
-        newCircle(float cx, float cy, float width, float height, float r, float g, float b);
-
-        std::pair<Ogre::SceneNode *, Ogre::Entity *> newCircle(float cx, float cy, float width, float height);
+        std::pair<Ogre::SceneNode *, Ogre::Entity *> newCircle(float cx, float cy, float radius);
 
         Ogre::Vector3 pickUp(unsigned int absoluteX, unsigned int absoluteY);
 
@@ -52,10 +46,6 @@ namespace Escape {
         void render() override;
 
         virtual void postProcess() override;
-
-        void renderAgent(Entity ent);
-        void renderTerrain(Escape::Entity ent);
-        void renderBullet(Entity ent);
 
         void windowResized(int width, int height) override;
     };
