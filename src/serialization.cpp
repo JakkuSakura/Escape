@@ -1,46 +1,59 @@
 #include "serialization.h"
 #include <vector>
 #include <map>
+#include <glm/glm.hpp>
+#include <utility>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <fstream>
+#include <string>
+#include "components.h"
+#include <sstream>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <boost/serialization/export.hpp>
 
 using namespace std;
-namespace {
-    struct WrapperBase {
-        virtual ~WrapperBase() {}
+using namespace Escape;
 
-    };
+struct WrapperBase {
+    virtual ~WrapperBase() {}
 
-    template<typename T>
-    struct Wrapper : public WrapperBase {
-        Wrapper(const Wrapper<T> &o) : data(o.data) {}
+    template<typename Archive>
+    void serialize(Archive &ar, unsigned int version) {}
+};
 
-        Wrapper(const T &data) : data(data) {}
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(WrapperBase);
 
-        T data;
-    };
-}
+#define REGISTER(type)  BOOST_CLASS_EXPORT(type)
+#define REGISTER2(type) REGISTER(Wrapper<type>)
+
+template<typename T>
+struct Wrapper : public WrapperBase {
+    Wrapper(const Wrapper<T> &o) : data(o.data) {}
+    Wrapper() : data() {}
+    Wrapper(const T &data) : data(data) {}
+
+    T data;
+    template<typename Archive>
+    void serialize(Archive &ar, unsigned int version) {
+        auto &base = boost::serialization::base_object<WrapperBase>(*this);
+//        ar & BOOST_SERIALIZATION_NVP(base);
+        ar & BOOST_SERIALIZATION_NVP(data);
+    }
+};
+FOREACH_COMPONENT_TYPE(REGISTER2);
+
 using namespace Escape;
 namespace boost {
     namespace serialization {
-
-        template<typename Archive>
-        void serialize(Archive &ar, vector<WrapperBase *> &vec, unsigned int version) {
-            int size = vec.size();
-            ar & BOOST_SERIALIZATION_NVP(size);
-            for (int i = 0; i < size; ++i) {
-                auto bs = vec[i];
-
-#define SAVE_TO_STRING(type) {auto *p = dynamic_cast<Wrapper<type> *>(bs); \
-            if (p) \
-            { \
-                 const auto &type = p->data; \
-                ar & BOOST_SERIALIZATION_NVP(type); \
-            }}
-#define SAVE_TO_STRING2(type) SAVE_TO_STRING(type)
-                FOREACH_COMPONENT_TYPE(SAVE_TO_STRING2);
-
-            }
-        }
-
         template<typename Archive>
         class entt_archive {
             Archive &ar;
@@ -59,13 +72,7 @@ namespace boost {
             }
 
             void sync() {
-                for (auto &pair : world) {
-                    int entity = pair.first;
-                    auto &components = pair.second;
-                    ar & BOOST_SERIALIZATION_NVP(entity);
-                    ar & BOOST_SERIALIZATION_NVP(components);
-
-                }
+                ar & BOOST_SERIALIZATION_NVP(world);
             }
 
             // output
