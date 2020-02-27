@@ -122,7 +122,7 @@ namespace Escape {
 
             try {
                 std::cerr << "Writing map file" << std::endl;
-                SerializationHelper helper("map.txt");
+                SerializationHelper helper("map.xml");
                 helper.serialize(*world);
             }
             catch (std::runtime_error &e) {
@@ -134,7 +134,7 @@ namespace Escape {
         }
         if (input.keys['i']) {
             std::cerr << "Reading map file" << std::endl;
-            SerializationHelper helper("map.txt");
+            SerializationHelper helper("map.xml");
             helper.deserialize(*world);
         }
     }

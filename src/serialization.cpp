@@ -3,21 +3,20 @@
 #include <map>
 #include <glm/glm.hpp>
 #include <utility>
+#define BOOST_SERIALIZATION_UTILITY_HPP 1
+
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <fstream>
 #include <string>
 #include "components.h"
-#include <sstream>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
+
 #include <boost/serialization/export.hpp>
 
 using namespace std;
@@ -42,18 +41,27 @@ struct Wrapper : public WrapperBase {
     Wrapper(const T &data) : data(data) {}
 
     T data;
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "HidingNonVirtualFunction"
     template<typename Archive>
     void serialize(Archive &ar, unsigned int version) {
         auto &base = boost::serialization::base_object<WrapperBase>(*this);
-//        ar & BOOST_SERIALIZATION_NVP(base);
-        ar & BOOST_SERIALIZATION_NVP(data);
+        data.serialize(ar, version);
     }
+#pragma clang diagnostic pop
 };
 FOREACH_COMPONENT_TYPE(REGISTER2);
 
 using namespace Escape;
 namespace boost {
     namespace serialization {
+        template <typename Archive>
+        void serialize(Archive &ar, std::pair<const unsigned int, std::vector<WrapperBase*> > &pair, unsigned int version) {
+            auto &entity_id = pair.first;
+            auto &components = pair.second;
+            ar & BOOST_SERIALIZATION_NVP(entity_id);
+            ar & BOOST_SERIALIZATION_NVP(components);
+        }
         template<typename Archive>
         class entt_archive {
             Archive &ar;
