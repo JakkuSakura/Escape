@@ -52,25 +52,32 @@ template<typename T>
 struct Wrapper : public WrapperBase {
     Wrapper() : data() {}
 
+    Wrapper(const Wrapper<T> &wrapper) : data(wrapper.data) {}
     Wrapper(const T &d) : data(d) {}
-
+    Wrapper(T &&d) : data(std::move(d)) {}
     T data;
+
+    Wrapper &operator=(const Wrapper &wrapper) {
+        data = wrapper.data;
+        return *this;
+    }
 
     void *getData() {
         return &data;
     }
 
-//    ThorsAnvil_PolyMorphicSerializer(Wrapper<T>);
+    ThorsAnvil_PolyMorphicSerializer(Wrapper<T>);
+
 
 };
 ThorsAnvil_MakeTrait(WrapperBase);
+ThorsAnvil_Template_ExpandTrait(1, WrapperBase, Wrapper , data);
 
 
-#define REGISTER(type)  ThorsAnvil_ExpandTrait(WrapperBase, Wrapper<type>, data);
-#define REGISTER2(type) REGISTER(type)
-
-FOREACH_COMPONENT_TYPE(REGISTER2);
-
+//#define REGISTER(type)  ThorsAnvil_ExpandTrait(WrapperBase, Wrapper<type>, data);
+//#define REGISTER2(type) REGISTER(type)
+//
+//FOREACH_COMPONENT_TYPE(REGISTER2);
 using namespace Escape;
 using ThorsAnvil::Serialize::jsonExport;
 using ThorsAnvil::Serialize::jsonImport;
@@ -94,6 +101,7 @@ public:
 
     void write_to_stream() {
 //        os << jsonExport(world);
+        os << jsonExport(new Wrapper(Position(42, 6)));
     }
 
     // output
