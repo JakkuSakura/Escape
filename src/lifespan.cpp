@@ -17,6 +17,6 @@ void Escape::LifespanSystem::update(clock_type delta) {
     });
 }
 
-Escape::Lifespan Escape::LifespanSystem::period(float secs) {
-    return Lifespan{begin : timeserver->now(), end : timeserver->now() + secs};
+Lifespan Escape::LifespanSystem::period(float secs) {
+    return Lifespan{.begin =  timeserver->now(), .end =  timeserver->now() + secs};
 }

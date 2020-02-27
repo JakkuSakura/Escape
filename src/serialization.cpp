@@ -10,229 +10,203 @@
 #include <map>
 #include <glm/glm.hpp>
 #include <utility>
-
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/map.hpp>
 #include <fstream>
 #include <string>
 #include "components.h"
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <iostream>
 #include <typeindex>
-#include <boost/serialization/export.hpp>
+#include <ThorSerialize/Traits.h>
+#include <ThorSerialize/JsonThor.h>
+#include <ThorSerialize/SerUtil.h>
 
 using namespace std;
 using namespace Escape;
 
+ThorsAnvil_MakeTrait(Name, name);
+ThorsAnvil_MakeTrait(vec2, x, y);
+ThorsAnvil_ExpandTrait(vec2, Position);
+ThorsAnvil_ExpandTrait(vec2, Velocity);
+ThorsAnvil_ExpandTrait(vec2, Impulse);
+ThorsAnvil_MakeTrait(Hitbox, radius);
+ThorsAnvil_MakeTrait(Rotation, radian);
+ThorsAnvil_MakeTrait(AgentData, id, player);
+ThorsAnvil_MakeTrait(TimeServerInfo, tick);
+ThorsAnvil_MakeTrait(Lifespan, begin, end);
+ThorsAnvil_MakeTrait(Health, max_health);
+ThorsAnvil_MakeTrait(BulletData, firer_id, type, damage, density, radius);
+ThorsAnvil_MakeTrait(WeaponPrototype, type, bullet_type, cd, accuracy, bullet_number, bullet_damage, bullet_speed,
+                     gun_length);
+ThorsAnvil_MakeTrait(Weapon, weapon, last, next);
+ThorsAnvil_MakeTrait(TerrainData, type, argument_1, argument_2, argument_3, argument_4);
+
+
 struct WrapperBase {
-    virtual ~WrapperBase() {}
+    virtual ~WrapperBase() {};
 
-    virtual void *getData() = 0;
+    virtual void *getData() { return 0; };
 
-    template<typename Archive>
-    void serialize(Archive &ar, unsigned int version) {}
+    ThorsAnvil_PolyMorphicSerializer(WrapperBase);
 };
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(WrapperBase);
-
-#define REGISTER(type)  BOOST_CLASS_EXPORT(type)
-#define REGISTER2(type) REGISTER(Wrapper<type>)
 
 template<typename T>
 struct Wrapper : public WrapperBase {
-    Wrapper(const Wrapper<T> &o) : data(o.data) {}
-
     Wrapper() : data() {}
 
-    Wrapper(const T &data) : data(data) {}
+    Wrapper(const T &d) : data(d) {}
 
-    void *getData() override {
+    T data;
+
+    void *getData() {
         return &data;
     }
 
-    T data;
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "HidingNonVirtualFunction"
+//    ThorsAnvil_PolyMorphicSerializer(Wrapper<T>);
 
-    template<typename Archive>
-    void serialize(Archive &ar, unsigned int version) {
-        auto &base = boost::serialization::base_object<WrapperBase>(*this);
-        data.serialize(ar, version);
-    }
-
-#pragma clang diagnostic pop
 };
+ThorsAnvil_MakeTrait(WrapperBase);
+
+
+#define REGISTER(type)  ThorsAnvil_ExpandTrait(WrapperBase, Wrapper<type>, data);
+#define REGISTER2(type) REGISTER(type)
+
 FOREACH_COMPONENT_TYPE(REGISTER2);
 
 using namespace Escape;
-namespace boost {
-    namespace serialization {
-        // todo some memory stuff
-        template<typename Archive>
-        void
-        serialize(Archive &ar, std::pair<const unsigned int, std::vector<WrapperBase *> > &pair, unsigned int version) {
-            auto &entity_id = const_cast<unsigned int &>(pair.first);
-            auto &components = pair.second;
-            ar & BOOST_SERIALIZATION_NVP(entity_id);
-            ar & BOOST_SERIALIZATION_NVP(components);
-        }
+using ThorsAnvil::Serialize::jsonExport;
+using ThorsAnvil::Serialize::jsonImport;
 
-        template<typename Archive>
-        class entt_oarchive {
-            Archive &ar;
-            map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
-            int stage;
-        public:
-            entt_oarchive(Archive &ar) : ar(ar), stage(0) {
+class entt_oarchive {
+    map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
+    ostream &os;
+    int stage;
+public:
+    entt_oarchive(ostream &os) : os(os), stage(0) {
 
+    }
+
+    ~entt_oarchive() {
+        for (auto &ent : world) {
+            for (auto &comp : ent.second) {
+                delete comp;
             }
+        }
+    }
 
-            ~entt_oarchive() {
-                for (auto &ent : world) {
-                    for (auto &comp : ent.second) {
-                        delete comp;
-                    }
+    void write_to_stream() {
+//        os << jsonExport(world);
+    }
+
+    // output
+    void operator()(int size) {
+        stage += 1;
+    }
+
+    void operator()(const entt::entity &entity) {
+
+    }
+
+
+    template<typename T>
+    void operator()(entt::entity entity, const T &data) {
+        world[entt::to_integral(entity)].push_back(new Wrapper<T>(data));
+    }
+
+};
+
+
+class entt_iarchive {
+    int stage;
+    istream &is;
+    map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
+    map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator entity_iter;
+    vector<type_index> components_order;
+    vector<type_index>::iterator component_iter;
+    map<type_index, vector<pair<ENTT_ID_TYPE, void *>>> pairs;
+    vector<pair<ENTT_ID_TYPE, void *>>::iterator pair_iter2;
+
+public:
+    entt_iarchive(istream &is) : is(is), stage(0) {
+    }
+
+    ~entt_iarchive() {
+        for (auto &ent : world) {
+            for (auto &comp : ent.second) {
+                delete comp;
+            }
+        }
+    }
+
+
+    void read_from_stream() {
+//        is >> jsonImport(world);
+    }
+
+    template<typename T>
+    void single_component() {
+        components_order.emplace_back(typeid(T));
+        for (auto &pair : world) {
+            for (auto *comp : pair.second) {
+                if (typeid(Wrapper<T>) == typeid(*comp)) {
+                    pairs[typeid(T)].push_back(make_pair(pair.first, comp->getData()));
                 }
             }
-
-            void write_to_stream() {
-                ar & BOOST_SERIALIZATION_NVP(world);
-            }
-
-            // output
-            void operator()(int size) {
-                stage += 1;
-            }
-
-            void operator()(const entt::entity &entity) {
-
-            }
-
-
-            template<typename T>
-            void operator()(entt::entity entity, const T &data) {
-                world[entt::to_integral(entity)].push_back(new Wrapper<T>(data));
-            }
-
-        };
-
-        template<typename Archive>
-        class entt_iarchive {
-            int stage;
-            Archive &ar;
-            map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
-            map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator entity_iter;
-            vector<type_index> components_order;
-            vector<type_index>::iterator component_iter;
-            map<type_index, vector<pair<ENTT_ID_TYPE, void *>>> pairs;
-            vector<pair<ENTT_ID_TYPE, void *>>::iterator pair_iter2;
-
-        public:
-            entt_iarchive(Archive &ar) : ar(ar), stage(0) {
-            }
-
-            ~entt_iarchive() {
-                for (auto &ent : world) {
-                    for (auto &comp : ent.second) {
-                        delete comp;
-                    }
-                }
-            }
-
-
-            void read_from_stream() {
-                ar & BOOST_SERIALIZATION_NVP(world);
-            }
-
-            template<typename T>
-            void single_component() {
-                components_order.push_back(typeid(T));
-                for (auto &pair : world) {
-                    for (auto *comp : pair.second) {
-                        if (typeid(Wrapper<T>) == typeid(*comp)) {
-                            pairs[typeid(T)].push_back(make_pair(pair.first, comp->getData()));
-                        }
-                    }
-                }
-            }
-
-            template<typename ... components>
-            void set_orders() {
-                (single_component<components>(), ...);
-                component_iter = components_order.begin();
-            }
-
-            // input
-            void operator()(entt::entt_traits<unsigned int>::entity_type &size) {
-                stage += 1;
-                if (stage == 1) // entities alive
-                {
-                    size = world.size();
-                } else { // components
-                    size = pairs[*component_iter].size();
-                    pair_iter2 = pairs[*component_iter].begin();
-                    ++component_iter;
-                }
-                entity_iter = world.begin();
-            }
-
-            void operator()(entt::entity &entity) {
-                entity = (entt::entity) entity_iter->first;
-                ++entity_iter;
-            }
-
-            template<typename T>
-            void operator()(entt::entity &entity, T &data) {
-                entity = (entt::entity) pair_iter2->first;
-                data = *(T *) pair_iter2->second;
-                ++pair_iter2;
-            }
-        };
-
-
-        template<class Archive>
-        void save(Archive &ar, const entt::registry &p, unsigned int version) {
-            auto &world = const_cast<entt::registry &>(p);
-            entt_oarchive output(ar);
-            auto snapshot = world.snapshot();
-            snapshot.component<COMPONENT_LIST>(output);
-            output.write_to_stream();
         }
+    }
 
-        template<class Archive>
-        void load(Archive &ar, entt::registry &p, unsigned int version) {
-            p = entt::registry();
-            entt_iarchive input(ar);
-            input.read_from_stream();
-            input.template set_orders<COMPONENT_LIST>();
-            auto snapshot = p.loader();
-            snapshot.entities(input);
-            snapshot.component<COMPONENT_LIST>(input);
-            snapshot.orphans();
+    template<typename ... components>
+    void set_orders() {
+        (single_component<components>(), ...);
+        component_iter = components_order.begin();
+    }
+
+    // input
+    void operator()(entt::entt_traits<unsigned int>::entity_type &size) {
+        stage += 1;
+        if (stage == 1) // entities alive
+        {
+            size = world.size();
+        } else { // components
+            size = pairs[*component_iter].size();
+            pair_iter2 = pairs[*component_iter].begin();
+            ++component_iter;
         }
+        entity_iter = world.begin();
+    }
 
-        template<typename Archive>
-        inline void serialize(Archive &ar, entt::registry &p, const unsigned int version) {
-            split_free(ar, p, version);
-        }
+    void operator()(entt::entity &entity) {
+        entity = (entt::entity) entity_iter->first;
+        ++entity_iter;
+    }
 
-    } // namespace serialization
-} // namespace boost
+    template<typename T>
+    void operator()(entt::entity &entity, T &data) {
+        entity = (entt::entity) pair_iter2->first;
+        data = *(T *) pair_iter2->second;
+        ++pair_iter2;
+    }
+};
+
+
 Escape::SerializationHelper::SerializationHelper(std::string name) : filename(std::move(name)) {
 }
 
 void Escape::SerializationHelper::serialize(const Escape::World &world) {
     std::ofstream stream(filename);
-    boost::archive::xml_oarchive oa(stream);
-    oa << BOOST_SERIALIZATION_NVP(world);
+    entt_oarchive output(stream);
+    auto snapshot = const_cast<entt::registry &>(world).snapshot();
+    snapshot.component<COMPONENT_LIST>(output);
+    output.write_to_stream();
+
 }
 
 void Escape::SerializationHelper::deserialize(Escape::World &world) {
+    world.clear();
     std::ifstream stream(filename);
-    boost::archive::xml_iarchive ia(stream);
-    ia >> BOOST_SERIALIZATION_NVP(world);
+    entt_iarchive input(stream);
+    input.read_from_stream();
+    input.set_orders<COMPONENT_LIST>();
+    auto snapshot = world.loader();
+    snapshot.entities(input);
+    snapshot.component<COMPONENT_LIST>(input);
+    snapshot.orphans();
 }

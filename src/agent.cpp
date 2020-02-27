@@ -2,7 +2,7 @@
 
 int Escape::AgentSystem::index = 0;
 
-Escape::Entity Escape::AgentSystem::createAgent(Escape::World *world, const Escape::Position &pos, int player) {
+Escape::Entity Escape::AgentSystem::createAgent(Escape::World *world, const Position &pos, int player) {
     assert(world != nullptr);
     Entity agent = world->create();
     world->assign<Name>(agent, "agent");
@@ -16,7 +16,7 @@ Escape::Entity Escape::AgentSystem::createAgent(Escape::World *world, const Esca
 
 }
 
-Escape::Entity Escape::AgentSystem::createAgent(const Escape::Position &pos) {
+Escape::Entity Escape::AgentSystem::createAgent(const Position &pos) {
     return createAgent(world, pos, 0);
 }
 

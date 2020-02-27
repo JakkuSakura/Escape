@@ -35,25 +35,6 @@ using clock_type = float;
     NewName(const base_type__ &old) : base_type__(old)                       \
     {                                                                        \
     }                                                                        \
-    constexpr base_type__ &unwrap()                                          \
-    {                                                                        \
-        return ::as<base_type__>(*this);                                     \
-    }                                                                        \
-    constexpr const base_type__ &unwrap() const                              \
-    {                                                                        \
-        return ::as<const base_type__>(*this);                               \
-    }                                                                        \
-    template <typename T>                                                    \
-    constexpr T &as()                                                        \
-    {                                                                        \
-        return as<T>(*this);                                                 \
-    }                                                                        \
-    template <typename T>                                                    \
-    constexpr const T &as() const                                            \
-    {                                                                        \
-        return as<const T>(*this);                                           \
-    }                                                                        \
-
 
 // The same as reinterpret_cast<>() but it gets rid of most limitations excluding const and size
 template<typename D, typename S>

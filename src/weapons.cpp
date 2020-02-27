@@ -25,7 +25,7 @@ namespace Escape {
         world->assign<BulletData>(bullet, data);
         world->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
 
-        glm::vec2 ang(cos(angle), sin(angle));
+        vec2 ang(cos(angle), sin(angle));
 
         world->assign<Velocity>(bullet, speed * ang);
         world->assign<Position>(bullet, world->get<Position>(firer) + ang * distance);

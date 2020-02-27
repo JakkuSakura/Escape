@@ -11,3 +11,6 @@
 [submodule "vendor/entt"]
 	path = vendor/entt
 	url = https://github.com/skypjack/entt
+[submodule "vendor/ThorsSerializer"]
+	path = vendor/ThorsSerializer
+	url = https://github.com/Loki-Astari/ThorsSerializer.git

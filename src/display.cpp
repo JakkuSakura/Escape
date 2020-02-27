@@ -91,7 +91,7 @@ namespace Escape {
             vel.x += -1;
         if (input.keys['d'])
             vel.x += 1;
-        float spd = glm::length(vel.unwrap());
+        float spd = glm::length(as<glm::vec2>(vel));
         if (spd > 0) {
             if (spd > 1) {
                 vel /= spd;
@@ -157,7 +157,7 @@ namespace Escape {
             }
         });
         world->view<TerrainData, Position>().each([&](auto ent, auto &ter, auto &pos) {
-            auto pair = newBox(pos.x, pos.y, ter.arguments[0], ter.arguments[1]);
+            auto pair = newBox(pos.x, pos.y, ter.argument_1, ter.argument_2);
             setColor(pair.second, .5, .5, .5);
             if (world->has<Rotation>(ent)) {
                 auto rotation = world->get<Rotation>(ent);

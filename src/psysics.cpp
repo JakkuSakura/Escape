@@ -49,7 +49,7 @@ namespace Escape {
                 wallDef.position.Set(pos.x, pos.y);
                 wallDef.angle = rot.radian;
                 b2PolygonShape wallBox;
-                wallBox.SetAsBox(ter.arguments[0] / 2, ter.arguments[1] / 2);
+                wallBox.SetAsBox(ter.argument_1 / 2, ter.argument_2 / 2);
                 b2FixtureDef fixtureDef;
                 fixtureDef.shape = &wallBox;
                 fixtureDef.density = 0;
