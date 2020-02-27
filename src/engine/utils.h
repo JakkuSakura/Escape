@@ -71,6 +71,15 @@ constexpr const D &as(const S &src) {
 
     return *static_cast<const D *>(static_cast<const void *>(&src));
 }
+template<typename D, typename S>
+constexpr D &as_f(S &src) {
+    return *static_cast<D *>(static_cast<void *>(&src));
+}
+
+template<typename D, typename S>
+constexpr const D &as_f(const S &src) {
+    return *static_cast<const D *>(static_cast<const void *>(&src));
+}
 
 class NewTypeBase {
 };
