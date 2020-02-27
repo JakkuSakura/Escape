@@ -3,6 +3,7 @@
  * Consider refactor it in the future
  * But not recently for it's not the main module
  * Jack Quinn Feb 27, 2020
+ * TODO consider modifying xml_archive
  */
 #include "serialization.h"
 #include <vector>
@@ -191,14 +192,6 @@ namespace boost {
                 ++pair_iter2;
             }
         };
-
-
-        template<typename Archive>
-        inline void serialize(Archive &ar, glm::vec2 &p, const unsigned int version) {
-            int x = p.x, y = p.y;
-            ar & BOOST_SERIALIZATION_NVP(x);
-            ar & BOOST_SERIALIZATION_NVP(y);
-        }
 
 
         template<class Archive>

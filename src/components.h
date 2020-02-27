@@ -24,8 +24,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            auto &position = unwrap();
-            ar & BOOST_SERIALIZATION_NVP(position);
+            ar & BOOST_SERIALIZATION_NVP(x);
+            ar & BOOST_SERIALIZATION_NVP(y);
         }
     };
 
@@ -34,8 +34,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            auto &velocity = unwrap();
-            ar & BOOST_SERIALIZATION_NVP(velocity);
+            ar & BOOST_SERIALIZATION_NVP(x);
+            ar & BOOST_SERIALIZATION_NVP(y);
         }
     };
 
@@ -44,8 +44,8 @@ namespace Escape {
 
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version) {
-            auto &impulse = unwrap();
-            ar & BOOST_SERIALIZATION_NVP(impulse);
+            ar & BOOST_SERIALIZATION_NVP(x);
+            ar & BOOST_SERIALIZATION_NVP(y);
         }
     };
 
