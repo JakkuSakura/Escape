@@ -21,7 +21,7 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <iostream>
-
+#include <typeindex>
 #include <boost/serialization/export.hpp>
 
 using namespace std;
@@ -29,7 +29,9 @@ using namespace Escape;
 
 struct WrapperBase {
     virtual ~WrapperBase() {}
+
     virtual void *getData() = 0;
+
     template<typename Archive>
     void serialize(Archive &ar, unsigned int version) {}
 };
@@ -46,9 +48,11 @@ struct Wrapper : public WrapperBase {
     Wrapper() : data() {}
 
     Wrapper(const T &data) : data(data) {}
-    void * getData() override {
+
+    void *getData() override {
         return &data;
     }
+
     T data;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "HidingNonVirtualFunction"
@@ -66,6 +70,7 @@ FOREACH_COMPONENT_TYPE(REGISTER2);
 using namespace Escape;
 namespace boost {
     namespace serialization {
+        // todo some memory stuff
         template<typename Archive>
         void
         serialize(Archive &ar, std::pair<const unsigned int, std::vector<WrapperBase *> > &pair, unsigned int version) {
@@ -80,7 +85,6 @@ namespace boost {
             Archive &ar;
             map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
             int stage;
-            map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator iterator;
         public:
             entt_oarchive(Archive &ar) : ar(ar), stage(0) {
 
@@ -94,7 +98,7 @@ namespace boost {
                 }
             }
 
-            void write_to_file() {
+            void write_to_stream() {
                 ar & BOOST_SERIALIZATION_NVP(world);
             }
 
@@ -120,45 +124,71 @@ namespace boost {
             int stage;
             Archive &ar;
             map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
-            map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator iterator;
+            map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator entity_iter;
+            vector<type_index> components_order;
+            vector<type_index>::iterator component_iter;
+            map<type_index, vector<pair<ENTT_ID_TYPE, void *>>> pairs;
+            vector<pair<ENTT_ID_TYPE, void *>>::iterator pair_iter2;
+
         public:
             entt_iarchive(Archive &ar) : ar(ar), stage(0) {
-
             }
-            void sync() {
+
+            ~entt_iarchive() {
+                for (auto &ent : world) {
+                    for (auto &comp : ent.second) {
+                        delete comp;
+                    }
+                }
+            }
+
+
+            void read_from_stream() {
                 ar & BOOST_SERIALIZATION_NVP(world);
             }
+
+            template<typename T>
+            void single_component() {
+                components_order.push_back(typeid(T));
+                for (auto &pair : world) {
+                    for (auto *comp : pair.second) {
+                        if (typeid(Wrapper<T>) == typeid(*comp)) {
+                            pairs[typeid(T)].push_back(make_pair(pair.first, comp->getData()));
+                        }
+                    }
+                }
+            }
+
+            template<typename ... components>
+            void set_orders() {
+                (single_component<components>(), ...);
+                component_iter = components_order.begin();
+            }
+
             // input
             void operator()(entt::entt_traits<unsigned int>::entity_type &size) {
                 stage += 1;
                 if (stage == 1) // entities alive
                 {
                     size = world.size();
-                    iterator = world.begin();
                 } else { // components
-                    // size = count
-                    // FIXME what am I supposed to do ???
-                    assert(false);
+                    size = pairs[*component_iter].size();
+                    pair_iter2 = pairs[*component_iter].begin();
+                    ++component_iter;
                 }
+                entity_iter = world.begin();
             }
 
             void operator()(entt::entity &entity) {
-                entity = (entt::entity) iterator->first;
+                entity = (entt::entity) entity_iter->first;
+                ++entity_iter;
             }
+
             template<typename T>
             void operator()(entt::entity &entity, T &data) {
-                auto &ent = world[entt::to_integral(entity)];
-                for (int i = 0; i < ent.size(); ++i) {
-#define ASSIGN(type) \
-                    { \
-                        auto *p = dynamic_cast<Wrapper<type> *>(ent[i]); \
-                        if(p) \
-                        { \
-                            data = *(T *)p->getData(); \
-                        } \
-                    }
-                    FOREACH_COMPONENT_TYPE(ASSIGN);
-                }
+                entity = (entt::entity) pair_iter2->first;
+                data = *(T *) pair_iter2->second;
+                ++pair_iter2;
             }
         };
 
@@ -177,14 +207,15 @@ namespace boost {
             entt_oarchive output(ar);
             auto snapshot = world.snapshot();
             snapshot.component<COMPONENT_LIST>(output);
-            output.write_to_file();
+            output.write_to_stream();
         }
 
         template<class Archive>
         void load(Archive &ar, entt::registry &p, unsigned int version) {
-            p.clear();
+            p = entt::registry();
             entt_iarchive input(ar);
-            input.sync();
+            input.read_from_stream();
+            input.template set_orders<COMPONENT_LIST>();
             auto snapshot = p.loader();
             snapshot.entities(input);
             snapshot.component<COMPONENT_LIST>(input);
