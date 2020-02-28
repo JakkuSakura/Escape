@@ -8,12 +8,10 @@
 #include "serialization.h"
 #include <vector>
 #include <map>
-#include <glm/glm.hpp>
 #include <utility>
 #include <fstream>
 #include <string>
 #include "components.h"
-#include <iostream>
 #include <typeindex>
 #include <ThorSerialize/Traits.h>
 #include <ThorSerialize/JsonThor.h>
@@ -39,6 +37,19 @@ ThorsAnvil_MakeTrait(WeaponPrototype, type, bullet_type, cd, accuracy, bullet_nu
 ThorsAnvil_MakeTrait(Weapon, weapon, last, next);
 ThorsAnvil_MakeTrait(TerrainData, type, argument_1, argument_2, argument_3, argument_4);
 
+ThorsAnvil_MakeEnum(BulletType,
+                    HANDGUN_BULLET,
+                    SHOTGUN_SHELL,
+                    SMG_BULLET,
+                    RIFLE_BULLET);
+
+ThorsAnvil_MakeEnum(WeaponType,
+                    HANDGUN,
+                    SHOTGUN,
+                    SMG,
+                    RIFLE);
+
+ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
 
 struct WrapperBase {
     virtual ~WrapperBase() {};
@@ -49,46 +60,90 @@ struct WrapperBase {
 };
 
 template<typename T>
-struct Wrapper : public WrapperBase {
-    Wrapper() : data() {}
-
-    Wrapper(const Wrapper<T> &wrapper) : data(wrapper.data) {}
-    Wrapper(const T &d) : data(d) {}
-    Wrapper(T &&d) : data(std::move(d)) {}
-    T data;
-
-    Wrapper &operator=(const Wrapper &wrapper) {
-        data = wrapper.data;
-        return *this;
-    }
-
-    void *getData() {
-        return &data;
-    }
-
-    ThorsAnvil_PolyMorphicSerializer(Wrapper<T>);
-
-
+struct Wrapper {
 };
+#define MAKE_WRAPPER(T, name)                                                                  \
+    template <>                                                                                \
+    struct Wrapper<T> : public WrapperBase                                                     \
+    {                                                                                          \
+        Wrapper() : data() {}                                                                  \
+        Wrapper(const Wrapper<T> &wrapper) : data(wrapper.data) {}                             \
+        Wrapper(const T &d) : data(d) {}                                                       \
+        Wrapper(T &&d) : data(std::move(d)) {}                                                 \
+        T data;                                                                                \
+        Wrapper &operator=(const Wrapper &wrapper)                                             \
+        {                                                                                      \
+            data = wrapper.data;                                                               \
+            return *this;                                                                      \
+        }                                                                                      \
+        void *getData()                                                                        \
+        {                                                                                      \
+            return &data;                                                                      \
+        }                                                                                      \
+        virtual void printPolyMorphicObject(ThorsAnvil::Serialize::Serializer &parent,         \
+                                            ThorsAnvil::Serialize::PrinterInterface &printer)  \
+        {                                                                                      \
+            ThorsAnvil::Serialize::printPolyMorphicObject<Wrapper<T>>(parent, printer, *this); \
+        }                                                                                      \
+        virtual void parsePolyMorphicObject(ThorsAnvil::Serialize::DeSerializer &parent,       \
+                                            ThorsAnvil::Serialize::ParserInterface &parser)    \
+        {                                                                                      \
+            ThorsAnvil::Serialize::parsePolyMorphicObject<Wrapper<T>>(parent, parser, *this);  \
+        }                                                                                      \
+        static constexpr char const *polyMorphicSerializerName() { return #name; };            \
+    };                                                                                         \
+    My_ExpandTrait(WrapperBase, Wrapper<T>, data);
+
+#define My_ExpandTrait(ParentType,  ...)                     My_ExpandTrait_Base(ParentType, __VA_ARGS__, 1)
+#define My_ExpandTrait_Base(ParentType, DataType, ...)          \
+    static_assert(                                                      \
+        std::is_base_of<typename ThorsAnvil::Serialize::GetPrimaryParentType<ParentType>::type, DataType>::value,                  \
+        "ParentType must be a base class of DataType");                 \
+    static_assert(                                                      \
+        ::ThorsAnvil::Serialize::Traits<ParentType>::type != ThorsAnvil::Serialize::TraitType::Invalid, \
+        "Parent type must have Serialization Traits defined"            \
+    );                                                                  \
+    ThorsAnvil_MakeTrait_Base(ThorsAnvil_Parent(0, ParentType, DataType, __VA_ARGS__), Parent, 00, DataType, __VA_ARGS__); \
+    My_RegisterPolyMorphicType(DataType, DataType)            \
+
+#define My_RegisterPolyMorphicType(DataType, name)                    \
+namespace ThorsAnvil { namespace Serialize {                            \
+namespace                                                               \
+{                                                                       \
+    ThorsAnvil_InitPolyMorphicType<DataType>   THOR_UNIQUE_NAME ( # name); \
+}                                                                       \
+}}
+
+
 ThorsAnvil_MakeTrait(WrapperBase);
-ThorsAnvil_Template_ExpandTrait(1, WrapperBase, Wrapper , data);
+#define MAKE_WRAPPER2(type) MAKE_WRAPPER(type, Wrapper<type>)
 
+FOREACH_COMPONENT_TYPE(MAKE_WRAPPER2);
 
-//#define REGISTER(type)  ThorsAnvil_ExpandTrait(WrapperBase, Wrapper<type>, data);
-//#define REGISTER2(type) REGISTER(type)
-//
-//FOREACH_COMPONENT_TYPE(REGISTER2);
 using namespace Escape;
 using ThorsAnvil::Serialize::jsonExport;
 using ThorsAnvil::Serialize::jsonImport;
 
+string to_str(int i) {
+    static char buf[30];
+    sprintf(buf, "%d", i);
+    return buf;
+}
+
+int to_int(const string &s, const char *error_info = "Must be an integer: ") {
+    int key_ = -1;
+    if (sscanf(s.c_str(), "%d", &key_) == EOF)
+        throw runtime_error(error_info + s);
+    return key_;
+}
+
 class entt_oarchive {
-    map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
+    map<string, vector<WrapperBase *>> world;
     ostream &os;
     int stage;
+
 public:
     entt_oarchive(ostream &os) : os(os), stage(0) {
-
     }
 
     ~entt_oarchive() {
@@ -100,8 +155,7 @@ public:
     }
 
     void write_to_stream() {
-//        os << jsonExport(world);
-        os << jsonExport(new Wrapper(Position(42, 6)));
+        os << jsonExport(world);
     }
 
     // output
@@ -110,23 +164,19 @@ public:
     }
 
     void operator()(const entt::entity &entity) {
-
     }
-
 
     template<typename T>
     void operator()(entt::entity entity, const T &data) {
-        world[entt::to_integral(entity)].push_back(new Wrapper<T>(data));
+        world[to_str(entt::to_integral(entity))].push_back(new Wrapper<T>(data));
     }
-
 };
-
 
 class entt_iarchive {
     int stage;
     istream &is;
-    map<ENTT_ID_TYPE, vector<WrapperBase *>> world;
-    map<ENTT_ID_TYPE, vector<WrapperBase *>>::iterator entity_iter;
+    map<string, vector<WrapperBase *>> world;
+    map<string, vector<WrapperBase *>>::iterator entity_iter;
     vector<type_index> components_order;
     vector<type_index>::iterator component_iter;
     map<type_index, vector<pair<ENTT_ID_TYPE, void *>>> pairs;
@@ -144,9 +194,8 @@ public:
         }
     }
 
-
     void read_from_stream() {
-//        is >> jsonImport(world);
+        is >> jsonImport(world);
     }
 
     template<typename T>
@@ -155,13 +204,13 @@ public:
         for (auto &pair : world) {
             for (auto *comp : pair.second) {
                 if (typeid(Wrapper<T>) == typeid(*comp)) {
-                    pairs[typeid(T)].push_back(make_pair(pair.first, comp->getData()));
+                    pairs[typeid(T)].push_back(make_pair(to_int(pair.first), comp->getData()));
                 }
             }
         }
     }
 
-    template<typename ... components>
+    template<typename... components>
     void set_orders() {
         (single_component<components>(), ...);
         component_iter = components_order.begin();
@@ -182,7 +231,7 @@ public:
     }
 
     void operator()(entt::entity &entity) {
-        entity = (entt::entity) entity_iter->first;
+        entity = (entt::entity) to_int(entity_iter->first);
         ++entity_iter;
     }
 
@@ -194,7 +243,6 @@ public:
     }
 };
 
-
 Escape::SerializationHelper::SerializationHelper(std::string name) : filename(std::move(name)) {
 }
 
@@ -204,7 +252,6 @@ void Escape::SerializationHelper::serialize(const Escape::World &world) {
     auto snapshot = const_cast<entt::registry &>(world).snapshot();
     snapshot.component<COMPONENT_LIST>(output);
     output.write_to_stream();
-
 }
 
 void Escape::SerializationHelper::deserialize(Escape::World &world) {
