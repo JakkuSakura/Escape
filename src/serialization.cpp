@@ -76,56 +76,79 @@ template <typename T>
 struct Wrapper
 {
 };
-#define MAKE_WRAPPER(T, name)                                                                  \
-    template <>                                                                                \
-    struct Wrapper<T> : public WrapperBase                                                     \
-    {                                                                                          \
-        Wrapper() : data() {}                                                                  \
-        Wrapper(const Wrapper<T> &wrapper) : data(wrapper.data) {}                             \
-        Wrapper(const T &d) : data(d) {}                                                       \
-        Wrapper(T &&d) : data(std::move(d)) {}                                                 \
-        T data;                                                                                \
-        Wrapper &operator=(const Wrapper &wrapper)                                             \
-        {                                                                                      \
-            data = wrapper.data;                                                               \
-            return *this;                                                                      \
-        }                                                                                      \
-        void *getData()                                                                        \
-        {                                                                                      \
-            return &data;                                                                      \
-        }                                                                                      \
-        virtual void printPolyMorphicObject(ThorsAnvil::Serialize::Serializer &parent,         \
-                                            ThorsAnvil::Serialize::PrinterInterface &printer)  \
-        {                                                                                      \
-            ThorsAnvil::Serialize::printPolyMorphicObject<Wrapper<T>>(parent, printer, *this); \
-        }                                                                                      \
-        virtual void parsePolyMorphicObject(ThorsAnvil::Serialize::DeSerializer &parent,       \
-                                            ThorsAnvil::Serialize::ParserInterface &parser)    \
-        {                                                                                      \
-            ThorsAnvil::Serialize::parsePolyMorphicObject<Wrapper<T>>(parent, parser, *this);  \
-        }                                                                                      \
-        static constexpr char const *polyMorphicSerializerName() { return #name; };            \
-    };                                                                                         \
-    My_RegisterPolyMorphicType(Wrapper<T>, Wrapper<T>);                                        \
-    namespace ThorsAnvil                                                                       \
-    {                                                                                          \
-    namespace Serialize                                                                        \
-    {                                                                                          \
-    template <>                                                                                \
-    class Traits<Wrapper<T>>                                                                   \
-    {                                                                                          \
-    public:                                                                                    \
-        static constexpr TraitType type = TraitType::Parent;                                   \
-        using Parent = WrapperBase;                                                            \
-        using Root = typename GetRootType<WrapperBase>::Root;                                  \
-        using Members = std::tuple<std::pair<char const *, decltype(&Wrapper<T>::data)>>;      \
-        static Members const &getMembers()                                                     \
-        {                                                                                      \
-            static constexpr Members members{{"data", &Wrapper<T>::data}};                     \
-            return members;                                                                    \
-        }                                                                                      \
-    };                                                                                         \
-    }                                                                                          \
+#define MAKE_WRAPPER(T, name)                                                                       \
+    template <>                                                                                     \
+    struct Wrapper<T> : public WrapperBase                                                          \
+    {                                                                                               \
+        Wrapper() : data() {}                                                                       \
+        Wrapper(const Wrapper<T> &wrapper) : data(wrapper.data) {}                                  \
+        Wrapper(const T &d) : data(d) {}                                                            \
+        Wrapper(T &&d) : data(std::move(d)) {}                                                      \
+        T data;                                                                                     \
+        Wrapper &operator=(const Wrapper &wrapper)                                                  \
+        {                                                                                           \
+            data = wrapper.data;                                                                    \
+            return *this;                                                                           \
+        }                                                                                           \
+        void *getData()                                                                             \
+        {                                                                                           \
+            return &data;                                                                           \
+        }                                                                                           \
+        virtual void printPolyMorphicObject(ThorsAnvil::Serialize::Serializer &parent,              \
+                                            ThorsAnvil::Serialize::PrinterInterface &printer)       \
+        {                                                                                           \
+            ThorsAnvil::Serialize::printPolyMorphicObject<Wrapper<T>>(parent, printer, *this);      \
+        }                                                                                           \
+        virtual void parsePolyMorphicObject(ThorsAnvil::Serialize::DeSerializer &parent,            \
+                                            ThorsAnvil::Serialize::ParserInterface &parser)         \
+        {                                                                                           \
+            ThorsAnvil::Serialize::parsePolyMorphicObject<Wrapper<T>>(parent, parser, *this);       \
+        }                                                                                           \
+        static constexpr char const *polyMorphicSerializerName() { return #name; };                 \
+    };                                                                                              \
+    My_RegisterPolyMorphicType(Wrapper<T>, name);                                                   \
+    namespace ThorsAnvil                                                                            \
+    {                                                                                               \
+    namespace Serialize                                                                             \
+    {                                                                                               \
+    template <>                                                                                     \
+    class Traits<Wrapper<T>>                                                                        \
+    {                                                                                               \
+    public:                                                                                         \
+        static constexpr TraitType type = TraitType::Map;                                           \
+        using Members = std::tuple<std::pair<char const *, decltype(&Wrapper<T>::data)>>;        \
+        static auto const &getMembers()                                                          \
+        {                                                                                           \
+            static constexpr Members members{{"data", &Wrapper<T>::data}};                          \
+            return members;/*Traits<T>::getMembers();*/                                                         \
+        }                                                                                           \
+    };                                                                                              \
+    template <>                                                                                     \
+    class SerializerForBlock<TraitType::Map, Wrapper<T>>                                            \
+    {                                                                                               \
+        Serializer &parent;                                                                         \
+        PrinterInterface &printer;                                                                  \
+        Wrapper<T> const &object;                                                                   \
+                                                                                                    \
+    public:                                                                                         \
+        SerializerForBlock(Serializer &parent, PrinterInterface &printer, Wrapper<T> const &object) \
+            : parent(parent), printer(printer), object(object)                                      \
+        {                                                                                           \
+            printer.openMap();                                                                      \
+        }                                                                                           \
+        ~SerializerForBlock() { printer.closeMap(); }                                               \
+        void printMembers()                                                                         \
+        {                                                                                           \
+            parent.printObjectMembers(object.data);                                                 \
+        }                                                                                           \
+        void printPolyMorphicMembers(std::string const& type)                                       \
+        {                                                                                           \
+            printer.addKey(printer.config.polymorphicMarker);                                       \
+            printer.addValue(type);                                                                 \
+            printMembers();                                                                         \
+        }                                                                                           \
+    };                                                                                              \
+    }                                                                                               \
     }
 
 ThorsAnvil_MakeTrait(WrapperBase);
