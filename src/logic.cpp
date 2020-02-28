@@ -3,13 +3,12 @@
 //
 
 #include "logic.h"
-#include "read_map.h"
 #include "application.h"
 #include "psysics.h"
 #include "lifespan.h"
 #include "weapons.h"
 #include "agent.h"
-
+#include "serialization.h"
 namespace Escape {
 
     void Escape::Logic::initialize() {
@@ -19,8 +18,8 @@ namespace Escape {
         addSubSystem(new BulletSystem());
         addSubSystem(new WeaponSystem());
         addSubSystem(new AgentSystem());
-        ReadMap reader("assets/map.json");
-        reader.readMapFile(world);
+        SerializationHelper reader("assets/map.json");
+        reader.deserialize(*world);
     }
 
 }

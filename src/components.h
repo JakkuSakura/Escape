@@ -6,6 +6,10 @@
 
 struct Name {
     std::string name;
+
+    Name() = default;
+
+    Name(std::string &&s) : name(std::move(s)) {}
 };
 
 

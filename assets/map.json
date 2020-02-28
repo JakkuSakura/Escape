@@ -1,46 +1,188 @@
-{
-    "AGENTS" : [
-        {
-            "TYPE" : "PLAYER",
-            "X" : 0,
-            "Y" : 0,
-            "WEAPON" : "HANDGUN"
-        },
-        {
-            "TYPE" : "AGENT",
-            "X" : 5,
-            "Y" : 20,
-            "WEAPON" : "HANDGUN"
-        },
-        {
-            "TYPE" : "AGENT",
-            "X" : 0,
-            "Y" : 20,
-            "WEAPON" : "HANDGUN"
-        },
-        {
-            "TYPE" : "AGENT",
-            "X" : -5,
-            "Y" : 20,
-            "WEAPON" : "HANDGUN"
-        }
-    ],
-    "TERRAINS" : [
-        {
-            "TYPE" : "BOX",
-            "X" : 0,
-            "Y" : 10,
-            "WIDTH" : 20,
-            "HEIGHT" : 2,
-            "ROTATION" : 30
-        },
-        {
-            "TYPE" : "BOX",
-            "X" : 0,
-            "Y" : 10,
-            "WIDTH" : 20,
-            "HEIGHT" : 2,
-            "ROTATION" : 120
-        }
-    ]
-}
+ 
+	{ 
+		"0": [ 
+			{ 
+				"__type": "TimeServerInfo", 
+				"tick": 69
+			}], 
+		"1": [ 
+			{ 
+				"__type": "Position", 
+				"x": 0.0, 
+				"y": 0.0
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "agent"
+			}, 
+			{ 
+				"__type": "Velocity", 
+				"x": 0.0, 
+				"y": 0.0
+			}, 
+			{ 
+				"__type": "Health", 
+				"max_health": 100
+			}, 
+			{ 
+				"__type": "Weapon", 
+				"weapon": "HANDGUN", 
+				"last": 0.0, 
+				"next": 0.0
+			}, 
+			{ 
+				"__type": "Hitbox", 
+				"radius": 1
+			}, 
+			{ 
+				"__type": "AgentData", 
+				"id": 1, 
+				"player": 1
+			}], 
+		"2": [ 
+			{ 
+				"__type": "Position", 
+				"x": 5, 
+				"y": 20
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "agent"
+			}, 
+			{ 
+				"__type": "Velocity", 
+				"x": 0.0, 
+				"y": 0.0
+			}, 
+			{ 
+				"__type": "Health", 
+				"max_health": 100
+			}, 
+			{ 
+				"__type": "Weapon", 
+				"weapon": "HANDGUN", 
+				"last": 0.0, 
+				"next": 0.0
+			}, 
+			{ 
+				"__type": "Hitbox", 
+				"radius": 1
+			}, 
+			{ 
+				"__type": "AgentData", 
+				"id": 2, 
+				"player": 0
+			}], 
+		"3": [ 
+			{ 
+				"__type": "Position", 
+				"x": 0.0, 
+				"y": 20
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "agent"
+			}, 
+			{ 
+				"__type": "Velocity", 
+				"x": 0.0, 
+				"y": 0.0
+			}, 
+			{ 
+				"__type": "Health", 
+				"max_health": 100
+			}, 
+			{ 
+				"__type": "Weapon", 
+				"weapon": "HANDGUN", 
+				"last": 0.0, 
+				"next": 0.0
+			}, 
+			{ 
+				"__type": "Hitbox", 
+				"radius": 1
+			}, 
+			{ 
+				"__type": "AgentData", 
+				"id": 3, 
+				"player": 0
+			}], 
+		"4": [ 
+			{ 
+				"__type": "Position", 
+				"x": -5, 
+				"y": 20
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "agent"
+			}, 
+			{ 
+				"__type": "Velocity", 
+				"x": 0.0, 
+				"y": 0.0
+			}, 
+			{ 
+				"__type": "Health", 
+				"max_health": 100
+			}, 
+			{ 
+				"__type": "Weapon", 
+				"weapon": "HANDGUN", 
+				"last": 0.0, 
+				"next": 0.0
+			}, 
+			{ 
+				"__type": "Hitbox", 
+				"radius": 1
+			}, 
+			{ 
+				"__type": "AgentData", 
+				"id": 4, 
+				"player": 0
+			}], 
+		"5": [ 
+			{ 
+				"__type": "Position", 
+				"x": 0.0, 
+				"y": 10
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "box"
+			}, 
+			{ 
+				"__type": "Rotation", 
+				"radian": 0.523599
+			}, 
+			{ 
+				"__type": "TerrainData", 
+				"type": "BOX", 
+				"argument_1": 20, 
+				"argument_2": 2, 
+				"argument_3": 0.0, 
+				"argument_4": 0.0
+			}], 
+		"6": [ 
+			{ 
+				"__type": "Position", 
+				"x": 0.0, 
+				"y": 10
+			}, 
+			{ 
+				"__type": "Name", 
+				"name": "box"
+			}, 
+			{ 
+				"__type": "Rotation", 
+				"radian": 2.0944
+			}, 
+			{ 
+				"__type": "TerrainData", 
+				"type": "BOX", 
+				"argument_1": 20, 
+				"argument_2": 2, 
+				"argument_3": 0.0, 
+				"argument_4": 0.0
+			}]
+	}
