@@ -3,7 +3,11 @@
  * Consider refactor it in the future
  * But not recently for it's not the main module
  * Jack Quinn Feb 27, 2020
- * TODO consider modifying xml_archive
+ * TODO consider making the map file more readable like
+ * "id“ : {
+ * "Position"：{"x": 42, "y": 60}
+ * }
+ *
  */
 #include "serialization.h"
 #include <vector>

@@ -36,15 +36,15 @@ include_directories(${BOX2D_INCLUDE_DIRS})
 link_directories(${BOX2D_LIBRARY_DIRS})
 add_definitions(${BOX2D_DEFINITIONS})
 
-#########################################################
-# Include Files
-#########################################################
+#find_package(Lua REQUIRED)
+include_directories(${LUA_INCLUDE_DIR})
+
 add_executable(main ${SOURCES})
 
 ########################################################
 # Linking & stuff
 #########################################################
-target_link_libraries(main ${OGRE_LIBRARIES} ${BOX2D_LIBRARIES})
+target_link_libraries(main ${OGRE_LIBRARIES} ${BOX2D_LIBRARIES} ${LUA_LIBRARIES})
 
 add_custom_command(
         TARGET main POST_BUILD
