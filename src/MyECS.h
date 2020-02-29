@@ -6,7 +6,6 @@
 #include <entt/entity/registry.hpp>
 
 namespace Escape {
-    using Entity = entt::entity;
     using World = entt::registry;
 
     class SystemManager : public System {

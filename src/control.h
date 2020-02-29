@@ -13,13 +13,14 @@
 
 namespace Escape {
     class ControlSystem;
+
     class Controller {
     public:
         virtual ~Controller() {
 
         }
 
-        virtual void init(ControlSystem *msg) {
+        virtual void init(ControlSystem *control) {
 
         }
 
@@ -27,46 +28,57 @@ namespace Escape {
 
         }
     };
+
     class ControlSystem : public ECSSystem {
         std::vector<Controller *> control;
     public:
         ControlSystem() {
 
         }
+
         void addController(Controller *c) {
             c->init(this);
             control.push_back(c);
         }
+
         template<typename T>
-        void dispatch(int agent_id, const T &action) {
-            world->assign_or_replace<Message<T>>(findPlayer(agent_id), Message<T>(agent_id, action));
+        void dispatch(entt::entity entity, const T &action) {
+            world->assign_or_replace<Message<T>>(entity, Message<T>(entity, action));
         }
+
         void update(clock_type delta) {
-            for(Controller *c : control)
-            {
+            for (Controller *c : control) {
                 c->update(delta);
             }
         }
+
         virtual ~ControlSystem() {
-            for(Controller *c: control)
-            {
+            for (Controller *c: control) {
                 delete c;
             }
         }
+
         entt::entity findPlayer(int player_id) {
             return AgentSystem::getPlayer(world, player_id);
         }
-        template<typename ... T>
-        auto get(int player_id) {
-            return world->get<T ...>(findPlayer(player_id));
+
+        auto findPlayers(int player_id) {
+            return AgentSystem::getPlayers(world, player_id);
         }
+
         template<typename ... T>
-        auto has(int player_id) {
-            return world->has<T ...>(findPlayer(player_id));
+        auto get(entt::entity ent) {
+            return world->get<T ...>(ent);
         }
+
         template<typename ... T>
-        auto any(int player_id) {
-            return world->any<T ...>(findPlayer(player_id));
+        auto has(entt::entity ent) {
+            return world->has<T ...>(ent);
+        }
+
+        template<typename ... T>
+        auto any(entt::entity ent) {
+            return world->any<T ...>(ent);
         }
     };
 

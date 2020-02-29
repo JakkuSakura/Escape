@@ -3,25 +3,32 @@
 #include "MyECS.h"
 #include "weapons.h"
 #include "components.h"
+#include <vector>
 namespace Escape
 {
 class AgentSystem : public ECSSystem
 {
-    static int index;
 public:
 
-    static Entity getPlayer(World *world, int player_id) {
-        Entity player = entt::null;
-        world->view<AgentData>().each([&](Entity ent, auto &control) {
-            if (control.player == 1) {
-                player = ent;
+    static inline entt::entity getPlayer(World *world, int player_id) {
+        auto ps = getPlayers(world, player_id);
+        if(ps.size())
+            return ps[0];
+        else
+            return entt::null;
+    }
+    static inline std::vector<entt::entity> getPlayers(World *world, int player_id) {
+        std::vector<entt::entity> players;
+        world->view<AgentData>().each([&](entt::entity ent, auto &control) {
+            if (control.player == player_id) {
+                players.push_back(ent);
             }
         });
-        return player;
+        return players;
     }
 
-    static Entity createAgent(World *world, const Position &pos, int player);
-    Entity createAgent(const Position &pos);
+    static entt::entity createAgent(World *world, const Position &pos, int player);
+    entt::entity createAgent(const Position &pos);
 
     void update(clock_type delta) override;
 };

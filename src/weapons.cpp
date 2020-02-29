@@ -12,10 +12,10 @@ namespace Escape {
         lifespan = findSystem<LifespanSystem>();
     }
 
-    void BulletSystem::fire(Entity firer, BulletType type, float angle, float speed, float damage, float distance) {
-        Entity bullet = world->create();
+    void BulletSystem::fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance) {
+        entt::entity bullet = world->create();
         world->assign<Name>(bullet, "bullet");
-        auto data = BulletData{.firer_id =  world->get<AgentData>(firer).id,
+        auto data = BulletData{.firer_id =  world->get<AgentData>(firer).player,
                 .type =  type,
                 .damage =  damage,
                 .density = 7.6,
@@ -35,7 +35,7 @@ namespace Escape {
 
     void BulletSystem::update(clock_type delta) {
         world->view<BulletData, CollisionResults>().each(
-                [&](Entity ent, auto &bullet, auto &col) {
+                [&](entt::entity ent, auto &bullet, auto &col) {
                     bool hit = false;
                     for (Collision &c : col.results) {
                         if(world->valid(c.hit_with))
@@ -106,7 +106,7 @@ namespace Escape {
         timeserver = findSystem<TimeServer>();
     }
 
-    void WeaponSystem::fire(Entity ent, float angle) {
+    void WeaponSystem::fire(entt::entity ent, float angle) {
         if (world->has<Weapon>(ent)) {
             auto &weapon = world->get<Weapon>(ent);
             if (timeserver->now() >= weapon.next) {
@@ -124,7 +124,7 @@ namespace Escape {
         }
     }
 
-    void WeaponSystem::changeWeapon(Entity ent, WeaponType type) {
+    void WeaponSystem::changeWeapon(entt::entity ent, WeaponType type) {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
         if (world->has<Weapon>(ent)) {
             auto &w = world->get<Weapon>(ent);

@@ -28,7 +28,7 @@ ThorsAnvil_ExpandTrait(vec2, Velocity);
 ThorsAnvil_ExpandTrait(vec2, Impulse);
 ThorsAnvil_MakeTrait(Hitbox, radius);
 ThorsAnvil_MakeTrait(Rotation, radian);
-ThorsAnvil_MakeTrait(AgentData, id, player);
+ThorsAnvil_MakeTrait(AgentData, player);
 ThorsAnvil_MakeTrait(TimeServerInfo, tick);
 ThorsAnvil_MakeTrait(Lifespan, begin, end);
 ThorsAnvil_MakeTrait(Health, max_health);

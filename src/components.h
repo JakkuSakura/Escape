@@ -95,7 +95,6 @@ struct Rotation {
 
 
 struct AgentData {
-    int id;
     int player;
 };
 

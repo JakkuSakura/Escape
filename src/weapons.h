@@ -20,7 +20,7 @@ class BulletSystem : public ECSSystem
 public:
     BulletSystem();
     void initialize() override;
-    void fire(Entity firer, BulletType type, float angle, float speed, float damage, float distance);
+    void fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance);
     void update(clock_type delta) override;
 };
 class WeaponSystem : public ECSSystem
@@ -33,9 +33,9 @@ public:
     WeaponSystem();
     void initialize() override;
     void update(clock_type delta) override;
-    void fire(Entity ent, float angle);
+    void fire(entt::entity ent, float angle);
 
-    void changeWeapon(Entity ent, WeaponType type);
+    void changeWeapon(entt::entity ent, WeaponType type);
 };
 } // namespace Escape
 

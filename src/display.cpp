@@ -26,14 +26,17 @@ namespace Escape {
         }
 
         void update(clock_type delta) override {
-            auto[pos, agt] = controlSystem->get<Position, AgentData>(player_id);
+            entt::entity player = controlSystem->findPlayer(player_id);
+            if (player == entt::null)
+                return;
+            auto[pos, agt] = controlSystem->get<Position, AgentData>(player);
             if (input->mouse[OgreBites::BUTTON_LEFT]) {
                 auto click = display->pickUp(input->mouse_x, input->mouse_y);
                 double x = click.x, y = click.y;
                 // std::cerr << "Cursor: " << x << " " << y << std::endl;
                 float angle = atan2(y - pos.y, x - pos.x);
 
-                controlSystem->dispatch(agt.id, Shooting{.angle =  angle});
+                controlSystem->dispatch(player, Shooting{.angle =  angle});
             }
 
             Velocity vel(0, 0);
@@ -51,23 +54,23 @@ namespace Escape {
                     vel /= spd;
                 }
                 vel *= 20;
-                controlSystem->dispatch<Impulse>(player_id, Impulse(vel.x, vel.y));
+                controlSystem->dispatch<Impulse>(player, Impulse(vel.x, vel.y));
             }
 
             if (input->keys['1'])
-                controlSystem->dispatch<ChangeWeapon>(player_id,
+                controlSystem->dispatch<ChangeWeapon>(player,
                                                       ChangeWeapon{.weapon = WeaponType::HANDGUN});
 
             if (input->keys['2'])
-                controlSystem->dispatch<ChangeWeapon>(player_id,
+                controlSystem->dispatch<ChangeWeapon>(player,
                                                       ChangeWeapon{.weapon = WeaponType::SHOTGUN});
 
             if (input->keys['3'])
-                controlSystem->dispatch<ChangeWeapon>(player_id,
+                controlSystem->dispatch<ChangeWeapon>(player,
                                                       ChangeWeapon{.weapon = WeaponType::SMG});
 
             if (input->keys['4'])
-                controlSystem->dispatch<ChangeWeapon>(player_id,
+                controlSystem->dispatch<ChangeWeapon>(player,
                                                       ChangeWeapon{.weapon = WeaponType::RIFLE});
             display->setCenter(pos.x, pos.y);
         }

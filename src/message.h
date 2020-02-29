@@ -7,8 +7,8 @@
 
 template<typename T>
 struct Message/* : public VirtualBase*/ {
-    Message(int ag_id, const T &t) : agent_id(ag_id), data(t), processed(false) {}
-    int agent_id;
+    Message(entt::entity e_id, const T &t) : entity_id(e_id), data(t), processed(false) {}
+    entt::entity entity_id;
     T data;
     bool processed;
 };

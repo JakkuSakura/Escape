@@ -10,6 +10,7 @@
 #include "agent.h"
 #include "serialization.h"
 #include "control.h"
+#include "AI.h"
 namespace Escape {
     Logic::Logic() {
         addSubSystem(new PhysicsSystem());
@@ -18,6 +19,7 @@ namespace Escape {
         addSubSystem(new WeaponSystem());
         addSubSystem(new AgentSystem());
         addSubSystem(new ControlSystem());
+        addSubSystem(new AISystem());
     }
     void Logic::initialize() {
         findSystem<Application>()->timeserver->setRate(60);
