@@ -19,9 +19,10 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES_MAP_CONVERTER editor/*.cpp)
 
 
-include_directories(vendor/glm vendor/entt/src vendor/json/single_include/nlohmann vendor/ThorsSerializer)
+include_directories(vendor/glm vendor/entt/src vendor/json/single_include vendor/ThorsSerializer)
 
 # specify which version and components you need
 find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)
@@ -36,10 +37,11 @@ include_directories(${BOX2D_INCLUDE_DIRS})
 link_directories(${BOX2D_LIBRARY_DIRS})
 add_definitions(${BOX2D_DEFINITIONS})
 
-#find_package(Lua REQUIRED)
+find_package(Lua REQUIRED)
 include_directories(${LUA_INCLUDE_DIR})
 
 add_executable(main ${SOURCES})
+add_executable(map_converter ${SOURCES_MAP_CONVERTER})
 
 ########################################################
 # Linking & stuff

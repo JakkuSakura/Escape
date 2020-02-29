@@ -3,3 +3,8 @@
 //
 
 #include "map_converter.h"
+#include <nlohmann/json.hpp>
+void MapConverter::convert(const std::string &input, const std::string &output)
+{
+
+}

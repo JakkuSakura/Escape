@@ -5,12 +5,11 @@
 #ifndef ESCAPE_MAP_CONVERTER_H
 #define ESCAPE_MAP_CONVERTER_H
 
-
-
-class map_converter {
-
+#include <string>
+class MapConverter {
+public:
+    void convert(const std::string &input, const std::string &output);
 };
-
 
 
 #endif //ESCAPE_MAP_CONVERTER_H
