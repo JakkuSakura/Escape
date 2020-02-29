@@ -7,6 +7,76 @@
 #include <OgreQuaternion.h>
 
 namespace Escape {
+    class DisplayOgre;
+
+    class ClientController : public Controller {
+        InputState *input;
+        ControlSystem *controlSystem;
+        int player_id;
+        DisplayOgre *display;
+    public:
+        ClientController(DisplayOgre *display_, InputState *input, int player_id_) : input(input),
+                                                                                     player_id(player_id_),
+                                                                                     display(display_) {
+
+        }
+
+        void init(ControlSystem *msg) override {
+            this->controlSystem = msg;
+        }
+
+        void update(clock_type delta) override {
+            auto[pos, agt] = controlSystem->get<Position, AgentData>(player_id);
+            if (input->mouse[OgreBites::BUTTON_LEFT]) {
+                auto click = display->pickUp(input->mouse_x, input->mouse_y);
+                double x = click.x, y = click.y;
+                // std::cerr << "Cursor: " << x << " " << y << std::endl;
+                float angle = atan2(y - pos.y, x - pos.x);
+
+                controlSystem->dispatch(agt.id, Shooting{.angle =  angle});
+            }
+
+            Velocity vel(0, 0);
+            if (input->keys['w'])
+                vel.y += 1;
+            if (input->keys['s'])
+                vel.y += -1;
+            if (input->keys['a'])
+                vel.x += -1;
+            if (input->keys['d'])
+                vel.x += 1;
+            float spd = glm::length(as<glm::vec2>(vel));
+            if (spd > 0) {
+                if (spd > 1) {
+                    vel /= spd;
+                }
+                vel *= 20;
+                controlSystem->dispatch<Impulse>(player_id, Impulse(vel.x, vel.y));
+            }
+
+            if (input->keys['1'])
+                controlSystem->dispatch<ChangeWeapon>(player_id,
+                                                      ChangeWeapon{.weapon = WeaponType::HANDGUN});
+
+            if (input->keys['2'])
+                controlSystem->dispatch<ChangeWeapon>(player_id,
+                                                      ChangeWeapon{.weapon = WeaponType::SHOTGUN});
+
+            if (input->keys['3'])
+                controlSystem->dispatch<ChangeWeapon>(player_id,
+                                                      ChangeWeapon{.weapon = WeaponType::SMG});
+
+            if (input->keys['4'])
+                controlSystem->dispatch<ChangeWeapon>(player_id,
+                                                      ChangeWeapon{.weapon = WeaponType::RIFLE});
+            display->setCenter(pos.x, pos.y);
+        }
+    };
+
+    void DisplayOgre::setCenter(float x, float y) {
+        camNode->setPosition(x, y, camNode->getPosition().z);
+    }
+
     static void setColor(Ogre::Entity *ent, float r, float g, float b) {
         char name[32];
         sprintf(name, "Color(%d,%d,%d)", (int) (r * 255), (int) (g * 255), (int) (b * 255));
@@ -57,61 +127,18 @@ namespace Escape {
         Window::initialize();
         world = findSystem<SystemManager>()->getWorld();
         timeserver = findSystem<Application>()->timeserver;
+        findSystem<ControlSystem>()->addController(new ClientController(this, &input, 1));
         rects = scnMgr->getRootSceneNode()->createChildSceneNode();
         Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Popular");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation("assets", "FileSystem", "Popular");
         Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Popular");
         Ogre::ResourceGroupManager::getSingleton().loadResourceGroup("Popular");
+
     }
 
     void DisplayOgre::processInput() {
         // ESC exit
         WindowOgre::processInput();
-        const int player_id = 1;
-        auto player = AgentSystem::getPlayer(world, player_id);
-        if (player == entt::null)
-            return;
-        auto[pos, agt] = world->get<Position, AgentData>(player);
-        if (input.mouse[OgreBites::BUTTON_LEFT]) {
-            auto click = pickUp(input.mouse_x, input.mouse_y);
-            double x = click.x, y = click.y;
-            // std::cerr << "Cursor: " << x << " " << y << std::endl;
-            float angle = atan2(y - pos.y, x - pos.x);
-
-            world->assign_or_replace<Shooting>(player, Shooting{.agent_id =  agt.id,
-                    .angle =  angle});
-        }
-
-        Velocity vel(0, 0);
-        if (input.keys['w'])
-            vel.y += 1;
-        if (input.keys['s'])
-            vel.y += -1;
-        if (input.keys['a'])
-            vel.x += -1;
-        if (input.keys['d'])
-            vel.x += 1;
-        float spd = glm::length(as<glm::vec2>(vel));
-        if (spd > 0) {
-            if (spd > 1) {
-                vel /= spd;
-            }
-            vel *= 20;
-            world->assign_or_replace<Control<Impulse>>(player, Control(agt.id, Impulse(vel.x, vel.y)));
-        }
-
-        if (input.keys['1'])
-            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::HANDGUN});
-
-        if (input.keys['2'])
-            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::SHOTGUN});
-
-        if (input.keys['3'])
-            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::SMG});
-
-        if (input.keys['4'])
-            world->assign_or_replace<ChaneWeapon>(player, ChaneWeapon{.agent_id = agt.id, .weapon = WeaponType::RIFLE});
-
 
         if (input.keys['p'])
             AgentSystem::createAgent(world,
@@ -147,15 +174,17 @@ namespace Escape {
 
     void DisplayOgre::render() {
         // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
-        world->view<AgentData, Position, Health, Hitbox>().each([&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
-            float percent = health.health / health.max_health;
-            auto pair = newCircle(pos.x, pos.y, hitbox.radius);
-            setColor(pair.second, 1 - percent, percent, 0);
-            if (world->has<Rotation>(ent)) {
-                auto rotation = world->get<Rotation>(ent);
-                pair.first->setOrientation(Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
-            }
-        });
+        world->view<AgentData, Position, Health, Hitbox>().each(
+                [&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
+                    float percent = health.health / health.max_health;
+                    auto pair = newCircle(pos.x, pos.y, hitbox.radius);
+                    setColor(pair.second, 1 - percent, percent, 0);
+                    if (world->has<Rotation>(ent)) {
+                        auto rotation = world->get<Rotation>(ent);
+                        pair.first->setOrientation(
+                                Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
+                    }
+                });
         world->view<TerrainData, Position>().each([&](auto ent, auto &ter, auto &pos) {
             auto pair = newBox(pos.x, pos.y, ter.argument_1, ter.argument_2);
             setColor(pair.second, .5, .5, .5);

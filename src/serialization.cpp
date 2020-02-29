@@ -54,6 +54,7 @@ ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
 
 struct WrapperBase {
     WrapperBase() {};
+
     virtual ~WrapperBase() {};
 
     ThorsAnvil_PolyMorphicSerializer(WrapperBase);
@@ -159,7 +160,12 @@ namespace ThorsAnvil {
 
             void scanObject(Wrapper<T> &object) {
                 T *t = new T();
-                parent.parse(*t);
+                try {
+                    parent.parse(*t);
+                } catch (...) {
+                    delete t;
+                    throw;
+                }
                 object.pointer = t;
             }
         };

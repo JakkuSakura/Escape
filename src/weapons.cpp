@@ -1,5 +1,6 @@
 #include "weapons.h"
 #include "components.h"
+#include "message.h"
 
 namespace Escape {
 
@@ -21,7 +22,7 @@ namespace Escape {
                 .radius = 0.3,
         };
         if(type == BulletType::SHOTGUN_SHELL)
-            data.radius = 0.1;
+            data.radius = 0.2;
         world->assign<BulletData>(bullet, data);
         world->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
 
@@ -135,16 +136,16 @@ namespace Escape {
     }
 
     void WeaponSystem::update(clock_type delta) {
-        world->view<ChaneWeapon>().each([&](auto ent, auto &chg) {
+        world->view<Message<ChangeWeapon>>().each([&](auto ent, auto &chg) {
             if (!chg.processed) {
-                changeWeapon(ent, chg.weapon);
+                changeWeapon(ent, chg.data.weapon);
                 chg.processed = true;
             }
         });
 
-        world->view<Shooting>().each([&](auto ent, auto &sht) {
+        world->view<Message<Shooting>>().each([&](auto ent, auto &sht) {
             if (!sht.processed) {
-                fire(ent, sht.angle);
+                fire(ent, sht.data.angle);
                 sht.processed = true;
             }
         });

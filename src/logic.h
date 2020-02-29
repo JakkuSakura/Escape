@@ -11,7 +11,7 @@ namespace Escape {
     class Logic : public SystemManager {
     public:
         using SystemManager::world;
-
+        Logic();
         void initialize() override;
 
     };

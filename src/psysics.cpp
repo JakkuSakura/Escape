@@ -1,5 +1,6 @@
 #include "psysics.h"
 #include <Box2D/Box2D.h>
+#include "control.h"
 #include <map>
 
 namespace Escape {
@@ -97,7 +98,7 @@ namespace Escape {
         });
 
         // Impulsion control
-        world->view<Position, Velocity, Control<Impulse>>().each(
+        world->view<Position, Velocity, Message<Impulse>>().each(
                 [&](auto ent, Position &pos, auto &vel, auto &impulse) {
                     if (!impulse.processed) {
                         mapping[ent]->ApplyLinearImpulse(as<b2Vec2>(impulse.data), as<b2Vec2>(pos), true);

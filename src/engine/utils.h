@@ -83,4 +83,8 @@ class NewTypeBase {
     } TOKENPASTE2(__temp_codes_, __LINE__)
 
 #define TRACE() std::cerr << "" << __FILE__ << ":" << __LINE__ << "(" << __func__ << ")" << std::endl;
+
+struct VirtualBase {
+    virtual ~VirtualBase() {};
+};
 #endif // UTILS_H

@@ -182,29 +182,6 @@ struct TerrainData {
 };
 
 
-// Controls
-// These shouldn't be saved nor assigned as component at all
-template<typename T>
-struct Control {
-    Control(int agent_id, const T &t) : agent_id(agent_id), data(t), processed(false) {}
-
-    int agent_id;
-    bool processed;
-    T data;
-};
-
-struct Shooting {
-    int agent_id;
-    float angle;
-    bool processed;
-};
-
-struct ChaneWeapon {
-    int agent_id;
-    WeaponType weapon;
-    bool processed;
-};
-
 #define COMPONENT_LIST \
     Position,          \
     Name,              \

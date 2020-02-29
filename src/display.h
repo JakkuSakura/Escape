@@ -10,7 +10,7 @@
 #include <OgreRenderSystem.h>
 #include "MyECS.h"
 #include "engine/utils.h"
-
+#include "control.h"
 #include "agent.h"
 
 namespace Escape {
@@ -36,6 +36,7 @@ namespace Escape {
         virtual void processInput() override;
 
         void render() override;
+        void setCenter(float x, float y);
 
         virtual void postProcess() override;
 
