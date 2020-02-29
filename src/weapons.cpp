@@ -40,12 +40,11 @@ namespace Escape {
                     for (Collision &c : col.results) {
                         if(world->valid(c.hit_with))
                         {
-                            if (world->has<BulletData>(c.hit_with) &&
-                                world->get<BulletData>(c.hit_with).firer_id == bullet.firer_id)
-                                continue;
-
                             hit = true;
                             if (world->has<Health>(c.hit_with)) {
+                                if (world->has<AgentData>(c.hit_with) &&
+                                    world->get<AgentData>(c.hit_with).player == bullet.firer_id) // Not do harm the firer/group
+                                    continue;
                                 auto &health = world->get<Health>(c.hit_with);
                                 health.health -= bullet.damage;
                             }

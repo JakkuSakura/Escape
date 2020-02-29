@@ -4,19 +4,27 @@
 
 #include "AI.h"
 #include "control.h"
+#include <ctime>
+#include <cstdlib>
 namespace Escape {
+    float random_angle() {
+        return (float)M_PI * 2 * (float)rand() / RAND_MAX;
+    }
     class Agent_1 : public Controller {
         ControlSystem *control;
     public:
         Agent_1() {
-
+            srand(time(0));
         }
         void init(ControlSystem *c) override {
             control = c;
         }
         void update(clock_type delta) override {
             for(entt::entity ent : control->findPlayers(0)) {
-//                control->
+                float angle = random_angle();
+                control->dispatch(ent, ChangeWeapon{WeaponType::SMG});
+                control->dispatch(ent, Impulse(cos(angle) * 20, sin(angle) * 20));
+                control->dispatch(ent, Shooting{.angle = random_angle()});
             }
         }
 
