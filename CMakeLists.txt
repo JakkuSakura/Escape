@@ -16,7 +16,6 @@ endif()
 # SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 file(GLOB_RECURSE SOURCES_CORE core/*.cpp)
-file(GLOB_RECURSE SOURCES_CLIENT_OGRE client/ogre/*.cpp)
 file(GLOB_RECURSE SOURCES_MAP_CONVERTER editor/*.cpp)
 
 
@@ -32,16 +31,5 @@ include_directories(${LUA_INCLUDE_DIR})
 
 add_executable(map_converter ${SOURCES_MAP_CONVERTER} ${SOURCES_CORE})
 
-
-
-
-# specify which version and components you need
-find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)
-include_directories(${OGRE_INCLUDE_DIRS})
-link_directories(${OGRE_LIBRARY_DIRS})
-add_definitions(${OGRE_DEFINITIONS})
-# copy resource.cfg next to our binaries where OGRE looks for it
-file(COPY ${OGRE_CONFIG_DIR}/resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-add_executable(main ${SOURCES_CORE} ${SOURCES_CLIENT_OGRE})
-target_link_libraries(main ${OGRE_LIBRARIES} ${BOX2D_LIBRARIES} ${LUA_LIBRARIES})
+add_subdirectory(client/ogre)
+add_subdirectory(client/cocos2dx)

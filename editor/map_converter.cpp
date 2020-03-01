@@ -4,10 +4,10 @@
 
 #include "map_converter.h"
 #include <nlohmann/json.hpp>
-#include "../src/serialization.h"
+#include "../core/serialization.h"
 #include <fstream>
-#include "../src/terrain.h"
-#include "../src/agent.h"
+#include "../core/terrain.h"
+#include "../core/agent.h"
 
 using nlohmann::json;
 namespace Escape {

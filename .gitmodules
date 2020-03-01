@@ -14,6 +14,3 @@
 [submodule "vendor/ThorsSerializer"]
 	path = vendor/ThorsSerializer
 	url = https://github.com/Loki-Astari/ThorsSerializer.git
-[submodule "vendor/cocos2d-x"]
-	path = vendor/cocos2d-x
-	url = https://gitee.com/mirrors/cocos2d-x

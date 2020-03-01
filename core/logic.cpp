@@ -22,8 +22,9 @@ namespace Escape {
         addSubSystem(new AISystem());
     }
     void Logic::initialize() {
-        SerializationHelper reader("assets/map.json");
-        reader.deserialize(*world);
+//        SerializationHelper reader("assets/map.json");
+//        reader.deserialize(*world);
+//        TODO add map file support
     }
 
 }
