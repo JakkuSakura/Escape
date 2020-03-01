@@ -30,6 +30,7 @@ find_package(Lua REQUIRED)
 include_directories(${LUA_INCLUDE_DIR})
 
 add_executable(map_converter ${SOURCES_MAP_CONVERTER} ${SOURCES_CORE})
+target_link_libraries(map_converter ${BOX2D_LIBRARIES} ${LUA_LIBRARIES})
 
 add_subdirectory(client/ogre)
 add_subdirectory(client/cocos2dx)
