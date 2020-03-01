@@ -41,6 +41,8 @@ namespace Escape {
     }
 
     size_t TimeServer::getTick() {
+        if(world == nullptr)
+            configure();
         size_t tick = -1;
         world->view<TimeServerInfo>().each([&](auto ent, auto &p) {
             tick = p.tick;

@@ -8,16 +8,13 @@ set(CMAKE_CXX_STANDARD 17)
 #
  
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-    message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the source code and call cmake          from there. Thank you.")
+    message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the source code and call cmake from there. Thank you.")
 endif()
 
 # SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
 # SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE SOURCES_MAP_CONVERTER editor/*.cpp)
 
@@ -48,8 +45,3 @@ add_executable(map_converter ${SOURCES_MAP_CONVERTER} src/serialization.cpp src/
 #########################################################
 target_link_libraries(main ${OGRE_LIBRARIES} ${BOX2D_LIBRARIES} ${LUA_LIBRARIES})
 
-add_custom_command(
-        TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_SOURCE_DIR}/assets
-                ${CMAKE_BINARY_DIR}/assets)

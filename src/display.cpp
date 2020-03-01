@@ -129,7 +129,7 @@ namespace Escape {
     void DisplayOgre::initialize() {
         Window::initialize();
         world = findSystem<SystemManager>()->getWorld();
-        timeserver = findSystem<Application>()->timeserver;
+        timeserver = findSystem<TimeServer>();
         findSystem<ControlSystem>()->addController(new ClientController(this, &input, 1));
         rects = scnMgr->getRootSceneNode()->createChildSceneNode();
         Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Popular");

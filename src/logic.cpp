@@ -3,7 +3,6 @@
 //
 
 #include "logic.h"
-#include "application.h"
 #include "psysics.h"
 #include "lifespan.h"
 #include "weapons.h"
@@ -13,6 +12,7 @@
 #include "AI.h"
 namespace Escape {
     Logic::Logic() {
+        addSubSystem(new TimeServer(60));
         addSubSystem(new PhysicsSystem());
         addSubSystem(new LifespanSystem());
         addSubSystem(new BulletSystem());
@@ -22,7 +22,6 @@ namespace Escape {
         addSubSystem(new AISystem());
     }
     void Logic::initialize() {
-        findSystem<Application>()->timeserver->setRate(60);
         SerializationHelper reader("assets/map.json");
         reader.deserialize(*world);
     }
