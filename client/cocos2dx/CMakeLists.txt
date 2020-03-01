@@ -26,7 +26,6 @@
 cmake_minimum_required(VERSION 3.6)
 
 set(APP_NAME main_cocos2dx)
-set(CMAKE_CXX_STANDARD 17)
 
 if(XCODE)
     if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
@@ -38,7 +37,6 @@ if(NOT DEFINED BUILD_ENGINE_DONE) # to test Escape into root project
     set(COCOS2DX_ROOT_PATH /home/jack/IdeaProjects/cocos2d-x-4.0)
     # TODO Must setup cocos2dx path before building
     set(CMAKE_MODULE_PATH ${COCOS2DX_ROOT_PATH}/cmake/Modules/)
-
     include(CocosBuildSet)
     add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 endif()
