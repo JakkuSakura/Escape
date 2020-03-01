@@ -7,7 +7,7 @@
  * "id“ : {
  * "Position"：{"x": 42, "y": 60}
  * }
- *
+ * TODO consider rewrite the Serializer
  */
 #include "serialization.h"
 #include <vector>

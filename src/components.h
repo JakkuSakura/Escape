@@ -1,6 +1,7 @@
 #if !defined(COMPONENTS_H)
 #define COMPONENTS_H
 
+#include <map>
 #include "engine/utils.h"
 #include "MyECS.h"
 
@@ -181,6 +182,10 @@ struct TerrainData {
     float argument_4;
 };
 
+struct Configurations : public std::map<std::string, std::string> {
+    using s_s_pair = std::map<std::string, std::string>;
+    FORWARD_CONSTRUCTORS(Configurations, s_s_pair);
+};
 
 #define COMPONENT_LIST \
     Position,          \
@@ -195,7 +200,7 @@ struct TerrainData {
     Lifespan,          \
     TimeServerInfo,    \
     AgentData,         \
-    TerrainData
+    TerrainData       \
 
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Position);          \
@@ -209,7 +214,7 @@ struct TerrainData {
     func(BulletData);        \
     func(Lifespan);          \
     func(TimeServerInfo);    \
-    func(AgentData);           \
+    func(AgentData);         \
     func(TerrainData);
 
 #endif // COMPONENTS_H

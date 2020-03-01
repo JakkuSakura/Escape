@@ -11,15 +11,25 @@
 
 using nlohmann::json;
 namespace Escape {
-    void MapConverter::convert(const std::string &input, const std::string &output) {
-        std::ifstream is(input);
-        json js;
-        is >> js;
+    void MapConverter::convert(const std::string &input) {
+
+        json configuration;
+        {
+            std::ifstream is(input + "/configuration.json");
+            is >> configuration;
+        }
+
+        json map;
+        {
+            std::ifstream is(input + "/mapdata.json");
+            is >> map;
+        }
+
         entt::registry world;
-        int width = js["width"], height = js["height"];
-        float tilewidth = js["tilewidth"], tileheight = js["tileheight"];
+        int width = map["width"], height = map["height"];
+        float tilewidth = map["tilewidth"], tileheight = map["tileheight"];
         float scale_x = 1.0f / 16.0f, scale_y = 1.0f / 16.0f;
-        for (auto &&layer : js["layers"]) {
+        for (auto &&layer : map["layers"]) {
             if (layer["data"].is_array()) {
                 auto &&data = layer["data"];
                 for (size_t i = 0; i < height; i++) {
@@ -27,9 +37,12 @@ namespace Escape {
                         float x = (i * tilewidth + (float) layer["x"]) * scale_x, y =
                                 -(j * tileheight + (float) layer["y"]) * scale_y;
                         int type = data[i * width + j];
-                        if (type == 1) // TODO read metadata from core.json
-                        {              // It's wall
-                            TerrainSystem::createWall(&world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                        if(type > 0)
+                        {
+                            if (configuration["tiles"][type - 1]["type"] == "Wall")
+                            {              // It's wall
+                                TerrainSystem::createWall(&world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                            }
                         }
                     }
                 }
@@ -46,7 +59,7 @@ namespace Escape {
                 }
             }
         }
-        SerializationHelper helper(output);
+        SerializationHelper helper(input + "/map.json");
         helper.serialize(world);
     }
 } // namespace Escape

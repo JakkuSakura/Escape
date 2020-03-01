@@ -10,7 +10,7 @@ namespace Escape
 {
 class MapConverter {
 public:
-    void convert(const std::string &input, const std::string &output);
+    void convert(const std::string &input);
 };
     
 } // namespace Escape
