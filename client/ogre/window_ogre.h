@@ -3,10 +3,10 @@
 #include <Ogre.h>
 #include <OgreApplicationContext.h>
 #include <OgreInput.h>
-#include "window.h"
+#include "engine/window.h"
 #include <cassert>
-#include "system.h"
-#include "utils.h"
+#include "engine/system.h"
+#include "engine/utils.h"
 namespace Escape
 {
 class InputState : public OgreBites::InputListener

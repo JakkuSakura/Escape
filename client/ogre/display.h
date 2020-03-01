@@ -5,7 +5,7 @@
 #ifndef ESCAPE_DISPLAY_H
 #define ESCAPE_DISPLAY_H
 
-#include "engine/window_ogre.h"
+#include "window_ogre.h"
 #include <OgreRenderSystem.h>
 #include "MyECS.h"
 #include "engine/utils.h"
