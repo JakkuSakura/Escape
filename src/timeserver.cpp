@@ -46,7 +46,11 @@ namespace Escape {
             tick = p.tick;
         });
         if (tick == (size_t) (-1))
-            throw std::runtime_error("No tick component");
+        {
+            tick = 0;
+            setTick(0);
+            // throw std::runtime_error("No tick component");
+        }
         return tick;
     }
 

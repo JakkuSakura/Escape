@@ -90,6 +90,7 @@ struct Hitbox {
 
 
 struct Rotation {
+    Rotation(float rad = 0) : radian(rad) {}
     float radian;
 };
 

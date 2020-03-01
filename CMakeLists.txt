@@ -41,7 +41,7 @@ find_package(Lua REQUIRED)
 include_directories(${LUA_INCLUDE_DIR})
 
 add_executable(main ${SOURCES})
-add_executable(map_converter ${SOURCES_MAP_CONVERTER})
+add_executable(map_converter ${SOURCES_MAP_CONVERTER} src/serialization.cpp src/agent.cpp)
 
 ########################################################
 # Linking & stuff

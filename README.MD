@@ -14,7 +14,10 @@ Lua
 
 - [ ] Replace Ogre with Cocos2dx. I think Ogre is for 3d graphics, while for pure and simple 2D game like this is too heavy. Due to the separated implementation, it's very easy to change to another graphic library.
 
-- [ ] Use lua to manipulate Agent behaviors.
+- [ ] Use lua to manipulate Agent behaviors. 
+- [ ] Add LuaScript system to control map
+- [ ] add terrain sysstem
+      
  
  ## Folders
  assets holds all the runtime resources and will be copied into bin when calling cmake. Sometimes there's a cache issue, use copy assets into bin manually.

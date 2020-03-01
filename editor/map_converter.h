@@ -6,10 +6,15 @@
 #define ESCAPE_MAP_CONVERTER_H
 
 #include <string>
+namespace Escape
+{
 class MapConverter {
 public:
     void convert(const std::string &input, const std::string &output);
 };
+    
+} // namespace Escape
+
 
 
 #endif //ESCAPE_MAP_CONVERTER_H

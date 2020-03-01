@@ -12,18 +12,26 @@ namespace Escape {
     protected:
         World *world = new World();
     public:
-        SystemManager();
+        SystemManager() {}
 
-        World *getWorld();
+        World *getWorld() {
+            return world;
+        }
 
-        ~SystemManager() override;
+        ~SystemManager() override {
+            delete world;
+        }
     };
 
     class ECSSystem : public System {
     public:
         World *world = nullptr;
 
-        void configure() override;
+        void configure() override {
+            auto *sysMgr = findSystem<SystemManager>(false);
+            if(sysMgr)
+                world = sysMgr->getWorld();
+        }
     };
 
 } // namespace Escape
