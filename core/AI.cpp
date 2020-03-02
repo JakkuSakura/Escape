@@ -59,11 +59,11 @@ namespace Escape {
                     auto p = control->get<Position>(players[0]);
                     float angle = atan2f(p.y - pos.y, p.x - pos.x);
                     control->dispatch(ent, Shooting{.angle =  angle});
-                    control->dispatch(ent, Impulse(cos(angle) * 20, sin(angle) * 20));
+                    control->dispatch(ent, Impulse(cos(angle) * 12, sin(angle) * 12));
 
                 } else {
                     float angle = random_angle();
-                    control->dispatch(ent, Impulse(cos(angle) * 20, sin(angle) * 20));
+                    control->dispatch(ent, Impulse(cos(angle) * 12, sin(angle) * 12));
                 }
             }
         }

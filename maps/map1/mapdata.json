@@ -36,8 +36,8 @@
                  "type":"SpawnPoint",
                  "visible":true,
                  "width":0,
-                 "x":585,
-                 "y":467
+                 "x":464.672720942378,
+                 "y":829.095978645622
                 }, 
                 {
                  "height":0,
@@ -48,8 +48,68 @@
                  "type":"SpawnPoint",
                  "visible":true,
                  "width":0,
-                 "x":497,
-                 "y":297
+                 "x":351.047467068996,
+                 "y":158.846457378286
+                }, 
+                {
+                 "height":0,
+                 "id":3,
+                 "name":"agent",
+                 "point":true,
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":599.408112342598,
+                 "y":196.088899205014
+                }, 
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"agent",
+                 "point":true,
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":801.067718911391,
+                 "y":218.371728660129
+                }, 
+                {
+                 "height":0,
+                 "id":5,
+                 "name":"agent",
+                 "point":true,
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":167.121220913364,
+                 "y":141.495967039981
+                }, 
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"agent",
+                 "point":true,
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":183.8333430047,
+                 "y":544.815180177566
+                }, 
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"agent",
+                 "point":true,
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":806.638426275169,
+                 "y":551.500029014101
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -58,7 +118,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":3,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.3.2",
