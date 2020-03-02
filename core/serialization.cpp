@@ -3,11 +3,6 @@
  * Consider refactor it in the future
  * But not recently for it's not the main module
  * Jack Quinn Feb 27, 2020
- * TODO consider making the map file more readable like
- * "id“ : {
- * "Position"：{"x": 42, "y": 60}
- * }
- * TODO consider rewrite the Serializer
  */
 #include "serialization.h"
 #include <vector>
@@ -124,24 +119,6 @@ namespace ThorsAnvil {
     namespace Serialize {
 
         template<typename T>
-        class InlinedSerializer {
-            Serializer &parent;
-            PrinterInterface &printer;
-            T const &object;
-        public:
-            InlinedSerializer(Serializer &parent, PrinterInterface &printer, T const &object)
-                    : parent(parent), printer(printer), object(object) {
-            }
-
-            ~InlinedSerializer() {
-            }
-
-            void printMembers() {
-                parent.printObjectMembers(object);
-            }
-        };
-
-        template<typename T>
         class Traits<Wrapper<T>> {
         public:
             static constexpr TraitType type = TraitType::Pointer;
@@ -151,6 +128,55 @@ namespace ThorsAnvil {
             static void release(Wrapper<T> &p) {
                 delete p.pointer;
                 p.pointer = nullptr;
+            }
+        };
+
+        template<>
+        class DeSerializationForBlock<TraitType::Array, vector<WrapperBase *>>
+        {
+            typedef vector<WrapperBase *> T;
+            DeSerializer&    parent;
+            ParserInterface& parser;
+            std::string      key;
+        public:
+            DeSerializationForBlock(DeSerializer& parent, ParserInterface& parser)
+                    : parent(parent)
+                    , parser(parser)
+            {
+                ParserInterface::ParserToken    tokenType = parser.getToken();
+
+                if (tokenType != ParserInterface::ParserToken::MapStart)
+                {   throw std::runtime_error("ThorsAnvil::Serialize::DeSerializationForBlock<Map>::DeSerializationForBlock: Invalid Object Start");
+                }
+            }
+            WrapperBase *parseObject(const std::string &className) {
+                using BaseType  = WrapperBase;
+                using AllocType = typename GetAllocationType<BaseType>::AllocType;
+                auto *object = ConvertPointer<BaseType>::assign(PolyMorphicRegistry::getNamedTypeConvertedTo<AllocType>(className));
+                object->parsePolyMorphicObject(parent, parser);
+                return object;
+            }
+            void scanObject(T& object)
+            {
+                while (hasMoreValue())
+                {
+                    WrapperBase *obj = parseObject(key);
+                    object.push_back(obj);
+                }
+            }
+            bool hasMoreValue()
+            {
+                ParserInterface::ParserToken    tokenType = parser.getToken();
+                bool                            result    = tokenType != ParserInterface::ParserToken::MapEnd;
+                if (result)
+                {
+                    if (tokenType != ParserInterface::ParserToken::Key)
+                    {   throw std::runtime_error("ThorsAnvil::Serialize::DeSerializationForBlock<Map>::hasMoreValue: Expecting key token");
+                    }
+                    key = parser.getKey();
+                }
+
+                return result;
             }
         };
 
@@ -174,13 +200,14 @@ namespace ThorsAnvil {
             }
         };
 
-        template<typename T>
-        class SerializerForBlock<TraitType::Pointer, Wrapper<T>> {
+        template<>
+        class SerializerForBlock<TraitType::Array, vector<WrapperBase *>> {
+            typedef vector<WrapperBase *> T;
             Serializer &parent;
             PrinterInterface &printer;
-            Wrapper<T> const &object;
+            T const &object;
         public:
-            SerializerForBlock(Serializer &parent, PrinterInterface &printer, Wrapper<T> const &object)
+            SerializerForBlock(Serializer &parent, PrinterInterface &printer, T const &object)
                     : parent(parent), printer(printer), object(object) {
                 printer.openMap();
             }
@@ -190,17 +217,29 @@ namespace ThorsAnvil {
             }
 
             void printMembers() {
-                if (object.pointer == nullptr) {
-                    printer.addNull();
-                } else {
-                    InlinedSerializer inlined(parent, printer, *object);
-                    inlined.printMembers();
-                }
+                parent.printObjectMembers(object);
+            }
+        };
+
+        template<typename T>
+        class SerializerForBlock<TraitType::Pointer, Wrapper<T>> {
+            Serializer &parent;
+            PrinterInterface &printer;
+            Wrapper<T> const &object;
+        public:
+            SerializerForBlock(Serializer &parent, PrinterInterface &printer, Wrapper<T> const &object)
+                    : parent(parent), printer(printer), object(object) {
+            }
+
+            ~SerializerForBlock() {
+            }
+
+            void printMembers() {
+                parent.print(object.pointer);
             }
 
             void printPolyMorphicMembers(std::string const &type) {
-                printer.addKey(printer.config.polymorphicMarker);
-                printer.addValue(type);
+                printer.addKey(type);
                 printMembers();
             }
 
