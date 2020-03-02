@@ -8,7 +8,7 @@ Escape::Window::Window(const std::string &title, int width, int height) {
     this->height = height;
 }
 
-void Escape::Window::update(clock_type delta) {
+void Escape::Window::update(float delta) {
     this->delta = delta;
     processInput();
     render();

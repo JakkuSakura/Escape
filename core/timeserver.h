@@ -13,7 +13,7 @@ namespace Escape {
         int count;
     public:
         void initialize() override;
-        void update(::clock_type delta) override;
+        void update(float delta) override;
 
 
     };
@@ -39,9 +39,9 @@ namespace Escape {
 
         void setTick(size_t tick);
 
-        ::clock_type now();
+        float now();
 
-        ::clock_type getDelta();
+        float getDelta();
     };
 } // namespace Escape
 

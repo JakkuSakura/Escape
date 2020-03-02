@@ -37,7 +37,7 @@ namespace Escape {
     PhysicsSystem::PhysicsSystem() {
     }
 
-    void PhysicsSystem::update(clock_type delta) {
+    void PhysicsSystem::update(float delta) {
         ContactListener listener(getWorld());
         b2World b2d_world(b2Vec2(0, 0));
 
@@ -119,8 +119,8 @@ namespace Escape {
         b2d_world.Step(delta, velocityIterations, positionIterations);
         listener.PostPostProcess();
 
-        // fetch data
-        getWorld()->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
+        // fetch data for agents
+        getWorld()->view<Position, Velocity, AgentData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
             b2Body *body = mapping[ent];
             b2Vec2 position = body->GetPosition();
             b2Vec2 velocity = body->GetLinearVelocity();
@@ -129,9 +129,9 @@ namespace Escape {
         });
 
         // Only movement
-        // world->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
-        //     pos += vel * delta;
-        // });
+         getWorld()->view<Position, Velocity, BulletData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
+             pos += vel * delta;
+         });
     }
 
 }

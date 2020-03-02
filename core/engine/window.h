@@ -12,12 +12,12 @@ class Window : public System
 protected:
     std::string title;
     int width, height;
-    clock_type delta;
+    float delta;
 
 public:
     Window(const std::string &title, int width, int height);;
     virtual void render() = 0;
-    virtual void update(clock_type delta);
+    virtual void update(float delta);
     virtual void postProcess();
     virtual bool isRunning() { return true; };
     virtual void processInput();

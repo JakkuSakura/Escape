@@ -14,3 +14,9 @@
 [submodule "vendor/ThorsSerializer"]
 	path = vendor/ThorsSerializer
 	url = https://github.com/Loki-Astari/ThorsSerializer.git
+[submodule "vendor/luawrapper"]
+	path = vendor/luawrapper
+	url = https://github.com/ahupowerdns/luawrapper
+[submodule "vendor/sol2"]
+	path = vendor/sol2
+	url = https://github.com/ThePhD/sol2

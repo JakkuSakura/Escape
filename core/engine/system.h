@@ -23,10 +23,10 @@ public:
     virtual void unconfigure()
     {
     }
-    virtual void update(clock_type delta)
+    virtual void update(float delta)
     {
     }
-    void updateAll(clock_type delta)
+    void updateAll(float delta)
     {
         foreach ([=](System *sys) {
             sys->update(delta);

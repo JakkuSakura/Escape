@@ -19,7 +19,7 @@ namespace Escape {
         return createAgent(getWorld(), pos, 0);
     }
 
-    void AgentSystem::update(clock_type delta) {
+    void AgentSystem::update(float delta) {
         getWorld()->view<Health>().each([&](entt::entity ent, auto &health) {
             if (health.health <= 0)
                 getWorld()->destroy(ent);

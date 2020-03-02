@@ -24,9 +24,18 @@ namespace Escape {
     };
 
     class ECSSystem : public System {
+        SystemManager *sysmgr;
     public:
+        void configure() override {
+            sysmgr = findSystem<SystemManager>();
+        }
+        void unconfigure() override {
+            sysmgr = nullptr;
+        };
+    protected:
         World *getWorld() {
-            return findSystem<SystemManager>()->getWorld();
+            assert(sysmgr);
+            return sysmgr->getWorld();
         }
     };
 

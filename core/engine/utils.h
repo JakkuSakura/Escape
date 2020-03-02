@@ -27,7 +27,7 @@ inline void show_vec(const T &vec) {
 #include <cstring>
 // template <typename... Args>
 // NewName(Args &&... args) : BaseName(std::forward<Args>(args)...) {}
-using clock_type = float;
+
 #define FORWARD_CONSTRUCTORS(NewName, BaseName)                              \
     using base_type__ = BaseName;                                            \
     using new_type__ = NewName;                                              \

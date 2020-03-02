@@ -25,7 +25,7 @@ namespace Escape {
             this->controlSystem = msg;
         }
 
-        void update(clock_type delta) override {
+        void update(float delta) override {
             entt::entity player = controlSystem->findPlayer(player_id);
             if (player == entt::null)
                 return;

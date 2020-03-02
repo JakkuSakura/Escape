@@ -32,7 +32,7 @@ public:
 class WindowOgre : public Window, public OgreBites::ApplicationContext
 {
 protected:
-    clock_type delta;
+    float delta;
     bool running;
     Ogre::Root *root;
     Ogre::SceneManager *scnMgr;
@@ -45,7 +45,7 @@ public:
 
     WindowOgre(const std::string &title, int width, int height);;
     virtual void processInput();
-    virtual void update(clock_type delta);
+    virtual void update(float delta);
     virtual void render();
     virtual void postProcess() override;
     void stop();

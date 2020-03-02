@@ -21,7 +21,7 @@ public:
     BulletSystem();
     void initialize() override;
     void fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance);
-    void update(clock_type delta) override;
+    void update(float delta) override;
 };
 class WeaponSystem : public ECSSystem
 {
@@ -32,7 +32,7 @@ class WeaponSystem : public ECSSystem
 public:
     WeaponSystem();
     void initialize() override;
-    void update(clock_type delta) override;
+    void update(float delta) override;
     void fire(entt::entity ent, float angle);
 
     void changeWeapon(entt::entity ent, WeaponType type);

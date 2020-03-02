@@ -64,26 +64,26 @@ namespace Escape {
         });
         if (!find) {
             auto time_ent = getWorld()->create();
-            getWorld()->assign<TimeServerInfo>(time_ent, TimeServerInfo{tick: 0});
+            getWorld()->assign<TimeServerInfo>(time_ent, TimeServerInfo{.tick =  0});
             std::cerr << "Set tick to zero" << std::endl;
         }
     }
 
-    ::clock_type TimeServer::now() {
+    float TimeServer::now() {
         return getTick() * delta;
     }
 
-    ::clock_type TimeServer::getDelta() {
+    float TimeServer::getDelta() {
         return delta;
     }
 
-    void FPSCounter::update(::clock_type delta) {
+    void FPSCounter::update(float delta) {
         using namespace std::chrono_literals;
         count += 1;
         auto duration = clock_type::now() - last;
         // assuming that the duration relatively equals 1 second
         if (duration > 1s) {
-            std::cerr << "FPS: " << count << std::endl;
+            std::cerr << "FPS: " << count / duration.count() << std::endl;
             initialize();
         }
 

@@ -10,7 +10,7 @@ class LifespanSystem : public ECSSystem
     TimeServer *timeserver;
 public:
     void initialize() override;
-    void update(clock_type delta) override;
+    void update(float delta) override;
     Lifespan period(float secs);
 };
 } // namespace Escape

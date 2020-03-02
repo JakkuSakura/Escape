@@ -107,8 +107,8 @@ struct TimeServerInfo {
 
 
 struct Lifespan {
-    clock_type begin;
-    clock_type end;
+    float begin;
+    float end;
 };
 
 

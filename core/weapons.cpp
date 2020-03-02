@@ -33,7 +33,7 @@ namespace Escape {
         getWorld()->assign<Lifespan>(bullet, lifespan->period(3));
     }
 
-    void BulletSystem::update(clock_type delta) {
+    void BulletSystem::update(float delta) {
         getWorld()->view<BulletData, CollisionResults>().each(
                 [&](entt::entity ent, auto &bullet, auto &col) {
                     bool hit = false;
@@ -136,7 +136,7 @@ namespace Escape {
         }
     }
 
-    void WeaponSystem::update(clock_type delta) {
+    void WeaponSystem::update(float delta) {
         getWorld()->view<Message<ChangeWeapon>>().each([&](auto ent, auto &chg) {
             if (!chg.processed) {
                 changeWeapon(ent, chg.data.weapon);

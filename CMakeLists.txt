@@ -17,7 +17,7 @@ endif()
 
 file(GLOB_RECURSE SOURCES_CORE core/*.cpp)
 
-include_directories(core vendor/glm vendor/entt/src vendor/json/single_include vendor/ThorsSerializer)
+include_directories(core vendor/glm vendor/entt/src vendor/json/single_include vendor/ThorsSerializer vendor/sol2/single/include)
 
 find_package(Box2D REQUIRED)
 include_directories(${BOX2D_INCLUDE_DIRS})

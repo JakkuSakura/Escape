@@ -10,7 +10,7 @@ class PhysicsSystem : public ECSSystem
 {
 public:
     PhysicsSystem();
-    void update(clock_type delta) override;
+    void update(float delta) override;
 
 };
 

@@ -24,7 +24,7 @@ namespace Escape {
 
         }
 
-        virtual void update(clock_type delta) {
+        virtual void update(float delta) {
 
         }
     };
@@ -46,7 +46,7 @@ namespace Escape {
             getWorld()->assign_or_replace<Message<T>>(entity, Message<T>(entity, action));
         }
 
-        void update(clock_type delta) {
+        void update(float delta) {
             for (Controller *c : control) {
                 c->update(delta);
             }
@@ -57,6 +57,23 @@ namespace Escape {
                 delete c;
             }
         }
+
+        template<typename ... Args>
+        std::vector<entt::entity> filter(std::function<bool(entt::entity, Args ...)> filter_) {
+            std::vector<entt::entity> results;
+            getWorld()->view<std::remove_reference_t<Args> ...>().each(
+                    [&](auto ent, Args ... args) {
+                        if (filter_(ent, args ...))
+                            results.push_back(ent);
+                    });
+            return results;
+        }
+
+        template<typename Fn>
+        std::vector<entt::entity> filter(Fn filter_) {
+            return filter(std::function(filter_));
+        }
+
 
         entt::entity findPlayer(int player_id) {
             return AgentSystem::getPlayer(getWorld(), player_id);

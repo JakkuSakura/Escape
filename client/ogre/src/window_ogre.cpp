@@ -67,7 +67,7 @@ void WindowOgre::processInput() {
         stop();
 }
 
-void WindowOgre::update(clock_type delta) {
+void WindowOgre::update(float delta) {
     this->delta = delta;
     processInput();
     render();

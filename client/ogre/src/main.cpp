@@ -2,7 +2,6 @@
 #include "logic.h"
 #include "display.h"
 #include "map_converter.h"
-
 using namespace Escape;
 
 int main(int argc, const char **argv) {
