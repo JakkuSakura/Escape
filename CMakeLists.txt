@@ -16,8 +16,6 @@ endif()
 # SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 file(GLOB_RECURSE SOURCES_CORE core/*.cpp)
-file(GLOB_RECURSE SOURCES_MAP_CONVERTER editor/*.cpp)
-
 
 include_directories(core vendor/glm vendor/entt/src vendor/json/single_include vendor/ThorsSerializer)
 
@@ -28,9 +26,6 @@ add_definitions(${BOX2D_DEFINITIONS})
 
 find_package(Lua REQUIRED)
 include_directories(${LUA_INCLUDE_DIR})
-
-add_executable(map_converter ${SOURCES_MAP_CONVERTER} ${SOURCES_CORE})
-target_link_libraries(map_converter ${BOX2D_LIBRARIES} ${LUA_LIBRARIES})
 
 add_subdirectory(client/ogre)
 add_subdirectory(client/cocos2dx)

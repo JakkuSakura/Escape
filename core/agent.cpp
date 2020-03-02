@@ -16,13 +16,13 @@ namespace Escape {
     }
 
     entt::entity AgentSystem::createAgent(const Position &pos) {
-        return createAgent(world, pos, 0);
+        return createAgent(getWorld(), pos, 0);
     }
 
     void AgentSystem::update(clock_type delta) {
-        world->view<Health>().each([&](entt::entity ent, auto &health) {
+        getWorld()->view<Health>().each([&](entt::entity ent, auto &health) {
             if (health.health <= 0)
-                world->destroy(ent);
+                getWorld()->destroy(ent);
         });
     }
 

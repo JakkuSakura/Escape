@@ -21,10 +21,10 @@ namespace Escape {
         addSubSystem(new ControlSystem());
         addSubSystem(new AISystem());
     }
-    void Logic::initialize() {
-//        SerializationHelper reader("assets/map.json");
-//        reader.deserialize(*world);
-//        TODO add map file support
+
+    void Logic::setWorld(World *wo) {
+        delete this->world;
+        this->world = wo;
     }
 
 }

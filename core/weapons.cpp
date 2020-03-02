@@ -13,9 +13,9 @@ namespace Escape {
     }
 
     void BulletSystem::fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance) {
-        entt::entity bullet = world->create();
-        world->assign<Name>(bullet, "bullet");
-        auto data = BulletData{.firer_id =  world->get<AgentData>(firer).player,
+        entt::entity bullet = getWorld()->create();
+        getWorld()->assign<Name>(bullet, "bullet");
+        auto data = BulletData{.firer_id =  getWorld()->get<AgentData>(firer).player,
                 .type =  type,
                 .damage =  damage,
                 .density = 7.6,
@@ -23,36 +23,36 @@ namespace Escape {
         };
         if(type == BulletType::SHOTGUN_SHELL)
             data.radius = 0.2;
-        world->assign<BulletData>(bullet, data);
-        world->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
+        getWorld()->assign<BulletData>(bullet, data);
+        getWorld()->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
 
         vec2 ang(cos(angle), sin(angle));
 
-        world->assign<Velocity>(bullet, speed * ang);
-        world->assign<Position>(bullet, world->get<Position>(firer) + ang * distance);
-        world->assign<Lifespan>(bullet, lifespan->period(3));
+        getWorld()->assign<Velocity>(bullet, speed * ang);
+        getWorld()->assign<Position>(bullet, getWorld()->get<Position>(firer) + ang * distance);
+        getWorld()->assign<Lifespan>(bullet, lifespan->period(3));
     }
 
     void BulletSystem::update(clock_type delta) {
-        world->view<BulletData, CollisionResults>().each(
+        getWorld()->view<BulletData, CollisionResults>().each(
                 [&](entt::entity ent, auto &bullet, auto &col) {
                     bool hit = false;
                     for (Collision &c : col.results) {
-                        if(world->valid(c.hit_with))
+                        if(getWorld()->valid(c.hit_with))
                         {
                             hit = true;
-                            if (world->has<Health>(c.hit_with)) {
-                                if (world->has<AgentData>(c.hit_with) &&
-                                    world->get<AgentData>(c.hit_with).player == bullet.firer_id) // Not do harm the firer/group
+                            if (getWorld()->has<Health>(c.hit_with)) {
+                                if (getWorld()->has<AgentData>(c.hit_with) &&
+                                    getWorld()->get<AgentData>(c.hit_with).player == bullet.firer_id) // Not do harm the firer/group
                                     continue;
-                                auto &health = world->get<Health>(c.hit_with);
+                                auto &health = getWorld()->get<Health>(c.hit_with);
                                 health.health -= bullet.damage;
                             }
                             break;
                         }
                     }
                     if (hit)
-                        world->destroy(ent);
+                        getWorld()->destroy(ent);
                 });
     }
 
@@ -106,8 +106,8 @@ namespace Escape {
     }
 
     void WeaponSystem::fire(entt::entity ent, float angle) {
-        if (world->has<Weapon>(ent)) {
-            auto &weapon = world->get<Weapon>(ent);
+        if (getWorld()->has<Weapon>(ent)) {
+            auto &weapon = getWorld()->get<Weapon>(ent);
             if (timeserver->now() >= weapon.next) {
                 const WeaponPrototype &prototype = default_weapons.at(weapon.weapon);
                 float angle_diff = std::max(0.0, M_PI_4 * (100 - prototype.accuracy) / 100);
@@ -125,24 +125,24 @@ namespace Escape {
 
     void WeaponSystem::changeWeapon(entt::entity ent, WeaponType type) {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
-        if (world->has<Weapon>(ent)) {
-            auto &w = world->get<Weapon>(ent);
+        if (getWorld()->has<Weapon>(ent)) {
+            auto &w = getWorld()->get<Weapon>(ent);
             if (type != w.weapon)
-                world->assign_or_replace<Weapon>(ent, Weapon{type, 0, 0});
+                getWorld()->assign_or_replace<Weapon>(ent, Weapon{type, 0, 0});
         } else {
-            world->assign<Weapon>(ent, Weapon{type, 0});
+            getWorld()->assign<Weapon>(ent, Weapon{type, 0});
         }
     }
 
     void WeaponSystem::update(clock_type delta) {
-        world->view<Message<ChangeWeapon>>().each([&](auto ent, auto &chg) {
+        getWorld()->view<Message<ChangeWeapon>>().each([&](auto ent, auto &chg) {
             if (!chg.processed) {
                 changeWeapon(ent, chg.data.weapon);
                 chg.processed = true;
             }
         });
 
-        world->view<Message<Shooting>>().each([&](auto ent, auto &sht) {
+        getWorld()->view<Message<Shooting>>().each([&](auto ent, auto &sht) {
             if (!sht.processed) {
                 fire(ent, sht.data.angle);
                 sht.processed = true;

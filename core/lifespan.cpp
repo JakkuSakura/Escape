@@ -7,9 +7,9 @@ namespace Escape {
 
     void LifespanSystem::update(clock_type delta) {
         clock_type now = timeserver->now();
-        world->view<Lifespan>().each([&](entt::entity ent, auto &lifespan) {
+        getWorld()->view<Lifespan>().each([&](entt::entity ent, auto &lifespan) {
             if (lifespan.end < now) {
-                world->destroy(ent);
+                getWorld()->destroy(ent);
             }
         });
     }

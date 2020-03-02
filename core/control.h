@@ -43,7 +43,7 @@ namespace Escape {
 
         template<typename T>
         void dispatch(entt::entity entity, const T &action) {
-            world->assign_or_replace<Message<T>>(entity, Message<T>(entity, action));
+            getWorld()->assign_or_replace<Message<T>>(entity, Message<T>(entity, action));
         }
 
         void update(clock_type delta) {
@@ -59,26 +59,26 @@ namespace Escape {
         }
 
         entt::entity findPlayer(int player_id) {
-            return AgentSystem::getPlayer(world, player_id);
+            return AgentSystem::getPlayer(getWorld(), player_id);
         }
 
         auto findPlayers(int player_id) {
-            return AgentSystem::getPlayers(world, player_id);
+            return AgentSystem::getPlayers(getWorld(), player_id);
         }
 
         template<typename ... T>
         auto get(entt::entity ent) {
-            return world->get<T ...>(ent);
+            return getWorld()->get<T ...>(ent);
         }
 
         template<typename ... T>
         auto has(entt::entity ent) {
-            return world->has<T ...>(ent);
+            return getWorld()->has<T ...>(ent);
         }
 
         template<typename ... T>
         auto any(entt::entity ent) {
-            return world->any<T ...>(ent);
+            return getWorld()->any<T ...>(ent);
         }
     };
 

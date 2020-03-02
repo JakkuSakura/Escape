@@ -4,14 +4,13 @@
 
 #include "map_converter.h"
 #include <nlohmann/json.hpp>
-#include "../core/serialization.h"
 #include <fstream>
-#include "../core/terrain.h"
-#include "../core/agent.h"
+#include "terrain.h"
+#include "agent.h"
 
 using nlohmann::json;
 namespace Escape {
-    void MapConverter::convert(const std::string &input) {
+    World *MapConverter::convert(const std::string &input) {
 
         json configuration;
         {
@@ -25,7 +24,7 @@ namespace Escape {
             is >> map;
         }
 
-        entt::registry world;
+        entt::registry *world = new entt::registry ;
         int width = map["width"], height = map["height"];
         float tilewidth = map["tilewidth"], tileheight = map["tileheight"];
         float scale_x = 1.0f / 16.0f, scale_y = 1.0f / 16.0f;
@@ -41,7 +40,7 @@ namespace Escape {
                         {
                             if (configuration["tiles"][type - 1]["type"] == "Wall")
                             {              // It's wall
-                                TerrainSystem::createWall(&world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                                TerrainSystem::createWall(world, x, y, tilewidth * scale_x, tileheight * scale_y);
                             }
                         }
                     }
@@ -51,15 +50,14 @@ namespace Escape {
                     if (obj["type"] == "SpawnPoint") {
                         float x = ((float) obj["x"]) * scale_x, y = -((float) obj["y"]) * scale_y;
                         if (obj["name"] == "player") {
-                            AgentSystem::createAgent(&world, Position(x, y), 1);
+                            AgentSystem::createAgent(world, Position(x, y), 1);
                         } else if (obj["name"] == "agent") {
-                            AgentSystem::createAgent(&world, Position(x, y), 0);
+                            AgentSystem::createAgent(world, Position(x, y), 0);
                         }
                     }
                 }
             }
         }
-        SerializationHelper helper(input + "/map.json");
-        helper.serialize(world);
+        return world;
     }
 } // namespace Escape

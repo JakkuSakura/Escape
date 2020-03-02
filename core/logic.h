@@ -12,8 +12,8 @@ namespace Escape {
     public:
         using SystemManager::world;
         Logic();
-        void initialize() override;
-
+        // Take over the ownership of world
+        void setWorld(World *world);
     };
 
 }

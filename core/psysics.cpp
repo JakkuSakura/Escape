@@ -38,13 +38,14 @@ namespace Escape {
     }
 
     void PhysicsSystem::update(clock_type delta) {
-        ContactListener listener(world);
+        ContactListener listener(getWorld());
         b2World b2d_world(b2Vec2(0, 0));
 
         std::map<entt::entity, b2Body *> mapping;
-        world->clear<CollisionResults>();
+
+        getWorld()->clear<CollisionResults>();
         // Put walls into box2d
-        world->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
+        getWorld()->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
             if (ter.type == TerrainType::BOX) {
                 b2BodyDef wallDef;
                 wallDef.position.Set(pos.x, pos.y);
@@ -65,7 +66,7 @@ namespace Escape {
         });
 
         // put agents and bullets in box2d
-        world->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
+        getWorld()->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(pos.x, pos.y);
@@ -78,8 +79,8 @@ namespace Escape {
             b2FixtureDef fixtureDef;
             fixtureDef.shape = &circle;
 
-            if (world->has<BulletData>(ent)) {
-                BulletData &data = world->get<BulletData>(ent);
+            if (getWorld()->has<BulletData>(ent)) {
+                BulletData &data = getWorld()->get<BulletData>(ent);
                 fixtureDef.density = data.density;
                 fixtureDef.friction = 1e6f;
 //                 this slows down fps and is unnecessary for relatively slow speed.
@@ -98,7 +99,7 @@ namespace Escape {
         });
 
         // Impulsion control
-        world->view<Position, Velocity, Message<Impulse>>().each(
+        getWorld()->view<Position, Velocity, Message<Impulse>>().each(
                 [&](auto ent, Position &pos, auto &vel, auto &impulse) {
                     if (!impulse.processed) {
                         mapping[ent]->ApplyLinearImpulse(as<b2Vec2>(impulse.data), as<b2Vec2>(pos), true);
@@ -119,7 +120,7 @@ namespace Escape {
         listener.PostPostProcess();
 
         // fetch data
-        world->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
+        getWorld()->view<Position, Velocity>().each([&](auto ent, auto &pos, auto &vel) {
             b2Body *body = mapping[ent];
             b2Vec2 position = body->GetPosition();
             b2Vec2 velocity = body->GetLinearVelocity();

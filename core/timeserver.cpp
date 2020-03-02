@@ -41,10 +41,10 @@ namespace Escape {
     }
 
     size_t TimeServer::getTick() {
-        if(world == nullptr)
+        if(getWorld() == nullptr)
             configure();
         size_t tick = -1;
-        world->view<TimeServerInfo>().each([&](auto ent, auto &p) {
+        getWorld()->view<TimeServerInfo>().each([&](auto ent, auto &p) {
             tick = p.tick;
         });
         if (tick == (size_t) (-1))
@@ -58,13 +58,13 @@ namespace Escape {
 
     void TimeServer::setTick(size_t tick) {
         bool find = false;
-        world->view<TimeServerInfo>().each([&](auto ent, auto &p) {
+        getWorld()->view<TimeServerInfo>().each([&](auto ent, auto &p) {
             p.tick = tick;
             find = true;
         });
         if (!find) {
-            auto time_ent = world->create();
-            world->assign<TimeServerInfo>(time_ent, TimeServerInfo{tick: 0});
+            auto time_ent = getWorld()->create();
+            getWorld()->assign<TimeServerInfo>(time_ent, TimeServerInfo{tick: 0});
             std::cerr << "Set tick to zero" << std::endl;
         }
     }

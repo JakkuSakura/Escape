@@ -6,11 +6,13 @@
 #define ESCAPE_MAP_CONVERTER_H
 
 #include <string>
+#include "MyECS.h"
+
 namespace Escape
 {
 class MapConverter {
 public:
-    void convert(const std::string &input);
+    World *convert(const std::string &input);
 };
     
 } // namespace Escape
