@@ -40,6 +40,8 @@ namespace Escape {
                     for (Collision &c : col.results) {
                         if(getWorld()->valid(c.hit_with))
                         {
+                            if(getWorld()->has<BulletData>(c.hit_with))
+                                continue;
                             hit = true;
                             if (getWorld()->has<Health>(c.hit_with)) {
                                 if (getWorld()->has<AgentData>(c.hit_with) &&
