@@ -6,6 +6,7 @@
 #include "serialization.h"
 #include <OgreQuaternion.h>
 #include "config.h"
+#include <fstream>
 
 namespace Escape {
     class DisplayOgre;
@@ -37,7 +38,7 @@ namespace Escape {
                 // std::cerr << "Cursor: " << x << " " << y << std::endl;
                 float angle = atan2(y - pos.y, x - pos.x);
 
-                controlSystem->dispatch(player, Shooting{.angle =  angle});
+                controlSystem->dispatch(player, Shooting(angle));
             }
 
             Velocity vel(0, 0);
@@ -149,8 +150,9 @@ namespace Escape {
 
             try {
                 std::cerr << "Writing map file" << std::endl;
-                SerializationHelper helper("map.json");
-                helper.serialize(*world);
+                SerializationHelper helper;
+                auto os = std::ofstream("map.json");
+                helper.serialize(*world, os);
             }
             catch (std::runtime_error &e) {
                 std::cerr << "error " << e.what() << std::endl;
@@ -161,8 +163,9 @@ namespace Escape {
         }
         if (input.keys['i']) {
             std::cerr << "Reading map file" << std::endl;
-            SerializationHelper helper("map.json");
-            helper.deserialize(*world);
+            SerializationHelper helper;
+            auto is = std::ifstream("map.json");
+            helper.deserialize(*world, is);
         }
     }
 

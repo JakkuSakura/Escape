@@ -313,11 +313,10 @@ public:
 
 };
 
-Escape::SerializationHelper::SerializationHelper(std::string name) : filename(std::move(name)) {
+Escape::SerializationHelper::SerializationHelper() {
 }
 
-void Escape::SerializationHelper::serialize(const Escape::World &world) {
-    std::ofstream stream(filename);
+void Escape::SerializationHelper::serialize(const Escape::World &world, std::ostream &stream) {
     entt_oarchive output(stream, const_cast<Escape::World *>(&world));
     world.each([&](entt::entity ent) {
         output.components<COMPONENT_LIST>(ent);
@@ -325,8 +324,7 @@ void Escape::SerializationHelper::serialize(const Escape::World &world) {
     output.flush();
 }
 
-void Escape::SerializationHelper::deserialize(Escape::World &world) {
-    std::ifstream stream(filename);
+void Escape::SerializationHelper::deserialize(Escape::World &world, std::istream &stream) {
     world.clear();
     entt_iarchive input(stream, &world);
     input.read_from_stream();
@@ -334,8 +332,7 @@ void Escape::SerializationHelper::deserialize(Escape::World &world) {
 
 }
 
-void SerializationHelper::serialize(const World &world, const entt::entity ent) {
-    std::ofstream stream(filename);
+void SerializationHelper::serialize(const World &world, const entt::entity ent, std::ostream &stream) {
     entt_oarchive output(stream, const_cast<Escape::World *>(&world));
     output.components<COMPONENT_LIST>(ent);
     output.flush();

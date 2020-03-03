@@ -9,6 +9,7 @@
 #include "components.h"
 #include "agent.h"
 #include <vector>
+#include <sstream>
 #include "event_system.h"
 #include "serialization.h"
 #include "nlohmann/json.hpp"
@@ -100,9 +101,13 @@ namespace Escape {
             return getWorld()->any<T ...>(ent);
         }
 
-        template <typename ... Args>
         nlohmann::json toJSON(entt::entity ent) {
-            // TODO here
+            SerializationHelper helper;
+            std::stringstream ss;
+            helper.serialize(*getWorld(), ent, ss);
+            nlohmann::json js;
+            ss >> js;
+            return js;
         }
     };
 

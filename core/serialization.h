@@ -5,17 +5,15 @@
 
 namespace Escape {
     class SerializationHelper {
-        std::string filename;
     public:
 
-        explicit SerializationHelper(std::string name);
+        explicit SerializationHelper();
 
-        void serialize(const World &world);
+        void deserialize(World &world, std::istream &stream);
 
-        void deserialize(World &world);
+        void serialize(const World &world, std::ostream &stream);
 
-        void serialize(const World &world, const entt::entity ent);
-
+        void serialize(const World &world, const entt::entity ent, std::ostream &stream);
     };
 
 } // namespace Escape
