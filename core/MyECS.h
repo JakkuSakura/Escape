@@ -27,7 +27,7 @@ namespace Escape {
         SystemManager *sysmgr;
     public:
         void configure() override {
-            sysmgr = findSystem<SystemManager>();
+            sysmgr = findSystem<SystemManager>(true, false);
         }
         void unconfigure() override {
             sysmgr = nullptr;

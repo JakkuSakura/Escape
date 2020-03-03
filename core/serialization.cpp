@@ -26,7 +26,7 @@ ThorsAnvil_ExpandTrait(vec2, Position);
 ThorsAnvil_ExpandTrait(vec2, Velocity);
 ThorsAnvil_MakeTrait(Hitbox, radius);
 ThorsAnvil_MakeTrait(Rotation, radian);
-ThorsAnvil_MakeTrait(AgentData, player);
+ThorsAnvil_MakeTrait(AgentData, player, group, ai);
 ThorsAnvil_MakeTrait(TimeServerInfo, tick);
 ThorsAnvil_MakeTrait(Lifespan, begin, end);
 ThorsAnvil_MakeTrait(Health, max_health);
@@ -50,6 +50,7 @@ ThorsAnvil_MakeEnum(WeaponType,
 
 ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
 ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
+
 
 struct WrapperBase {
     WrapperBase() {};
@@ -257,6 +258,10 @@ public:
         os << jsonExport(world);
     }
 
+    void flush(entt::entity entity) {
+        os << jsonExport(world[to_str(entt::to_integral(entity))]);
+    }
+
     template<typename T>
     void component(entt::entity entity) {
         if (world_->has<T>(entity))
@@ -304,7 +309,7 @@ public:
     template<typename ... Args>
     void components() {
         for (auto pair : world) {
-            if(!world_->valid((entt::entity) to_int(pair.first)))
+            if (!world_->valid((entt::entity) to_int(pair.first)))
                 world_->create((entt::entity) to_int(pair.first));
             (component<Args>((entt::entity) to_int(pair.first), pair.second), ...);
         }
@@ -335,6 +340,6 @@ void Escape::SerializationHelper::deserialize(Escape::World &world, std::istream
 void SerializationHelper::serialize(const World &world, const entt::entity ent, std::ostream &stream) {
     entt_oarchive output(stream, const_cast<Escape::World *>(&world));
     output.components<COMPONENT_LIST>(ent);
-    output.flush();
+    output.flush(ent);
 }
 

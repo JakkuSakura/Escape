@@ -11,15 +11,16 @@ namespace Escape {
 
         if (world->has<BulletData>(col.b))
             std::swap(col.a, col.b);
-        if (world->has<BulletData>(col.a) && !world->has<BulletData>(col.b)) {
-            auto bullet = world->get<BulletData>(col.a);
-            if (world->has<Health>(col.b)) {
-                if (world->has<AgentData>(col.b) &&
-                    world->get<AgentData>(col.b).player !=
-                    world->get<BulletData>(col.a).firer_id) // Not do harm the firer/group
-                    world->get<Health>(col.b).health -= bullet.damage;
-            }
+        auto *bullet = world->try_get<BulletData>(col.a);
+        if (bullet && !world->has<BulletData>(col.b)) {
 
+            auto *firer = world->try_get<AgentData>((entt::entity)bullet->firer_id), *b = world->try_get<AgentData>(col.b);
+            if (firer && b) {
+                if (firer->group != b->group)
+                    goto destory;
+            }
+            world->get<Health>(col.b).health -= bullet->damage;
+            destory:;
             world->destroy(col.a);
         }
     }
@@ -40,7 +41,7 @@ namespace Escape {
     BulletSystem::fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance) {
         entt::entity bullet = getWorld()->create();
         getWorld()->assign<Name>(bullet, "bullet");
-        auto data = BulletData{.firer_id =  getWorld()->get<AgentData>(firer).player,
+        auto data = BulletData{.firer_id = entt::to_integral(firer),
                 .type =  type,
                 .damage =  damage,
                 .density = 7.6,

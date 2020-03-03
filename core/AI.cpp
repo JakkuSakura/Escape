@@ -4,26 +4,42 @@
 
 #include "AI.h"
 #include "control.h"
-#include <ctime>
 #include <cstdlib>
 #include "lua_script.h"
 #include <glm/glm.hpp>
 #include "config.h"
+
 namespace Escape {
     float random_angle() {
         return (float) M_PI * 2 * (float) rand() / RAND_MAX;
     }
 
-    class Agent_Random : public Controller {
+    class AgentControl : public Controller {
+        friend AISystem;
+        entt::entity id;
+
+        void setEntityID(entt::entity id_) {
+            this->id = id_;
+        }
+
+    public:
         ControlSystem *control;
+
+        void init(ControlSystem *c) override {
+            control = c;
+        }
+
+        entt::entity getEntityID() {
+            return id;
+        }
+    };
+
+    class Agent_Random : public AgentControl {
     public:
         Agent_Random() {
 
         }
 
-        void init(ControlSystem *c) override {
-            control = c;
-        }
 
         void update(float delta) override {
             for (entt::entity ent : control->findPlayers(0)) {
@@ -36,15 +52,10 @@ namespace Escape {
 
     };
 
-    class Agent_Smarter : public Controller {
-        ControlSystem *control;
+    class Agent_Smarter : public AgentControl {
     public:
         Agent_Smarter() {
 
-        }
-
-        void init(ControlSystem *c) override {
-            control = c;
         }
 
         void update(float delta) override {
@@ -70,31 +81,79 @@ namespace Escape {
 
     };
 
-    class Agent_Lua : public Controller {
-        LuaScript lua;
+    class Agent_Lua : public AgentControl {
+        sol::state lua;
         ControlSystem *control;
+        std::string file;
     public:
-        Agent_Lua(const std::string &file) {
-            lua.doFile(file);
+        Agent_Lua(std::string &&filename) : file(std::move(filename)) {
+            lua.open_libraries(sol::lib::base);
+            lua.open_libraries(sol::lib::io);
         }
 
         void init(ControlSystem *c) override {
             control = c;
+
+            lua["get"] = [&](int ent) -> sol::table {
+                return getEntity((entt::entity) ent);
+            };
+            lua["id"] = getEntityID();
+
+            lua.script_file(file);
         }
 
         void update(float delta) override {
-            lua.doString("update()");
+            lua.script("update()");
         }
 
+        sol::table getEntity(entt::entity ent) {
+            return Converter::toTable(control->toJSON(ent));
+        }
     };
 
     void AISystem::initialize() {
-        auto contr = findSystem<ControlSystem>();
-        contr->addController(new Agent_Lua("/home/jack/IdeaProjects/Escape/maps/map1/simple_ai.lua"));
+
+        for (entt::entity ent = AISystem::allocate(); ent != entt::null; ent = AISystem::allocate()) {
+            insert(ent, new Agent_Lua("/home/jack/IdeaProjects/Escape/maps/map1/simple_ai.lua"));
+        }
     }
 
     AISystem::AISystem() {
 
+    }
+
+    AISystem::~AISystem() {
+    }
+
+    entt::entity AISystem::allocate() {
+        auto agents = getWorld()->view<AgentData>();
+        for (entt::entity ent : agents) {
+            auto data = agents.get<AgentData>(ent);
+            if (data.player == 0 && AIs.count(ent) == 0) {
+                return ent;
+            }
+        }
+        return entt::null;
+    }
+
+    void AISystem::update(float delta) {
+        auto contr = findSystem<ControlSystem>();
+        for (auto[key, value] : AIs) {
+            if (!getWorld()->valid(key)) {
+                AIs.erase(key);
+                contr->removeController(value);
+                delete value;
+            }
+        }
+    }
+
+    void AISystem::insert(entt::entity ent, AgentControl *agt) {
+        assert(AIs.count(ent) == 0);
+        std::cerr << "Enabled AI for entity " << entt::to_integral(ent) << std::endl;
+        AIs[ent] = agt;
+        agt->setEntityID(ent);
+        auto contr = findSystem<ControlSystem>();
+        contr->addController(agt);
     }
 
 }

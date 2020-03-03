@@ -143,8 +143,7 @@ namespace Escape {
 
         if (input.keys['p'])
             AgentSystem::createAgent(world,
-                                     Position(timeserver->random(-50, 50), timeserver->random(-50, 50)),
-                                     false);
+                                     Position(timeserver->random(-50, 50), timeserver->random(-50, 50)), 0, 0, "basic");
 
         if (input.keys['o']) {
 

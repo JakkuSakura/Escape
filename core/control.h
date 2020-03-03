@@ -10,13 +10,17 @@
 #include "agent.h"
 #include <vector>
 #include <sstream>
+#include <set>
 #include "event_system.h"
 #include "serialization.h"
 #include "nlohmann/json.hpp"
+
 namespace Escape {
     class ControlSystem;
 
     class Controller {
+        friend ControlSystem;
+
     public:
         virtual ~Controller() {
 
@@ -26,21 +30,27 @@ namespace Escape {
 
         }
 
+
         virtual void update(float delta) {
 
         }
     };
 
     class ControlSystem : public ECSSystem {
-        std::vector<Controller *> control;
+        std::set<Controller *> control;
     public:
         ControlSystem() {
 
         }
 
         void addController(Controller *c) {
+            control.insert(c);
             c->init(this);
-            control.push_back(c);
+        }
+
+        // this will return the ownership
+        void removeController(Controller *c) {
+            control.erase(control.find(c));
         }
 
         template<typename T>

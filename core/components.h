@@ -87,6 +87,8 @@ struct Rotation {
 
 struct AgentData {
     int player;
+    int group;
+    std::string ai;
 };
 
 
@@ -123,7 +125,7 @@ enum class BulletType {
 };
 
 struct BulletData {
-    int firer_id;
+    unsigned int firer_id;
     BulletType type;
     float damage;
     float density;
