@@ -12,8 +12,9 @@ namespace Escape {
 
         void serialize(const World &world);
 
-
         void deserialize(World &world);
+
+        void serialize(const World &world, const entt::entity ent);
 
     };
 

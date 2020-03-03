@@ -18,7 +18,7 @@ namespace Escape {
         ControlSystem *control;
     public:
         Agent_Random() {
-            srand(time(0));
+
         }
 
         void init(ControlSystem *c) override {
@@ -40,7 +40,7 @@ namespace Escape {
         ControlSystem *control;
     public:
         Agent_Smarter() {
-            srand(time(0));
+
         }
 
         void init(ControlSystem *c) override {
@@ -58,12 +58,12 @@ namespace Escape {
                 if (players.size()) {
                     auto p = control->get<Position>(players[0]);
                     float angle = atan2f(p.y - pos.y, p.x - pos.x);
-                    control->dispatch(ent, Shooting{.angle =  angle});
-                    control->dispatch(ent, Impulse(cos(angle) * 12, sin(angle) * 12));
+                    control->dispatch(ent, Shooting(angle));
+                    control->dispatch(ent, Impulse(cos(angle) * AGENT_IMPULSE * .8, sin(angle) * AGENT_IMPULSE * .8));
 
                 } else {
                     float angle = random_angle();
-                    control->dispatch(ent, Impulse(cos(angle) * 12, sin(angle) * 12));
+                    control->dispatch(ent, Impulse(cos(angle) * AGENT_IMPULSE * .8, sin(angle) * AGENT_IMPULSE * .8));
                 }
             }
         }
@@ -83,14 +83,14 @@ namespace Escape {
         }
 
         void update(float delta) override {
-            // TODO this has to be considered before implementing
+            lua.doString("update()");
         }
 
     };
 
     void AISystem::initialize() {
         auto contr = findSystem<ControlSystem>();
-        contr->addController(new Agent_Smarter());
+        contr->addController(new Agent_Lua("/home/jack/IdeaProjects/Escape/maps/map1/simple_ai.lua"));
     }
 
     AISystem::AISystem() {

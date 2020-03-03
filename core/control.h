@@ -10,7 +10,8 @@
 #include "agent.h"
 #include <vector>
 #include "event_system.h"
-
+#include "serialization.h"
+#include "nlohmann/json.hpp"
 namespace Escape {
     class ControlSystem;
 
@@ -97,6 +98,11 @@ namespace Escape {
         template<typename ... T>
         auto any(entt::entity ent) {
             return getWorld()->any<T ...>(ent);
+        }
+
+        template <typename ... Args>
+        nlohmann::json toJSON(entt::entity ent) {
+            // TODO here
         }
     };
 

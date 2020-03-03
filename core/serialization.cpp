@@ -238,11 +238,11 @@ int to_int(const string &s, const char *error_info = "Must be an integer: ") {
 
 class entt_oarchive {
     map<string, vector<WrapperBase *>> world;
+    World *world_;
     ostream &os;
-    int stage;
 
 public:
-    entt_oarchive(ostream &os) : os(os), stage(0) {
+    entt_oarchive(ostream &os, World *world__) : os(os), world_(world__) {
     }
 
     ~entt_oarchive() {
@@ -253,36 +253,30 @@ public:
         }
     }
 
-    void write_to_stream() {
+    void flush() {
         os << jsonExport(world);
     }
 
-    // output
-    void operator()(int size) {
-        stage += 1;
-    }
-
-    void operator()(const entt::entity &entity) {
-    }
-
     template<typename T>
-    void operator()(entt::entity entity, const T &data) {
-        world[to_str(entt::to_integral(entity))].push_back(new Wrapper<T>(&data));
+    void component(entt::entity entity) {
+        if (world_->has<T>(entity))
+            world[to_str(entt::to_integral(entity))].push_back(new Wrapper<T>(&world_->get<T>(entity)));
+    }
+
+    template<typename ... Args>
+    void components(entt::entity entity) {
+        (component<Args>(entity), ... );
     }
 };
 
 class entt_iarchive {
-    int stage;
     istream &is;
     map<string, vector<WrapperBase *>> world;
-    map<string, vector<WrapperBase *>>::iterator entity_iter;
-    vector<type_index> components_order;
-    vector<type_index>::iterator component_iter;
-    map<type_index, vector<pair<ENTT_ID_TYPE, WrapperBase *>>> pairs;
-    vector<pair<ENTT_ID_TYPE, WrapperBase *>>::iterator pair_iter2;
+    World *world_;
+
 
 public:
-    entt_iarchive(istream &is) : is(is), stage(0) {
+    entt_iarchive(istream &is, World *world__) : is(is), world_(world__) {
     }
 
     ~entt_iarchive() {
@@ -298,50 +292,25 @@ public:
     }
 
     template<typename T>
-    void single_component() {
-        components_order.emplace_back(typeid(T));
-        for (auto &pair : world) {
-            for (auto *comp : pair.second) {
-                Wrapper<T> *p = dynamic_cast<Wrapper<T> *>(comp);
-                if (p) {
-                    pairs[typeid(T)].push_back(make_pair(to_int(pair.first), p));
-                }
+    void component(entt::entity entity, vector<WrapperBase *> &components) {
+        for (int i = 0; i < components.size(); ++i) {
+            auto *p = dynamic_cast<Wrapper<T> *>(components[i]);
+            if (p) {
+                world_->assign_or_replace<T>(entity, **p);
             }
         }
     }
 
-    template<typename... components>
-    void set_orders() {
-        (single_component<components>(), ...);
-        component_iter = components_order.begin();
-    }
-
-    // input
-    void operator()(entt::entt_traits<unsigned int>::entity_type &size) {
-        stage += 1;
-        if (stage == 1) // entities alive
-        {
-            size = world.size();
-        } else { // components
-            size = pairs[*component_iter].size();
-            pair_iter2 = pairs[*component_iter].begin();
-            ++component_iter;
+    template<typename ... Args>
+    void components() {
+        for (auto pair : world) {
+            if(!world_->valid((entt::entity) to_int(pair.first)))
+                world_->create((entt::entity) to_int(pair.first));
+            (component<Args>((entt::entity) to_int(pair.first), pair.second), ...);
         }
-        entity_iter = world.begin();
     }
 
-    void operator()(entt::entity &entity) {
-        entity = (entt::entity) to_int(entity_iter->first);
-        ++entity_iter;
-    }
 
-    template<typename T>
-    void operator()(entt::entity &entity, T &data) {
-        assert(pair_iter2 != pairs[*(component_iter - 1)].end());
-        entity = (entt::entity) pair_iter2->first;
-        data = **dynamic_cast<Wrapper<T> *>(pair_iter2->second);
-        ++pair_iter2;
-    }
 };
 
 Escape::SerializationHelper::SerializationHelper(std::string name) : filename(std::move(name)) {
@@ -349,20 +318,26 @@ Escape::SerializationHelper::SerializationHelper(std::string name) : filename(st
 
 void Escape::SerializationHelper::serialize(const Escape::World &world) {
     std::ofstream stream(filename);
-    entt_oarchive output(stream);
-    auto snapshot = const_cast<entt::registry &>(world).snapshot();
-    snapshot.component<COMPONENT_LIST>(output);
-    output.write_to_stream();
+    entt_oarchive output(stream, const_cast<Escape::World *>(&world));
+    world.each([&](entt::entity ent) {
+        output.components<COMPONENT_LIST>(ent);
+    });
+    output.flush();
 }
 
 void Escape::SerializationHelper::deserialize(Escape::World &world) {
-    world.clear();
     std::ifstream stream(filename);
-    entt_iarchive input(stream);
+    world.clear();
+    entt_iarchive input(stream, &world);
     input.read_from_stream();
-    input.set_orders<COMPONENT_LIST>();
-    auto snapshot = world.loader();
-    snapshot.entities(input);
-    snapshot.component<COMPONENT_LIST>(input);
-    snapshot.orphans();
+    input.components<COMPONENT_LIST>();
+
 }
+
+void SerializationHelper::serialize(const World &world, const entt::entity ent) {
+    std::ofstream stream(filename);
+    entt_oarchive output(stream, const_cast<Escape::World *>(&world));
+    output.components<COMPONENT_LIST>(ent);
+    output.flush();
+}
+
