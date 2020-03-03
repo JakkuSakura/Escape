@@ -7,9 +7,25 @@
 
 #include "MyECS.h"
 #include <entt/signal/dispatcher.hpp>
+#include "components.h"
 
 struct Event : public VirtualBase {
+    entt::entity actor;
+};
 
+struct Shooting : public Event {
+    Shooting(float ang) : angle(ang) {}
+    float angle;
+};
+
+struct ChangeWeapon : public Event {
+    ChangeWeapon(WeaponType type) : weapon(type) {}
+
+    WeaponType weapon;
+};
+
+struct Impulse : public vec2, public Event {
+    FORWARD_CONSTRUCTORS(Impulse, vec2);
 };
 
 struct Collision {
@@ -54,18 +70,18 @@ namespace Escape {
 
 
         template<class Ret, class Arg1, class ...Args>
-        constexpr auto curry(Ret f(Arg1, Args...), Arg1 arg)
+        static constexpr auto curry(Ret f(Arg1, Args...), Arg1 arg)
         -> std::function<Ret(Args...)> {
             return [=](Args ...args) { return f(arg, args...); };
         }
 
         template<typename Fn>
-        constexpr auto bind(Fn fn) {
-            return fn;
+        static constexpr auto bind(Fn fn) {
+            return std::function(fn);
         }
 
         template<typename Fn, typename Bingding_1, typename ... Bindings>
-        constexpr auto bind(Fn fn, Bingding_1 b1, Bindings ... bindings) {
+        static constexpr auto bind(Fn fn, Bingding_1 b1, Bindings ... bindings) {
             return bind(curry(fn, b1), bindings ...);
         }
 

@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include "lua_script.h"
 #include <glm/glm.hpp>
-
+#include "config.h"
 namespace Escape {
     float random_angle() {
         return (float) M_PI * 2 * (float) rand() / RAND_MAX;
@@ -28,9 +28,9 @@ namespace Escape {
         void update(float delta) override {
             for (entt::entity ent : control->findPlayers(0)) {
                 float angle = random_angle();
-                control->dispatch(ent, ChangeWeapon{WeaponType::SMG});
-                control->dispatch(ent, Impulse(cos(angle) * 20, sin(angle) * 20));
-                control->dispatch(ent, Shooting{.angle = random_angle()});
+                control->dispatch(ent, ChangeWeapon(WeaponType::SMG));
+                control->dispatch(ent, Impulse(cos(angle) * AGENT_IMPULSE, sin(angle) * AGENT_IMPULSE));
+                control->dispatch(ent, Shooting(random_angle()));
             }
         }
 

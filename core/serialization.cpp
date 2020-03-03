@@ -24,7 +24,6 @@ ThorsAnvil_MakeTrait(Name, name);
 ThorsAnvil_MakeTrait(vec2, x, y);
 ThorsAnvil_ExpandTrait(vec2, Position);
 ThorsAnvil_ExpandTrait(vec2, Velocity);
-ThorsAnvil_ExpandTrait(vec2, Impulse);
 ThorsAnvil_MakeTrait(Hitbox, radius);
 ThorsAnvil_MakeTrait(Rotation, radian);
 ThorsAnvil_MakeTrait(AgentData, player);

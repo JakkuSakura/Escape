@@ -22,16 +22,19 @@ namespace Escape {
             process(a, b);
             process(b, a);
         }
-
-        void PostPostProcess() {
-
-        }
-
     };
 
     PhysicsSystem::PhysicsSystem() {
     }
 
+    void PhysicsSystem::initialize() {
+        ECSSystem::initialize();
+        findSystem<EventSystem>()->listen([this](Impulse imp){
+            auto &vel = getWorld()->get<Velocity>(imp.actor);
+            vel += imp;
+        });
+
+    }
     void PhysicsSystem::update(float delta) {
         ContactListener listener(getWorld(), findSystem<EventSystem>());
         b2World b2d_world(b2Vec2(0, 0));
@@ -92,16 +95,6 @@ namespace Escape {
             mapping[ent] = body;
         });
 
-        // Impulsion control
-        getWorld()->view<Position, Velocity, Message<Impulse>>().each(
-                [&](auto ent, Position &pos, auto &vel, auto &impulse) {
-                    if (!impulse.processed) {
-                        mapping[ent]->ApplyLinearImpulse(as<b2Vec2>(impulse.data), as<b2Vec2>(pos), true);
-                        impulse.processed = true;
-                    }
-                });
-
-
         b2d_world.SetContactListener(&listener);
 
         // set very fast options
@@ -111,7 +104,6 @@ namespace Escape {
         b2d_world.SetContinuousPhysics(false);
 
         b2d_world.Step(delta, velocityIterations, positionIterations);
-        listener.PostPostProcess();
 
         // fetch data for agents
         getWorld()->view<Position, Velocity, AgentData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {

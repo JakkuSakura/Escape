@@ -73,9 +73,6 @@ struct Velocity : public vec2 {
 };
 
 
-struct Impulse : public vec2 {
-    FORWARD_CONSTRUCTORS(Impulse, vec2);
-};
 
 struct Hitbox {
     float radius;

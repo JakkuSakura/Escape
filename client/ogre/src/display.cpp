@@ -5,6 +5,7 @@
 #include "display.h"
 #include "serialization.h"
 #include <OgreQuaternion.h>
+#include "config.h"
 
 namespace Escape {
     class DisplayOgre;
@@ -53,25 +54,21 @@ namespace Escape {
                 if (spd > 1) {
                     vel /= spd;
                 }
-                vel *= 20;
+                vel *= AGENT_IMPULSE;
                 controlSystem->dispatch<Impulse>(player, Impulse(vel.x, vel.y));
             }
 
             if (input->keys['1'])
-                controlSystem->dispatch<ChangeWeapon>(player,
-                                                      ChangeWeapon{.weapon = WeaponType::HANDGUN});
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::HANDGUN));
 
             if (input->keys['2'])
-                controlSystem->dispatch<ChangeWeapon>(player,
-                                                      ChangeWeapon{.weapon = WeaponType::SHOTGUN});
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::SHOTGUN));
 
             if (input->keys['3'])
-                controlSystem->dispatch<ChangeWeapon>(player,
-                                                      ChangeWeapon{.weapon = WeaponType::SMG});
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::SMG));
 
             if (input->keys['4'])
-                controlSystem->dispatch<ChangeWeapon>(player,
-                                                      ChangeWeapon{.weapon = WeaponType::RIFLE});
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::RIFLE));
             display->setCenter(pos.x, pos.y);
         }
     };

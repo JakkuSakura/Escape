@@ -1,6 +1,5 @@
 #include "weapons.h"
 #include "components.h"
-#include "message.h"
 #include "event_system.h"
 #include <functional>
 
@@ -34,6 +33,7 @@ namespace Escape {
         lifespan = findSystem<LifespanSystem>();
 
         findSystem<EventSystem>()->listen(on_hit, this);
+
     }
 
     void
@@ -106,6 +106,13 @@ namespace Escape {
         ECSSystem::initialize();
         bullet_system = findSystem<BulletSystem>();
         timeserver = findSystem<TimeServer>();
+        findSystem<EventSystem>()->listen([this](ChangeWeapon chg) {
+            changeWeapon(chg.actor, chg.weapon);
+        });
+
+        findSystem<EventSystem>()->listen([this](Shooting shooting) {
+            fire(shooting.actor, shooting.angle);
+        });
     }
 
     void WeaponSystem::fire(entt::entity ent, float angle) {
@@ -138,18 +145,7 @@ namespace Escape {
     }
 
     void WeaponSystem::update(float delta) {
-        getWorld()->view<Message<ChangeWeapon>>().each([&](auto ent, auto &chg) {
-            if (!chg.processed) {
-                changeWeapon(ent, chg.data.weapon);
-                chg.processed = true;
-            }
-        });
 
-        getWorld()->view<Message<Shooting>>().each([&](auto ent, auto &sht) {
-            if (!sht.processed) {
-                fire(ent, sht.data.angle);
-                sht.processed = true;
-            }
-        });
     }
+
 } // namespace Escape

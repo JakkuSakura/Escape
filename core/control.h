@@ -9,7 +9,7 @@
 #include "components.h"
 #include "agent.h"
 #include <vector>
-#include "message.h"
+#include "event_system.h"
 
 namespace Escape {
     class ControlSystem;
@@ -42,8 +42,9 @@ namespace Escape {
         }
 
         template<typename T>
-        void dispatch(entt::entity entity, const T &action) {
-            getWorld()->assign_or_replace<Message<T>>(entity, Message<T>(entity, action));
+        void dispatch(entt::entity entity, T action) {
+            action.actor = entity;
+            findSystem<EventSystem>()->enqueue(action);
         }
 
         void update(float delta) {

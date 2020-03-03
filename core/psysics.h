@@ -12,6 +12,7 @@ public:
     PhysicsSystem();
     void update(float delta) override;
 
+    void initialize() override;
 };
 
 } // namespace Escape

@@ -1,5 +1,5 @@
 #include "agent.h"
-
+#include "config.h"
 namespace Escape {
     entt::entity AgentSystem::createAgent(World *world, const Position &pos, int player) {
         assert(world != nullptr);
@@ -8,7 +8,7 @@ namespace Escape {
         world->assign<Position>(agent, pos);
         world->assign<AgentData>(agent, AgentData{.player =  player});
         world->assign<Health>(agent, 100);
-        world->assign<Hitbox>(agent, Hitbox{.radius =  1});
+        world->assign<Hitbox>(agent, Hitbox{.radius =  AGENT_RADIUS});
         world->assign<Velocity>(agent);
         world->assign<Weapon>(agent, Weapon{WeaponType::HANDGUN, 0});
         return agent;
