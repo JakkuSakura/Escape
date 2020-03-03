@@ -182,9 +182,9 @@ struct TerrainData {
     float argument_4;
 };
 
-struct Configurations : public std::map<std::string, std::string> {
+struct MapInfo : public std::map<std::string, std::string> {
     using s_s_pair = std::map<std::string, std::string>;
-    FORWARD_CONSTRUCTORS(Configurations, s_s_pair);
+    FORWARD_CONSTRUCTORS(MapInfo, s_s_pair);
 };
 
 #define COMPONENT_LIST \
@@ -200,7 +200,8 @@ struct Configurations : public std::map<std::string, std::string> {
     Lifespan,          \
     TimeServerInfo,    \
     AgentData,         \
-    TerrainData       \
+    TerrainData,       \
+    MapInfo
 
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Position);          \
@@ -215,6 +216,7 @@ struct Configurations : public std::map<std::string, std::string> {
     func(Lifespan);          \
     func(TimeServerInfo);    \
     func(AgentData);         \
-    func(TerrainData);
+    func(TerrainData);       \
+    func(MapInfo)
 
 #endif // COMPONENTS_H

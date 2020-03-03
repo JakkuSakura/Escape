@@ -50,6 +50,7 @@ ThorsAnvil_MakeEnum(WeaponType,
                     RIFLE);
 
 ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
+ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
 
 struct WrapperBase {
     WrapperBase() {};
@@ -57,6 +58,9 @@ struct WrapperBase {
     virtual ~WrapperBase() {};
 
     ThorsAnvil_PolyMorphicSerializer(WrapperBase);
+
+    virtual const char *getType() { return polyMorphicSerializerName(); }
+
 
 };
 
@@ -98,13 +102,21 @@ struct Wrapper {
         virtual void printPolyMorphicObject(ThorsAnvil::Serialize::Serializer &parent,              \
                                             ThorsAnvil::Serialize::PrinterInterface &printer)       \
         {                                                                                           \
-            ThorsAnvil::Serialize::printPolyMorphicObject<Wrapper<T>>(parent, printer, *this);      \
+            parent.print(**this);                                                                   \
         }                                                                                           \
         virtual void parsePolyMorphicObject(ThorsAnvil::Serialize::DeSerializer &parent,            \
                                             ThorsAnvil::Serialize::ParserInterface &parser)         \
         {                                                                                           \
-            ThorsAnvil::Serialize::parsePolyMorphicObject<Wrapper<T>>(parent, parser, *this);       \
+            T *t = new T();                                                                         \
+            try {                                                                                   \
+            parent.parse(*t);                                                                       \
+            } catch (...) {                                                                         \
+            delete t;                                                                               \
+            throw;                                                                                  \
+            }                                                                                       \
+            pointer = t;                                                                            \
         }                                                                                           \
+        virtual const char *getType() {return polyMorphicSerializerName();  }                       \
         static constexpr char const *polyMorphicSerializerName() { return #name; };                 \
     };                                                                                              \
     My_RegisterPolyMorphicType(Wrapper<T>, name);
@@ -132,71 +144,50 @@ namespace ThorsAnvil {
         };
 
         template<>
-        class DeSerializationForBlock<TraitType::Array, vector<WrapperBase *>>
-        {
+        class DeSerializationForBlock<TraitType::Array, vector<WrapperBase *>> {
             typedef vector<WrapperBase *> T;
-            DeSerializer&    parent;
-            ParserInterface& parser;
-            std::string      key;
+            DeSerializer &parent;
+            ParserInterface &parser;
+            std::string key;
         public:
-            DeSerializationForBlock(DeSerializer& parent, ParserInterface& parser)
-                    : parent(parent)
-                    , parser(parser)
-            {
-                ParserInterface::ParserToken    tokenType = parser.getToken();
+            DeSerializationForBlock(DeSerializer &parent, ParserInterface &parser)
+                    : parent(parent), parser(parser) {
+                ParserInterface::ParserToken tokenType = parser.getToken();
 
-                if (tokenType != ParserInterface::ParserToken::MapStart)
-                {   throw std::runtime_error("ThorsAnvil::Serialize::DeSerializationForBlock<Map>::DeSerializationForBlock: Invalid Object Start");
+                if (tokenType != ParserInterface::ParserToken::MapStart) {
+                    throw std::runtime_error(
+                            "ThorsAnvil::Serialize::DeSerializationForBlock<Map>::DeSerializationForBlock: Invalid Object Start");
                 }
             }
+
             WrapperBase *parseObject(const std::string &className) {
                 using BaseType  = WrapperBase;
                 using AllocType = typename GetAllocationType<BaseType>::AllocType;
-                auto *object = ConvertPointer<BaseType>::assign(PolyMorphicRegistry::getNamedTypeConvertedTo<AllocType>(className));
+                auto *object = ConvertPointer<BaseType>::assign(
+                        PolyMorphicRegistry::getNamedTypeConvertedTo<AllocType>(className));
                 object->parsePolyMorphicObject(parent, parser);
                 return object;
             }
-            void scanObject(T& object)
-            {
-                while (hasMoreValue())
-                {
+
+            void scanObject(T &object) {
+                while (hasMoreValue()) {
                     WrapperBase *obj = parseObject(key);
                     object.push_back(obj);
                 }
             }
-            bool hasMoreValue()
-            {
-                ParserInterface::ParserToken    tokenType = parser.getToken();
-                bool                            result    = tokenType != ParserInterface::ParserToken::MapEnd;
-                if (result)
-                {
-                    if (tokenType != ParserInterface::ParserToken::Key)
-                    {   throw std::runtime_error("ThorsAnvil::Serialize::DeSerializationForBlock<Map>::hasMoreValue: Expecting key token");
+
+            bool hasMoreValue() {
+                ParserInterface::ParserToken tokenType = parser.getToken();
+                bool result = tokenType != ParserInterface::ParserToken::MapEnd;
+                if (result) {
+                    if (tokenType != ParserInterface::ParserToken::Key) {
+                        throw std::runtime_error(
+                                "ThorsAnvil::Serialize::DeSerializationForBlock<Map>::hasMoreValue: Expecting key token");
                     }
                     key = parser.getKey();
                 }
 
                 return result;
-            }
-        };
-
-        template<typename T>
-        class DeSerializationForBlock<TraitType::Pointer, Wrapper<T>> {
-            DeSerializer &parent;
-            ParserInterface &parser;
-        public:
-            DeSerializationForBlock(DeSerializer &parent, ParserInterface &parser)
-                    : parent(parent), parser(parser) {}
-
-            void scanObject(Wrapper<T> &object) {
-                T *t = new T();
-                try {
-                    parent.parse(*t);
-                } catch (...) {
-                    delete t;
-                    throw;
-                }
-                object.pointer = t;
             }
         };
 
@@ -217,34 +208,14 @@ namespace ThorsAnvil {
             }
 
             void printMembers() {
-                parent.printObjectMembers(object);
+                for (WrapperBase *w : object) {
+                    if (w) {
+                        printer.addKey(w->getType());
+                        parent.print(w);
+                    }
+                }
             }
         };
-
-        template<typename T>
-        class SerializerForBlock<TraitType::Pointer, Wrapper<T>> {
-            Serializer &parent;
-            PrinterInterface &printer;
-            Wrapper<T> const &object;
-        public:
-            SerializerForBlock(Serializer &parent, PrinterInterface &printer, Wrapper<T> const &object)
-                    : parent(parent), printer(printer), object(object) {
-            }
-
-            ~SerializerForBlock() {
-            }
-
-            void printMembers() {
-                parent.print(object.pointer);
-            }
-
-            void printPolyMorphicMembers(std::string const &type) {
-                printer.addKey(type);
-                printMembers();
-            }
-
-        };
-
     }
 }
 
