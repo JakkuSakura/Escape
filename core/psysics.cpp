@@ -2,21 +2,16 @@
 #include <Box2D/Box2D.h>
 #include "control.h"
 #include <map>
-
+#include "event_system.h"
 namespace Escape {
     struct ContactListener : public b2ContactListener {
         World *world;
-
-        ContactListener(World *world) : world(world) {
+        EventSystem *eventSystem;
+        ContactListener(World *world, EventSystem *event_system) : world(world), eventSystem(event_system) {
         }
 
         void process(entt::entity a, entt::entity b) {
-
-            if (!world->has<CollisionResults>(a)) {
-                world->assign<CollisionResults>(a);
-            }
-            CollisionResults &results = world->get<CollisionResults>(a);
-            results.results.push_back(Collision{.hit_with = b});
+            eventSystem->enqueue(Collision{a, b});
         }
 
         void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
@@ -38,12 +33,11 @@ namespace Escape {
     }
 
     void PhysicsSystem::update(float delta) {
-        ContactListener listener(getWorld());
+        ContactListener listener(getWorld(), findSystem<EventSystem>());
         b2World b2d_world(b2Vec2(0, 0));
 
         std::map<entt::entity, b2Body *> mapping;
 
-        getWorld()->clear<CollisionResults>();
         // Put walls into box2d
         getWorld()->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
             if (ter.type == TerrainType::BOX) {

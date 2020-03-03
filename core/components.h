@@ -2,6 +2,7 @@
 #define COMPONENTS_H
 
 #include <map>
+#include <deque>
 #include "engine/utils.h"
 #include "MyECS.h"
 
@@ -76,15 +77,6 @@ struct Impulse : public vec2 {
     FORWARD_CONSTRUCTORS(Impulse, vec2);
 };
 
-
-struct Collision {
-    entt::entity hit_with;
-};
-struct CollisionResults {
-    std::vector<Collision> results;
-};
-
-
 struct Hitbox {
     float radius;
 };
@@ -139,6 +131,7 @@ struct BulletData {
     float damage;
     float density;
     float radius;
+    bool hit;
 };
 
 
@@ -186,6 +179,10 @@ struct MapInfo : public std::map<std::string, std::string> {
     using s_s_pair = std::map<std::string, std::string>;
     FORWARD_CONSTRUCTORS(MapInfo, s_s_pair);
 };
+//struct MessageQueue : public std::deque<Message *> {
+//    using s_s_pair = std::deque<Message *>;
+//    FORWARD_CONSTRUCTORS(MessageQueue, s_s_pair);
+//};
 
 #define COMPONENT_LIST \
     Position,          \

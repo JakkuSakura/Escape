@@ -1,18 +1,43 @@
 #include "weapons.h"
 #include "components.h"
 #include "message.h"
+#include "event_system.h"
+#include <functional>
 
 namespace Escape {
+    void on_hit(BulletSystem *bulletSystem, Collision col) {
+        World *world = bulletSystem->getWorld();
+        if (!world->valid(col.a) || !world->valid(col.b))
+            return;
+
+        if (world->has<BulletData>(col.b))
+            std::swap(col.a, col.b);
+        if (world->has<BulletData>(col.a) && !world->has<BulletData>(col.b)) {
+            auto bullet = world->get<BulletData>(col.a);
+            if (world->has<Health>(col.b)) {
+                if (world->has<AgentData>(col.b) &&
+                    world->get<AgentData>(col.b).player !=
+                    world->get<BulletData>(col.a).firer_id) // Not do harm the firer/group
+                    world->get<Health>(col.b).health -= bullet.damage;
+            }
+
+            world->destroy(col.a);
+        }
+    }
 
     BulletSystem::BulletSystem() {
+
     }
 
     void BulletSystem::initialize() {
         ECSSystem::initialize();
         lifespan = findSystem<LifespanSystem>();
+
+        findSystem<EventSystem>()->listen(on_hit, this);
     }
 
-    void BulletSystem::fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance) {
+    void
+    BulletSystem::fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance) {
         entt::entity bullet = getWorld()->create();
         getWorld()->assign<Name>(bullet, "bullet");
         auto data = BulletData{.firer_id =  getWorld()->get<AgentData>(firer).player,
@@ -21,7 +46,7 @@ namespace Escape {
                 .density = 7.6,
                 .radius = 0.3,
         };
-        if(type == BulletType::SHOTGUN_SHELL)
+        if (type == BulletType::SHOTGUN_SHELL)
             data.radius = 0.2;
         getWorld()->assign<BulletData>(bullet, data);
         getWorld()->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
@@ -33,30 +58,6 @@ namespace Escape {
         getWorld()->assign<Lifespan>(bullet, lifespan->period(3));
     }
 
-    void BulletSystem::update(float delta) {
-        getWorld()->view<BulletData, CollisionResults>().each(
-                [&](entt::entity ent, auto &bullet, auto &col) {
-                    bool hit = false;
-                    for (Collision &c : col.results) {
-                        if(getWorld()->valid(c.hit_with))
-                        {
-                            if(getWorld()->has<BulletData>(c.hit_with))
-                                continue;
-                            hit = true;
-                            if (getWorld()->has<Health>(c.hit_with)) {
-                                if (getWorld()->has<AgentData>(c.hit_with) &&
-                                    getWorld()->get<AgentData>(c.hit_with).player == bullet.firer_id) // Not do harm the firer/group
-                                    continue;
-                                auto &health = getWorld()->get<Health>(c.hit_with);
-                                health.health -= bullet.damage;
-                            }
-                            break;
-                        }
-                    }
-                    if (hit)
-                        getWorld()->destroy(ent);
-                });
-    }
 
     WeaponSystem::WeaponSystem() {
         default_weapons[WeaponType::HANDGUN] = WeaponPrototype{

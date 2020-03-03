@@ -5,9 +5,12 @@
 #ifndef ESCAPE_MESSAGE_H
 #define ESCAPE_MESSAGE_H
 
+#include "components.h"
+
 template<typename T>
 struct Message/* : public VirtualBase*/ {
     Message(entt::entity e_id, const T &t) : entity_id(e_id), data(t), processed(false) {}
+
     entt::entity entity_id;
     T data;
     bool processed;

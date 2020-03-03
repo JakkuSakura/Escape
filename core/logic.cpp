@@ -7,9 +7,9 @@
 #include "lifespan.h"
 #include "weapons.h"
 #include "agent.h"
-#include "serialization.h"
 #include "control.h"
 #include "AI.h"
+#include "event_system.h"
 namespace Escape {
     Logic::Logic() {
         addSubSystem(new TimeServer(60));
@@ -20,6 +20,7 @@ namespace Escape {
         addSubSystem(new AgentSystem());
         addSubSystem(new ControlSystem());
         addSubSystem(new AISystem());
+        addSubSystem(new EventSystem());
     }
 
     void Logic::setWorld(World *wo) {
