@@ -63,7 +63,7 @@ namespace Escape {
     }
 
     void WeaponSystem::fire(entt::entity ent, float angle) {
-        if (getWorld()->has<Weapon>(ent)) {
+        if (getWorld()->valid(ent) && getWorld()->has<Weapon>(ent)) {
             auto &weapon = getWorld()->get<Weapon>(ent);
             if (timeserver->now() >= weapon.next) {
                 const WeaponPrototype &prototype = default_weapons.at(weapon.weapon);
