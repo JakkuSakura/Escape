@@ -10,6 +10,19 @@
 
 using nlohmann::json;
 namespace Escape {
+    template<typename T>
+    void getProperty(json &obj, const std::string &key, T &value, bool &success) {
+        for (auto &e : obj["properties"]) {
+            if (e["name"] == key) {
+                success = true;
+                value = e["value"];
+                return;
+            }
+        }
+        success = false;
+        return;
+    }
+
     World *MapConverter::convert(const std::string &input) {
 
         json configuration;
@@ -50,7 +63,10 @@ namespace Escape {
                         if (obj["name"] == "player") {
                             AgentSystem::createAgent(world, Position(x, y), 1, 1);
                         } else if (obj["name"] == "agent") {
-                            AgentSystem::createAgent(world, Position(x, y), 0, 0, "simple_ai");
+                            std::string ai_file = "simple_ai";
+                            bool success;
+                            getProperty(obj, "ai", ai_file, success);
+                            AgentSystem::createAgent(world, Position(x, y), 0, 0, std::move(ai_file));
                         }
                     }
                 }

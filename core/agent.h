@@ -31,7 +31,7 @@ namespace Escape {
 
         void update(float delta) override;
 
-        static entt::entity createAgent(World *world, const Position &pos, int player, int group = 0, std::string &&ai = "basic");
+        static entt::entity createAgent(World *world, const Position &pos, int player, int group = 0, std::string &&ai = "");
     };
 } // namespace Escape
 

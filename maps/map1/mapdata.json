@@ -41,27 +41,21 @@
                 }, 
                 {
                  "height":0,
-                 "id":2,
-                 "name":"agent",
-                 "point":true,
-                 "rotation":0,
-                 "type":"SpawnPoint",
-                 "visible":true,
-                 "width":0,
-                 "x":351.047467068996,
-                 "y":158.846457378286
-                }, 
-                {
-                 "height":0,
                  "id":3,
                  "name":"agent",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"shooter"
+                        }],
                  "rotation":0,
                  "type":"SpawnPoint",
                  "visible":true,
                  "width":0,
-                 "x":599.408112342598,
-                 "y":196.088899205014
+                 "x":623.919224743225,
+                 "y":238.426275169733
                 }, 
                 {
                  "height":0,
@@ -110,6 +104,24 @@
                  "width":0,
                  "x":784.355596820054,
                  "y":393.291939882783
+                }, 
+                {
+                 "height":0,
+                 "id":8,
+                 "name":"agent",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"shooter"
+                        }],
+                 "rotation":0,
+                 "type":"SpawnPoint",
+                 "visible":true,
+                 "width":0,
+                 "x":319.758602680903,
+                 "y":560.413160796147
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -118,7 +130,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":8,
+ "nextobjectid":9,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.3.2",

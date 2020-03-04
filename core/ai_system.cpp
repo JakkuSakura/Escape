@@ -18,7 +18,7 @@ namespace Escape {
         auto agents = getWorld()->view<AgentData>();
         for (entt::entity ent : agents) {
             auto data = agents.get<AgentData>(ent);
-            if (data.player == 0 && AIs.count(ent) == 0) {
+            if (!data.ai.empty() && AIs.count(ent) == 0) {
                 return ent;
             }
         }

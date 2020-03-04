@@ -11,16 +11,23 @@
 #include "ai_system.h"
 #include "event_system.h"
 namespace Escape {
-    Logic::Logic() {
+    void Logic::addSystems() {
         addSubSystem(new TimeServer(60));
         addSubSystem(new PhysicsSystem());
         addSubSystem(new LifespanSystem());
         addSubSystem(new BulletSystem());
         addSubSystem(new WeaponSystem());
-        addSubSystem(new AgentSystem());
         addSubSystem(new AISystem());
         addSubSystem(new ControlSystem());
+        addSubSystem(new AgentSystem());
         addSubSystem(new EventSystem());
+    }
+    Logic::Logic() {
+        addSystems();
+    }
+    Logic::Logic(World *wo) {
+        addSystems();
+        setWorld(wo);
     }
 
     void Logic::setWorld(World *wo) {

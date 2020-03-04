@@ -24,7 +24,7 @@ namespace Escape {
     };
 
     class ECSSystem : public System {
-        SystemManager *sysmgr;
+        SystemManager *sysmgr = nullptr;
     public:
         void configure() override {
             sysmgr = findSystem<SystemManager>(true, false);

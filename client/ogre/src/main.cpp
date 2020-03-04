@@ -7,25 +7,38 @@
 
 using namespace Escape;
 
+class MySystem : public ECSSystem {
+    std::string mapfile;
+public:
+    MySystem(std::string &&map) : mapfile(std::move(map)) {
+        MapConverter mapConverter;
+        auto *world = mapConverter.convert(mapfile);
+        auto *logic = new Logic(world);
+        addSubSystem(logic);
+        configure();
+    }
+
+    void update(float delta) override {
+        auto ai_system = findSystem<AISystem>();
+        for (entt::entity ent = ai_system->allocate(); ent != entt::null; ent = ai_system->allocate()) {
+            auto *world = getWorld();
+            auto data = world->get<AgentData>(ent);
+            auto ai_path = mapfile + "/" + data.ai + ".lua";
+            ai_system->insert(ent, new Agent_Lua(std::move(ai_path)));
+        }
+    }
+};
+
 int main(int argc, const char **argv) {
     if (argc < 2) {
         std::cerr << "You must specify a map folder" << std::endl;
         exit(-1);
     }
-    auto display = new DisplayOgre();
-    MapConverter mapConverter;
-    auto *world = mapConverter.convert(argv[1]);
-    System system;
-    auto *logic = new Logic();
-    logic->setWorld(world);
-    system.addSubSystem(logic);
-    system.addSubSystem(display);
-    auto ai_system = logic->findSystem<AISystem>();
 
-    auto ai_path = std::string(argv[1]) + "/simple_ai.lua";
-    for (entt::entity ent = ai_system->allocate(); ent != entt::null; ent = ai_system->allocate()) {
-        ai_system->insert(ent, new Agent_Lua(std::string(ai_path)));
-    }
+    auto display = new DisplayOgre();
+
+    MySystem system(argv[1]);
+    system.addSubSystem(display);
 
     system.foreach([](System *sys) {
         sys->initialize();

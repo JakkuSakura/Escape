@@ -20,11 +20,6 @@ function update()
             type = "shooting",
             angle = angle
         });
-        post({
-            type = "move",
-            x = math.cos(angle) * 6,
-            y = math.sin(angle) * 6,
-        });
     end
 
 end
