@@ -3,6 +3,7 @@
 #include "event_system.h"
 #include <functional>
 #include "bullet_system.h"
+
 namespace Escape {
 
 
@@ -82,6 +83,7 @@ namespace Escape {
 
     void WeaponSystem::changeWeapon(entt::entity ent, WeaponType type) {
         // FIXME By changing weapon quickly, the player has a change of shooting each frame
+        if (!getWorld()->valid(ent)) return;
         if (getWorld()->has<Weapon>(ent)) {
             auto &w = getWorld()->get<Weapon>(ent);
             if (type != w.weapon)
