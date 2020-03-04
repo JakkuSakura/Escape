@@ -111,13 +111,33 @@ namespace Escape {
             return getWorld()->any<T ...>(ent);
         }
 
-        nlohmann::json toJSON(entt::entity ent) {
+        void dispatch(entt::entity ent, const nlohmann::json &event) {
+            auto &type = event["type"];
+            if (type == "shooting")
+                dispatch(ent, Shooting(event["angle"]));
+            else if (type == "change_weapon") {
+                SerializationHelper helper;
+                std::stringstream ss;
+                ss << event["weapon"];
+                WeaponType weaponType;
+                helper.deserialize(weaponType, ss);
+                dispatch(ent, ChangeWeapon(weaponType));
+            } else if (type == "move") {
+                dispatch(ent, Impulse(event["x"], event["y"]));
+            }
+        }
+
+        nlohmann::json getEntityInfo(entt::entity ent) {
             SerializationHelper helper;
             std::stringstream ss;
             helper.serialize(*getWorld(), ent, ss);
             nlohmann::json js;
             ss >> js;
             return js;
+        }
+
+        bool valid(entt::entity ent) {
+            return getWorld()->valid(ent);
         }
     };
 

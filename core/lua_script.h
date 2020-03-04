@@ -16,11 +16,12 @@
 namespace Escape {
     class Converter {
         using json = nlohmann::json;
-        static sol::state state;
+        sol::state &state;
     public:
-        static json toJson(const sol::table &table);
+        Converter(sol::state &state_);
+        json toJSON(const sol::table &table);
 
-        static sol::table toTable(const json &js);
+        sol::table toTable(const json &js);
 
     };
 

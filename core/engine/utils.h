@@ -36,6 +36,7 @@ inline void show_vec(const T &vec) {
     {                                                                        \
     }                                                                        \
 
+
 // The same as reinterpret_cast<>() but it gets rid of most limitations excluding const and size
 template<typename D, typename S>
 constexpr D &as(S &src) {
@@ -52,6 +53,7 @@ constexpr const D &as(const S &src) {
 
     return *static_cast<const D *>(static_cast<const void *>(&src));
 }
+
 template<typename D, typename S>
 constexpr D &as_f(S &src) {
     return *static_cast<D *>(static_cast<void *>(&src));
@@ -85,6 +87,27 @@ class NewTypeBase {
 #define TRACE() std::cerr << "" << __FILE__ << ":" << __LINE__ << "(" << __func__ << ")" << std::endl;
 
 struct VirtualBase {
-    virtual ~VirtualBase() {};
+    virtual ~VirtualBase() = default;;
 };
+
+#include <string>
+
+inline std::string to_str(int i) {
+    char buf[30];
+    sprintf(buf, "%d", i);
+    return buf;
+}
+
+inline int to_int(const std::string &s, const char *error_info = "Must be an integer: ") {
+    int integer = 0;
+    for(int i = 0; i < s.size(); ++i)
+    {
+        if(!isdigit(s[i]))
+            throw std::runtime_error(error_info + s);
+        integer *= 10;
+        integer += s[i] - '0';
+    }
+    return integer;
+}
+
 #endif // UTILS_H

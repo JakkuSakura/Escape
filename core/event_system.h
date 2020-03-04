@@ -10,17 +10,17 @@
 #include "components.h"
 
 struct Event : public VirtualBase {
-    entt::entity actor;
+    entt::entity actor = entt::null;
 };
 
 struct Shooting : public Event {
     Shooting(float ang) : angle(ang) {}
+
     float angle;
 };
 
 struct ChangeWeapon : public Event {
     ChangeWeapon(WeaponType type) : weapon(type) {}
-
     WeaponType weapon;
 };
 

@@ -16,6 +16,7 @@
 #include <ThorSerialize/JsonThor.h>
 #include <ThorSerialize/SerUtil.h>
 #include <iostream>
+#include "event_system.h"
 
 using namespace std;
 using namespace Escape;
@@ -29,7 +30,7 @@ ThorsAnvil_MakeTrait(Rotation, radian);
 ThorsAnvil_MakeTrait(AgentData, player, group, ai);
 ThorsAnvil_MakeTrait(TimeServerInfo, tick);
 ThorsAnvil_MakeTrait(Lifespan, begin, end);
-ThorsAnvil_MakeTrait(Health, max_health);
+ThorsAnvil_MakeTrait(Health, health, max_health);
 ThorsAnvil_MakeTrait(BulletData, firer_id, type, damage, density, radius);
 ThorsAnvil_MakeTrait(WeaponPrototype, type, bullet_type, cd, accuracy, bullet_number, bullet_damage, bullet_speed,
                      gun_length);
@@ -50,6 +51,8 @@ ThorsAnvil_MakeEnum(WeaponType,
 
 ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
 ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
+
+ThorsAnvil_MakeTrait(Event, actor);
 
 
 struct WrapperBase {
@@ -224,18 +227,6 @@ using namespace Escape;
 using ThorsAnvil::Serialize::jsonExport;
 using ThorsAnvil::Serialize::jsonImport;
 
-string to_str(int i) {
-    static char buf[30];
-    sprintf(buf, "%d", i);
-    return buf;
-}
-
-int to_int(const string &s, const char *error_info = "Must be an integer: ") {
-    int key_ = -1;
-    if (sscanf(s.c_str(), "%d", &key_) == EOF)
-        throw runtime_error(error_info + s);
-    return key_;
-}
 
 class entt_oarchive {
     map<string, vector<WrapperBase *>> world;
@@ -342,4 +333,13 @@ void SerializationHelper::serialize(const World &world, const entt::entity ent, 
     output.components<COMPONENT_LIST>(ent);
     output.flush(ent);
 }
+
+void SerializationHelper::serialize(const WeaponType &object, std::ostream &stream) {
+    stream << jsonExport(object);
+}
+
+void SerializationHelper::deserialize(WeaponType &object, std::istream &stream) {
+    stream >> jsonImport(object);
+}
+
 

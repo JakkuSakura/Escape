@@ -2,7 +2,7 @@
 #define AGENT_H
 
 #include "MyECS.h"
-#include "weapons.h"
+#include "weapon_system.h"
 #include "components.h"
 #include <vector>
 

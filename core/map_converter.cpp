@@ -24,7 +24,7 @@ namespace Escape {
             is >> map;
         }
 
-        entt::registry *world = new entt::registry ;
+        entt::registry *world = new entt::registry;
         int width = map["width"], height = map["height"];
         float tilewidth = map["tilewidth"], tileheight = map["tileheight"];
         float scale_x = 1.0f / 16.0f, scale_y = 1.0f / 16.0f;
@@ -35,11 +35,9 @@ namespace Escape {
                     for (size_t j = 0; j < width; j++) {
                         float x = (i * tilewidth + (float) layer["x"]) * scale_x, y =
                                 -(j * tileheight + (float) layer["y"]) * scale_y;
-                        int type = data[i * width + j];
-                        if(type > 0)
-                        {
-                            if (configuration["tiles"][type - 1]["type"] == "Wall")
-                            {              // It's wall
+                        int type = data[j * width + i];
+                        if (type > 0) {
+                            if (configuration["tiles"][type - 1]["type"] == "Wall") {              // It's wall
                                 TerrainSystem::createWall(world, x, y, tilewidth * scale_x, tileheight * scale_y);
                             }
                         }
@@ -50,9 +48,9 @@ namespace Escape {
                     if (obj["type"] == "SpawnPoint") {
                         float x = ((float) obj["x"]) * scale_x, y = -((float) obj["y"]) * scale_y;
                         if (obj["name"] == "player") {
-                            AgentSystem::createAgent(world, Position(x, y), 1);
+                            AgentSystem::createAgent(world, Position(x, y), 1, 1);
                         } else if (obj["name"] == "agent") {
-                            AgentSystem::createAgent(world, Position(x, y), 0);
+                            AgentSystem::createAgent(world, Position(x, y), 0, 0, "simple_ai");
                         }
                     }
                 }

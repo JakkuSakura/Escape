@@ -30,8 +30,11 @@ namespace Escape {
     void PhysicsSystem::initialize() {
         ECSSystem::initialize();
         findSystem<EventSystem>()->listen([this](Impulse imp){
-            auto &vel = getWorld()->get<Velocity>(imp.actor);
-            vel += imp;
+            if(getWorld()->valid(imp.actor))
+            {
+                auto &vel = getWorld()->get<Velocity>(imp.actor);
+                vel += imp;
+            }
         });
 
     }

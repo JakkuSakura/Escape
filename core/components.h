@@ -86,7 +86,7 @@ struct Rotation {
 
 
 struct AgentData {
-    int player;
+    int player; // This number differs from entity id
     int group;
     std::string ai;
 };

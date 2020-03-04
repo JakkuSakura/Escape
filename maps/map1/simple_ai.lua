@@ -19,15 +19,15 @@ function print_dump(data, showMetatable, lastCount)
         io.write("{\n")
         --Metatable
         if showMetatable then
-            for i = 1,count do io.write("\t") end
+            for i = 1, count do io.write("\t") end
             local mt = getmetatable(data)
             io.write("\"__metatable\" = ")
-            print_dump(mt, showMetatable, count)    -- 如果不想看到元表的元表，可-*将showMetatable处填nil
-            io.write(",\n")     --如果不想在元表后加逗号，可以删除这里的逗号
+            print_dump(mt, showMetatable, count) -- 如果不想看到元表的元表，可-*将showMetatable处填nil
+            io.write(",\n") --如果不想在元表后加逗号，可以删除这里的逗号
         end
         --Key
-        for key,value in pairs(data) do
-            for i = 1,count do io.write("\t") end
+        for key, value in pairs(data) do
+            for i = 1, count do io.write("\t") end
             if type(key) == "string" then
                 io.write("\"", key, "\" = ")
             elseif type(key) == "number" then
@@ -36,10 +36,10 @@ function print_dump(data, showMetatable, lastCount)
                 io.write(tostring(key))
             end
             print_dump(value, showMetatable, count) -- 如果不想看到子table的元表，可将showMetatable处填nil
-            io.write(",\n")     --如果不想在table的每一个item后加逗号，可以删除这里的逗号
+            io.write(",\n") --如果不想在table的每一个item后加逗号，可以删除这里的逗号
         end
         --Format
-        for i = 1,lastCount or 0 do io.write("\t") end
+        for i = 1, lastCount or 0 do io.write("\t") end
         io.write("}")
     end
     --Format
@@ -48,6 +48,33 @@ function print_dump(data, showMetatable, lastCount)
     end
 end
 
-print_dump(get(id))
 function update()
+    local self = get(id);
+
+    post({
+        type = "change_weapon",
+        weapon = "SHOTGUN"
+    });
+
+    local pos = self.Position;
+    local player = get("player");
+    if not player then
+        return
+    end
+    local p = player.Position;
+
+    local angle = math.atan2(p.y - pos.y, p.x - pos.x);
+
+    if math.pow(p.x - pos.x, 2) + math.pow(p.y - pos.y, 2) < 15 * 15 then
+        post({
+            type = "shooting",
+            angle = angle
+        });
+        post({
+            type = "move",
+            x = math.cos(angle) * 6,
+            y = math.sin(angle) * 6,
+        });
+    end
+
 end

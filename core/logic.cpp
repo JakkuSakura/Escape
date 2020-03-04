@@ -5,10 +5,10 @@
 #include "logic.h"
 #include "psysics.h"
 #include "lifespan.h"
-#include "weapons.h"
+#include "weapon_system.h"
 #include "agent.h"
 #include "control.h"
-#include "AI.h"
+#include "ai_system.h"
 #include "event_system.h"
 namespace Escape {
     Logic::Logic() {
@@ -18,8 +18,8 @@ namespace Escape {
         addSubSystem(new BulletSystem());
         addSubSystem(new WeaponSystem());
         addSubSystem(new AgentSystem());
-        addSubSystem(new ControlSystem());
         addSubSystem(new AISystem());
+        addSubSystem(new ControlSystem());
         addSubSystem(new EventSystem());
     }
 

@@ -5,7 +5,7 @@
 #include "lua_script.h"
 
 namespace Escape {
-    Converter::json Converter::toJson(const sol::table &table) {
+    Converter::json Converter::toJSON(const sol::table &table) {
         json js;
         for (auto &[key, value] : table) {
             auto type = value.get_type();
@@ -18,7 +18,7 @@ namespace Escape {
                 else if (type == sol::type::string)
                     js[key.as<std::string>()] = value.as<std::string>();
                 else if (type == sol::type::table)
-                    js[key.as<std::string>()] = toJson(value.as<sol::table>());
+                    js[key.as<std::string>()] = toJSON(value.as<sol::table>());
                 else if (type == sol::type::boolean)
                     js[key.as<std::string>()] = value.as<bool>();
                 else {
@@ -32,7 +32,7 @@ namespace Escape {
                 else if (type == sol::type::string)
                     js.push_back(value.as<std::string>());
                 else if (type == sol::type::table)
-                    js.push_back(toJson(value.as<sol::table>()));
+                    js.push_back(toJSON(value.as<sol::table>()));
                 else if (type == sol::type::boolean)
                     js.push_back(value.as<bool>());
                 else {
@@ -46,8 +46,6 @@ namespace Escape {
         }
         return js;
     }
-
-    sol::state Converter::state;
 
     sol::table Converter::toTable(const Converter::json &js) {
         sol::table table(state, sol::create);
@@ -92,5 +90,7 @@ namespace Escape {
         }
         return table;
     }
+
+    Converter::Converter(sol::state &state_) : state(state_) {}
 
 }

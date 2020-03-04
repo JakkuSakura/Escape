@@ -10,19 +10,9 @@
 #include <map>
 #include <cmath>
 #include <random>
-
+#include "bullet_system.h"
 namespace Escape
 {
-class BulletSystem : public ECSSystem
-{
-    LifespanSystem *lifespan;
-
-public:
-    BulletSystem();
-    void initialize() override;
-    void fire(entt::entity firer, BulletType type, float angle, float speed, float damage, float distance);
-    using ECSSystem::getWorld;
-};
 class WeaponSystem : public ECSSystem
 {
     BulletSystem *bullet_system;

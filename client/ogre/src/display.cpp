@@ -141,9 +141,11 @@ namespace Escape {
         // ESC exit
         WindowOgre::processInput();
 
-        if (input.keys['p'])
-            AgentSystem::createAgent(world,
-                                     Position(timeserver->random(-50, 50), timeserver->random(-50, 50)), 0, 0, "basic");
+        if (input.keys['p']) {
+            const Ogre::Vector3 &cam_pos = camNode->getPosition();
+            AgentSystem::createAgent(world, Position(cam_pos.x, cam_pos.y), 1, 1);
+
+        }
 
         if (input.keys['o']) {
 
