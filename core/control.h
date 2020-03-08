@@ -127,15 +127,6 @@ namespace Escape {
             }
         }
 
-        nlohmann::json getEntityInfo(entt::entity ent) {
-            SerializationHelper helper;
-            std::stringstream ss;
-            helper.serialize(*getWorld(), ent, ss);
-            nlohmann::json js;
-            ss >> js;
-            return js;
-        }
-
         bool valid(entt::entity ent) {
             return getWorld()->valid(ent);
         }

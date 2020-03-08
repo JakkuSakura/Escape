@@ -3,6 +3,9 @@
 
 #include "MyECS.h"
 #include "components.h"
+#include <nlohmann/json.hpp>
+#include <sstream>
+
 namespace Escape {
     class SerializationHelper {
     public:
@@ -20,6 +23,7 @@ namespace Escape {
         void serialize(const World &world, entt::entity ent, std::ostream &stream);
     };
 
+    nlohmann::json getEntityInfo(World *world, entt::entity ent);
 } // namespace Escape
 
 

@@ -342,4 +342,15 @@ void SerializationHelper::deserialize(WeaponType &object, std::istream &stream) 
     stream >> jsonImport(object);
 }
 
+namespace Escape {
+    nlohmann::json getEntityInfo(World *world, entt::entity ent) {
+        SerializationHelper helper;
+        std::stringstream ss;
+        helper.serialize(*world, ent, ss);
+        nlohmann::json js;
+        ss >> js;
+        return js;
+    }
+
+}
 

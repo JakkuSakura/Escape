@@ -14,14 +14,14 @@
 #include "control.h"
 
 namespace Escape {
-    class Converter {
+    class LuaScriptUtil {
         using json = nlohmann::json;
         sol::state &state;
     public:
-        Converter(sol::state &state_);
-        json toJSON(const sol::table &table);
+        LuaScriptUtil(sol::state &state_);
+        json toJSON(const sol::object &obj);
 
-        sol::table toTable(const json &js);
+        sol::object toLuaObject(const json &js);
 
     };
 

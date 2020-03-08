@@ -1,13 +1,13 @@
 function update()
-    local self = get(id);
-
+    local self = get("/entity", id);
     post({
         type = "change_weapon",
         weapon = "SHOTGUN"
     });
 
     local pos = self.Position;
-    local player = get("player");
+    local player = get("/entity", get("/player", ""));
+
     if not player then
         return
     end
@@ -26,5 +26,4 @@ function update()
             y = math.sin(angle) * 6,
         });
     end
-
 end

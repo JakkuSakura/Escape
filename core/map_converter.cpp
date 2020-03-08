@@ -37,7 +37,7 @@ namespace Escape {
             is >> map;
         }
 
-        entt::registry *world = new entt::registry;
+        entt::registry *world = new entt::registry();
         int width = map["width"], height = map["height"];
         float tilewidth = map["tilewidth"], tileheight = map["tileheight"];
         float scale_x = 1.0f / 16.0f, scale_y = 1.0f / 16.0f;

@@ -10,13 +10,19 @@ Box2D
 
 Lua
 
-## TODO
-
-- [ ] Use lua to manipulate Agent behaviors. 
+## TODO 
 - [ ] Add LuaScript system to control map
-- [ ] add terrain system
-      
+- [ ] Extend system and events to lua system, as well as RESTful system.
+- [ ] Add terrain system
+- [ ] Better Weapon system, weapon data
+- [ ] Develop Cocos2dx display
  
- ## Folders
- assets holds all the runtime resources and will be copied into bin when calling cmake. Sometimes there's a cache issue, use copy assets into bin manually.
-  
+## Technologies
+
+- Entity-Component System
+- Event/Message System
+- Map Server
+- Time Server
+- Weapon System
+- AI System
+- Physics System

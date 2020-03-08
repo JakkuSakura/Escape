@@ -7,13 +7,13 @@
 
 #include "config.h"
 #include "ai_system.h"
-#include "lua_script.h"
+#include "lua_script_util.h"
 #include "config.h"
 
 namespace Escape {
     class Agent_Lua : public AgentControl {
         sol::state lua;
-        Converter converter = lua;
+        LuaScriptUtil converter = lua;
         ControlSystem *control;
         std::string file;
     public:
@@ -24,8 +24,6 @@ namespace Escape {
         void update(float delta) override;
 
         void submit(entt::entity ent, const sol::table &table);
-
-        sol::table getEntityInfo(entt::entity ent);
     };
 
 }

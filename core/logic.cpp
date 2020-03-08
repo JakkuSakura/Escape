@@ -10,8 +10,10 @@
 #include "control.h"
 #include "ai_system.h"
 #include "event_system.h"
+#include "map_server.h"
 namespace Escape {
     void Logic::addSystems() {
+        addSubSystem(new MapServer());
         addSubSystem(new TimeServer(60));
         addSubSystem(new PhysicsSystem());
         addSubSystem(new LifespanSystem());

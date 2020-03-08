@@ -5,33 +5,25 @@
 #include "weapon_system.h"
 #include "components.h"
 #include <vector>
+#include "map_server.h"
 
 namespace Escape {
 
-    class AgentSystem : public ECSSystem {
+    class AgentSystem : public ECSSystem, public ResourceProvider {
     public:
 
-        static inline entt::entity getPlayer(World *world, int player_id) {
-            auto ps = getPlayers(world, player_id);
-            if (!ps.empty())
-                return ps[0];
-            else
-                return entt::null;
-        }
+        static entt::entity getPlayer(World *world, int player_id);
 
-        static inline std::vector<entt::entity> getPlayers(World *world, int player_id) {
-            std::vector<entt::entity> players;
-            world->view<AgentData>().each([&](entt::entity ent, auto &control) {
-                if (control.player == player_id) {
-                    players.push_back(ent);
-                }
-            });
-            return players;
-        }
+        static std::vector<entt::entity> getPlayers(World *world, int player_id);
 
         void update(float delta) override;
 
-        static entt::entity createAgent(World *world, const Position &pos, int player, int group = 0, std::string &&ai = "");
+        bool query(Query &q) override;
+
+        void initialize() override;
+
+        static entt::entity
+        createAgent(World *world, const Position &pos, int player, int group = 0, std::string &&ai = "");
     };
 } // namespace Escape
 

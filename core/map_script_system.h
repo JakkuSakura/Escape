@@ -5,7 +5,7 @@
 #ifndef ESCAPE_MAP_SCRIPT_SYSTEM_H
 #define ESCAPE_MAP_SCRIPT_SYSTEM_H
 
-#include "lua_script.h"
+#include "lua_script_util.h"
 namespace Escape {
     // For map
     class LuaScriptSystem : public ECSSystem {

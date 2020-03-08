@@ -100,10 +100,12 @@ inline std::string to_str(int i) {
 
 inline int to_int(const std::string &s, const char *error_info = "Must be an integer: ") {
     int integer = 0;
-    for(int i = 0; i < s.size(); ++i)
-    {
-        if(!isdigit(s[i]))
-            throw std::runtime_error(error_info + s);
+    for (int i = 0; i < s.size(); ++i) {
+        if (!isdigit(s[i])) {
+            if (s[i] != '.')
+                throw std::runtime_error(error_info + s);
+            break;
+        }
         integer *= 10;
         integer += s[i] - '0';
     }
