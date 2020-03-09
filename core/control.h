@@ -130,6 +130,9 @@ namespace Escape {
         bool valid(entt::entity ent) {
             return getWorld()->valid(ent);
         }
+        nlohmann::json query(const std::string &method, const std::string &resource, const nlohmann::json &parameters) {
+            return findSystem<RESTSystem>()->query(method, resource, parameters);
+        }
     };
 
 }

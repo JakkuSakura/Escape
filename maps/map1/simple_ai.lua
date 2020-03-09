@@ -1,12 +1,12 @@
 function update()
     local self = get("/entity", id);
-    post({
+    control({
         type = "change_weapon",
         weapon = "SHOTGUN"
     });
 
     local pos = self.Position;
-    local player = get("/entity", get("/player", ""));
+    local player = get("/entity", get("/player"));
 
     if not player then
         return
@@ -16,11 +16,11 @@ function update()
     local angle = math.atan2(p.y - pos.y, p.x - pos.x);
 
     if math.pow(p.x - pos.x, 2) + math.pow(p.y - pos.y, 2) < 15 * 15 then
-        post({
+        control({
             type = "shooting",
             angle = angle
         });
-        post({
+        control({
             type = "move",
             x = math.cos(angle) * 6,
             y = math.sin(angle) * 6,

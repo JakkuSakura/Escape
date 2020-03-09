@@ -3,11 +3,11 @@
 //
 
 #include "lua_ai.h"
-#include "map_server.h"
+#include "restful_system.h"
 
 namespace Escape {
 
-    Agent_Lua::Agent_Lua(std::string &&filename) : file(std::move(filename)) {
+    Agent_Lua::Agent_Lua(std::string filename) : file(std::move(filename)) {
         lua.open_libraries(sol::lib::base);
         lua.open_libraries(sol::lib::io);
         lua.open_libraries(sol::lib::math);
@@ -18,11 +18,11 @@ namespace Escape {
 
         lua["id"] = getEntityID();
         lua["get"] = [&](const std::string &resource, const sol::object &parameter) -> sol::object {
-            auto json = control->findSystem<MapServer>()->query("GET", resource, parameter.as<std::string>());
+            auto json = control->query("GET", resource, converter.toJSON(parameter));
             return converter.toLuaObject(json);
         };
-        lua["post"] = [&](const sol::table &tab) {
-            submit(getEntityID(), tab);
+        lua["control"] = [&](const sol::table &tab) {
+            control->dispatch(getEntityID(), converter.toJSON(tab));
         };
 
         lua.script_file(file);
@@ -32,8 +32,5 @@ namespace Escape {
         lua.script("update()");
     }
 
-    void Agent_Lua::submit(entt::entity ent, const sol::table &table) {
-        control->dispatch(ent, converter.toJSON(table));
-    }
 
 }

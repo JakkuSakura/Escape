@@ -17,13 +17,13 @@ namespace Escape {
         ControlSystem *control;
         std::string file;
     public:
-        Agent_Lua(std::string &&filename);
+        Agent_Lua(std::string filename);
 
         void init(ControlSystem *c) override;
 
         void update(float delta) override;
 
-        void submit(entt::entity ent, const sol::table &table);
+
     };
 
 }

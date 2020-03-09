@@ -4,7 +4,7 @@
 #include "logic.h"
 #include "display.h"
 #include "map_converter.h"
-
+#include "map_script_system.h"
 using namespace Escape;
 
 class MySystem : public ECSSystem {
@@ -15,7 +15,8 @@ public:
         auto *world = mapConverter.convert(mapfile);
         auto *logic = new Logic(world);
         addSubSystem(logic);
-        configure();
+        findSystem<MapScriptSystem>()->loadMapScript( mapfile + "/game.lua");
+        ECSSystem::configure();
     }
 
     void update(float delta) override {

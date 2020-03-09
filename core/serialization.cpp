@@ -288,7 +288,7 @@ public:
     }
 
     template<typename T>
-    void component(entt::entity entity, vector<WrapperBase *> &components) {
+    void component(entt::entity entity, const vector<WrapperBase *> &components) {
         for (int i = 0; i < components.size(); ++i) {
             auto *p = dynamic_cast<Wrapper<T> *>(components[i]);
             if (p) {
@@ -300,12 +300,17 @@ public:
     template<typename ... Args>
     void components() {
         for (auto pair : world) {
-            if (!world_->valid((entt::entity) to_int(pair.first)))
-                world_->create((entt::entity) to_int(pair.first));
-            (component<Args>((entt::entity) to_int(pair.first), pair.second), ...);
+            components((entt::entity) to_int(pair.first), pair.second);
         }
     }
 
+    template<typename ... Args>
+    void components(entt::entity ent, const vector<WrapperBase *> &comps) {
+        if (!world_->valid(ent))
+            world_->create(ent);
+        (component<Args>(ent, comps), ...);
+
+    }
 
 };
 
@@ -317,13 +322,11 @@ void Escape::SerializationHelper::serialize(const Escape::World &world, std::ost
     world.each([&](entt::entity ent) {
         output.components<COMPONENT_LIST>(ent);
     });
-    output.flush();
 }
 
 void Escape::SerializationHelper::deserialize(Escape::World &world, std::istream &stream) {
     world.clear();
     entt_iarchive input(stream, &world);
-    input.read_from_stream();
     input.components<COMPONENT_LIST>();
 
 }
@@ -333,6 +336,7 @@ void SerializationHelper::serialize(const World &world, const entt::entity ent, 
     output.components<COMPONENT_LIST>(ent);
     output.flush(ent);
 }
+
 
 void SerializationHelper::serialize(const WeaponType &object, std::ostream &stream) {
     stream << jsonExport(object);
@@ -350,6 +354,16 @@ namespace Escape {
         nlohmann::json js;
         ss >> js;
         return js;
+    }
+
+    void setEntityInfo(World *world, entt::entity ent, const nlohmann::json &js) {
+        std::stringstream ss;
+        vector<WrapperBase *> comps;
+        ss << js;
+        ss >> jsonImport(comps);
+        entt_iarchive ia(ss, world);
+        ia.components<COMPONENT_LIST>(ent, comps);
+
     }
 
 }

@@ -24,6 +24,7 @@ namespace Escape {
     };
 
     nlohmann::json getEntityInfo(World *world, entt::entity ent);
+    void setEntityInfo(World *world, entt::entity ent, const nlohmann::json &js);
 } // namespace Escape
 
 

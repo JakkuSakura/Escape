@@ -21,9 +21,12 @@ namespace Escape {
             return js;
         } else if (type == sol::type::nil || type == sol::type::none)
             return nullptr;
-        else if (type == sol::type::number)
-            return obj.as<double>();
-        else if (type == sol::type::string)
+        else if (type == sol::type::number) {
+            if (obj.as<double>() == obj.as<int>())
+                return obj.as<int>();
+            else
+                return obj.as<double>();
+        } else if (type == sol::type::string)
             return obj.as<std::string>();
         else if (type == sol::type::table)
             return toJSON(obj.as<sol::table>());

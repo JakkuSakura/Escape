@@ -14,14 +14,14 @@ namespace Escape{
             std::swap(col.a, col.b);
         auto *bullet = world->try_get<BulletData>(col.a);
         if (bullet && !world->has<BulletData>(col.b)) {
-            if(world->valid((entt::entity)bullet->firer_id))
-            {
-                auto *firer = world->try_get<AgentData>((entt::entity)bullet->firer_id), *b = world->try_get<AgentData>(col.b);
-                if (firer && b) {
-                    if (firer->group == b->group)
-                        goto destory;
-                }
-            }
+//            if(world->valid((entt::entity)bullet->firer_id))
+//            {
+//                auto *firer = world->try_get<AgentData>((entt::entity)bullet->firer_id), *b = world->try_get<AgentData>(col.b);
+//                if (firer && b) {
+//                    if (firer->group == b->group)
+//                        goto destory;
+//                }
+//            }
             if(world->has<Health>(col.b))
                 world->get<Health>(col.b).health -= bullet->damage;
             destory:;

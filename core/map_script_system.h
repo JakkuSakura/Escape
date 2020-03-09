@@ -6,23 +6,36 @@
 #define ESCAPE_MAP_SCRIPT_SYSTEM_H
 
 #include "lua_script_util.h"
-namespace Escape {
-    // For map
-    class LuaScriptSystem : public ECSSystem {
-        LuaScript script;
-    public:
-        LuaScriptSystem() {
+#include <sol/sol.hpp>
 
+namespace Escape {
+    class MapScriptSystem : public ECSSystem {
+        sol::state state;
+        LuaScriptUtil converter = state;
+    public:
+        MapScriptSystem() {
+            state.open_libraries(sol::lib::base);
+            state.open_libraries(sol::lib::io);
+            state.open_libraries(sol::lib::math);
+
+            state["get"] = [&](const std::string &resource, const sol::object &parameter) -> sol::object {
+                auto json = findSystem<RESTSystem>()->query("GET", resource, converter.toJSON(parameter));
+                return converter.toLuaObject(json);
+            };
+            state["post"] = [&](const std::string &resource, const sol::object &parameter) -> sol::object {
+                auto json = findSystem<RESTSystem>()->query("POST", resource, converter.toJSON(parameter));
+                return converter.toLuaObject(json);
+            };
         }
 
-        void loadMapScript(std::string &&s) {
-            script.reset();
-            script.doFile(s);
+        void loadMapScript(const std::string &s) {
+            state.script_file(s);
         }
 
         void update(float delta) {
-            if (script.getState()["update"].valid())
-                script.doString("update();");
+            if (state["update"].get_type() == sol::type::function) {
+                state.script("update();");
+            }
         }
     };
 }

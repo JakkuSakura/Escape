@@ -2,6 +2,7 @@
 #include "config.h"
 #include "serialization.h"
 #include <nlohmann/json.hpp>
+
 namespace Escape {
     entt::entity AgentSystem::createAgent(World *world, const Position &pos, int player, int group, std::string &&ai) {
         assert(world != nullptr);
@@ -43,23 +44,32 @@ namespace Escape {
     }
 
     bool AgentSystem::query(Query &q) {
-        if (q.resource == "/player")
-        {
-            if(q.method == "GET")
-            {
+        if (q.resource == "/player") {
+            if (q.method == "GET") {
                 entt::entity player = getPlayer(getWorld(), 1);
-                q.result = entt::to_integral(player);
+                if (player != entt::null)
+                    q.result = entt::to_integral(player);
+                else
+                    q.result = nullptr;
                 return true;
             }
         }
-        if (q.resource == "/entity")
-        {
-            if(q.method == "GET")
-            {
-                if(getWorld()->valid((entt::entity)to_int(q.parameters)))
-                    q.result = getEntityInfo(getWorld(), (entt::entity)to_int(q.parameters));
+        if (q.resource == "/entity") {
+            if (q.method == "GET") {
+                if (q.parameters.is_null()) {
+                    q.result = nullptr;
+                    return true;
+                }
+
+                auto entity_id = (entt::entity) q.parameters.get<ENTT_ID_TYPE>();
+                if (getWorld()->valid(entity_id))
+                    q.result = getEntityInfo(getWorld(), entity_id);
                 else
-                    q.result = {};
+                    q.result = nullptr;
+                return true;
+            } else if (q.method == "POST") {
+                auto entity_id = (entt::entity) q.parameters["entity"].get<ENTT_ID_TYPE>();
+                setEntityInfo(getWorld(), entity_id, q.parameters["components"]);
                 return true;
             }
         }
@@ -67,7 +77,7 @@ namespace Escape {
     }
 
     void AgentSystem::initialize() {
-        findSystem<MapServer>()->addProvider(this);
+        findSystem<RESTSystem>()->addProvider(this);
     }
 
 }

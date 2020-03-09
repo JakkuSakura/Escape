@@ -5,7 +5,7 @@
 #include "weapon_system.h"
 #include "components.h"
 #include <vector>
-#include "map_server.h"
+#include "restful_system.h"
 
 namespace Escape {
 
