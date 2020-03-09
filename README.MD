@@ -11,8 +11,8 @@ Box2D
 Lua
 
 ## TODO 
-- [ ] Add LuaScript system to control map
-- [ ] Extend system and events to lua system, as well as RESTful system.
+- [x] Add LuaScript system to control map
+- [x] Extend system and events to lua system, as well as RESTful system.
 - [ ] Add terrain system
 - [ ] Better Weapon system, weapon data
 - [ ] Develop Cocos2dx display

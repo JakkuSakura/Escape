@@ -13,30 +13,12 @@ namespace Escape {
         sol::state state;
         LuaScriptUtil converter = state;
     public:
-        MapScriptSystem() {
-            state.open_libraries(sol::lib::base);
-            state.open_libraries(sol::lib::io);
-            state.open_libraries(sol::lib::math);
+        MapScriptSystem();
+        sol::state &getState();
+        void initialize() override;
 
-            state["get"] = [&](const std::string &resource, const sol::object &parameter) -> sol::object {
-                auto json = findSystem<RESTSystem>()->query("GET", resource, converter.toJSON(parameter));
-                return converter.toLuaObject(json);
-            };
-            state["post"] = [&](const std::string &resource, const sol::object &parameter) -> sol::object {
-                auto json = findSystem<RESTSystem>()->query("POST", resource, converter.toJSON(parameter));
-                return converter.toLuaObject(json);
-            };
-        }
-
-        void loadMapScript(const std::string &s) {
-            state.script_file(s);
-        }
-
-        void update(float delta) {
-            if (state["update"].get_type() == sol::type::function) {
-                state.script("update();");
-            }
-        }
+        void loadMapScript(const std::string &s);
+        void update(float delta);
     };
 }
 #endif //ESCAPE_MAP_SCRIPT_SYSTEM_H
