@@ -1,6 +1,5 @@
 #include "psysics.h"
 #include <Box2D/Box2D.h>
-#include "control.h"
 #include <map>
 #include "event_system.h"
 
@@ -46,56 +45,47 @@ namespace Escape {
 
         std::map<entt::entity, b2Body *> mapping;
 
-        // Put walls into box2d
-        getWorld()->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
-            if (ter.shape == TerrainShape::BOX) {
-                b2BodyDef wallDef;
-                wallDef.position.Set(pos.x, pos.y);
-                wallDef.angle = rot.radian;
-                b2PolygonShape wallBox;
-                wallBox.SetAsBox(ter.argument_1 / 2, ter.argument_2 / 2);
-                b2FixtureDef fixtureDef;
-                fixtureDef.shape = &wallBox;
-                fixtureDef.density = 0;
-                fixtureDef.friction = 1e6f;
-                b2Body *wall = b2d_world.CreateBody(&wallDef);
-                wall->CreateFixture(&fixtureDef);
-                wall->SetUserData((void *) (ent));
-                mapping[ent] = wall;
-            }
-        });
-
-        // put agents and bullets in box2d
-        getWorld()->view<Position, Velocity, Hitbox>().each([&](auto ent, auto &pos, auto &vel, auto &hit) {
+        // Put terrain blocks into box2d
+        getWorld()->view<Position>().each([&](auto ent, const auto &pos) {
             b2BodyDef bodyDef;
-            bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(pos.x, pos.y);
-            bodyDef.linearVelocity.x = vel.x;
-            bodyDef.linearVelocity.y = vel.y;
+            auto *vel = getWorld()->try_get<Velocity>(ent);
+            if (vel) {
+                bodyDef.linearVelocity.x = vel->x;
+                bodyDef.linearVelocity.y = vel->y;
+            }
 
-            b2CircleShape circle;
-            circle.m_radius = hit.radius;
+            auto *rot = getWorld()->try_get<Rotation>(ent);
+            if (rot) bodyDef.angle = rot->radian;
+
+            bodyDef.type = b2_dynamicBody;
+
+            if (getWorld()->has<AgentData>(ent))
+                bodyDef.linearDamping = 15;
 
             b2FixtureDef fixtureDef;
-            fixtureDef.shape = &circle;
 
-            if (getWorld()->has<BulletData>(ent)) {
-                BulletData &data = getWorld()->get<BulletData>(ent);
-                fixtureDef.density = data.density;
-                fixtureDef.friction = 1e6f;
-//                 this slows down fps and is unnecessary for relatively slow speed.
-//                bodyDef.bullet = true;
-            } else if (getWorld()->has<AgentData>(ent)) {
-                fixtureDef.density = 1;
-                fixtureDef.friction = 0.1;
-                bodyDef.linearDamping = 15;
+            b2PolygonShape box_shape;
+            b2CircleShape circle_shape;
+            auto *rect = getWorld()->try_get<RectangleShape>(ent);
+            auto *cir = getWorld()->try_get<CircleShape>(ent);
+            if (rect) {
+                box_shape.SetAsBox(rect->width / 2, rect->height / 2);
+                fixtureDef.shape = &box_shape;
+            } else if (cir) {
+                circle_shape.m_radius = cir->radius;
+                fixtureDef.shape = &circle_shape;
+            } else {
+                throw std::runtime_error("Nowadays terrain blocks only support rectangles and circles");
             }
 
-            b2Body *body = b2d_world.CreateBody(&bodyDef);
-            body->CreateFixture(&fixtureDef);
+            fixtureDef.density = 1;
 
-            body->SetUserData((void *) (ent));
-            mapping[ent] = body;
+            b2Body *wall = b2d_world.CreateBody(&bodyDef);
+            wall->CreateFixture(&fixtureDef);
+            wall->SetUserData((void *) (ent));
+            mapping[ent] = wall;
+
         });
 
         b2d_world.SetContactListener(&listener);
@@ -108,18 +98,20 @@ namespace Escape {
 
         b2d_world.Step(delta, velocityIterations, positionIterations);
 
-        // fetch data for agents
-        getWorld()->view<Position, Velocity, AgentData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
+        getWorld()->view<Position>().each([&](auto ent, auto &pos) {
             b2Body *body = mapping[ent];
-            b2Vec2 position = body->GetPosition();
-            b2Vec2 velocity = body->GetLinearVelocity();
-            pos = as<Position>(position);
-            vel = as<Velocity>(velocity);
-        });
+            if (getWorld()->has<Collidable>(ent)) {
+                b2Vec2 position = body->GetPosition();
+                pos = as<Position>(position);
+            } else if (getWorld()->has<Velocity>(ent)) {
+                auto &vel = getWorld()->get<Velocity>(ent);
+                pos += vel * delta;
+            }
 
-        // Only movement for bullets
-        getWorld()->view<Position, Velocity, BulletData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
-            pos += vel * delta;
+            if (getWorld()->has<Velocity>(ent) && getWorld()->has<Collidable>(ent)) {
+                b2Vec2 velocity = body->GetLinearVelocity();
+                getWorld()->assign_or_replace<Velocity>(ent, as<Velocity>(velocity));
+            }
         });
     }
 

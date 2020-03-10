@@ -13,7 +13,8 @@ Lua
 ## TODO
 - [x] Add LuaScript system to control map
 - [x] Extend system and events to lua system, as well as RESTful system.
-- [ ] Add terrain system
+- [x] Add terrain system
+- [x] Purer physics system
 - [ ] Better Weapon system, weapon data
 - [ ] Split entity system to do more specific stuff
 - [ ] Develop Cocos2dx display

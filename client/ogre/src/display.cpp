@@ -178,7 +178,7 @@ namespace Escape {
 
     void DisplayOgre::render() {
         // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
-        world->view<AgentData, Position, Health, Hitbox>().each(
+        world->view<AgentData, Position, Health, CircleShape>().each(
                 [&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
                     float percent = health.health / health.max_health;
                     auto pair = newCircle(pos.x, pos.y, hitbox.radius);
@@ -189,8 +189,8 @@ namespace Escape {
                                 Ogre::Quaternion(Ogre::Radian(rotation.radian), Ogre::Vector3(0, 0, 1)));
                     }
                 });
-        world->view<TerrainData, Position>().each([&](auto ent, auto &ter, auto &pos) {
-            auto pair = newBox(pos.x, pos.y, ter.argument_1, ter.argument_2);
+        world->view<RectangleShape, Position>().each([&](auto ent, auto &rect, auto &pos) {
+            auto pair = newBox(pos.x, pos.y, rect.width, rect.height);
             setColor(pair.second, .5, .5, .5);
             if (world->has<Rotation>(ent)) {
                 auto rotation = world->get<Rotation>(ent);

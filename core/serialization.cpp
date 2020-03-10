@@ -25,7 +25,8 @@ ThorsAnvil_MakeTrait(Name, name);
 ThorsAnvil_MakeTrait(vec2, x, y);
 ThorsAnvil_ExpandTrait(vec2, Position);
 ThorsAnvil_ExpandTrait(vec2, Velocity);
-ThorsAnvil_MakeTrait(Hitbox, radius);
+ThorsAnvil_MakeTrait(CircleShape, radius);
+ThorsAnvil_MakeTrait(RectangleShape, width, height);
 ThorsAnvil_MakeTrait(Rotation, radian);
 ThorsAnvil_MakeTrait(AgentData, player, group, ai);
 ThorsAnvil_MakeTrait(TimeServerInfo, tick);
@@ -35,7 +36,7 @@ ThorsAnvil_MakeTrait(BulletData, firer_id, type, damage, density, radius);
 ThorsAnvil_MakeTrait(WeaponPrototype, type, bullet_type, cd, accuracy, bullet_number, bullet_damage, bullet_speed,
                      gun_length);
 ThorsAnvil_MakeTrait(Weapon, weapon, last, next);
-ThorsAnvil_MakeTrait(TerrainData, type, shape, argument_1, argument_2, argument_3, argument_4);
+ThorsAnvil_MakeTrait(TerrainData, type);
 
 ThorsAnvil_MakeEnum(BulletType,
                     HANDGUN_BULLET,
@@ -50,10 +51,10 @@ ThorsAnvil_MakeEnum(WeaponType,
                     RIFLE);
 
 ThorsAnvil_MakeEnum(TerrainType, AIR, WALL, WATER, BARRAIR);
-ThorsAnvil_MakeEnum(TerrainShape, BOX, CIRCLE);
 ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
 
-ThorsAnvil_MakeTrait(Event, actor);
+//ThorsAnvil_MakeTrait(Event, actor);
+ThorsAnvil_MakeTrait(Collidable, flag);
 
 
 struct WrapperBase {

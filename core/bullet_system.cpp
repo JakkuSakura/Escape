@@ -60,7 +60,7 @@ namespace Escape{
         if (type == BulletType::SHOTGUN_SHELL)
             data.radius = 0.2;
         getWorld()->assign<BulletData>(bullet, data);
-        getWorld()->assign<Hitbox>(bullet, Hitbox{.radius =  data.radius});
+        getWorld()->assign<CircleShape>(bullet, data.radius);
 
         vec2 ang(cos(angle), sin(angle));
 

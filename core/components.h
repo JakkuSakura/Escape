@@ -74,8 +74,13 @@ struct Velocity : public vec2 {
 
 
 
-struct Hitbox {
+struct CircleShape {
     float radius;
+};
+
+struct RectangleShape {
+    float width;
+    float height;
 };
 
 
@@ -157,7 +162,6 @@ struct Weapon {
     WeaponType weapon;
     float last;
     float next;
-
 };
 
 
@@ -168,29 +172,21 @@ enum class TerrainType {
     BARRAIR,
 };
 
-// TODO Seperate Physics Components(Like shapes) and TerrainData
-enum class TerrainShape {
-    BOX,
-    CIRCLE
-};
-
 struct TerrainData {
     TerrainType type;
-    TerrainShape shape;
-    float argument_1;
-    float argument_2;
-    float argument_3;
-    float argument_4;
 };
 
 struct MapInfo : public std::map<std::string, std::string> {
     using s_s_pair = std::map<std::string, std::string>;
     FORWARD_CONSTRUCTORS(MapInfo, s_s_pair);
 };
-//struct MessageQueue : public std::deque<Message *> {
-//    using s_s_pair = std::deque<Message *>;
-//    FORWARD_CONSTRUCTORS(MessageQueue, s_s_pair);
-//};
+
+struct Collidable {
+    bool flag;
+    // This will not to be checked. It will be always true whatever the value is.
+};
+
+//struct
 
 #define COMPONENT_LIST \
     Position,          \
@@ -200,13 +196,15 @@ struct MapInfo : public std::map<std::string, std::string> {
     Health,            \
     Weapon,            \
     WeaponPrototype,   \
-    Hitbox,            \
+    CircleShape,       \
+    RectangleShape,    \
     BulletData,        \
     Lifespan,          \
     TimeServerInfo,    \
     AgentData,         \
     TerrainData,       \
-    MapInfo
+    MapInfo,           \
+    Collidable
 
 #define FOREACH_COMPONENT_TYPE(func) \
     func(Position);          \
@@ -216,12 +214,14 @@ struct MapInfo : public std::map<std::string, std::string> {
     func(Health);            \
     func(Weapon);            \
     func(WeaponPrototype);   \
-    func(Hitbox);            \
+    func(CircleShape);       \
+    func(RectangleShape);    \
     func(BulletData);        \
     func(Lifespan);          \
     func(TimeServerInfo);    \
     func(AgentData);         \
     func(TerrainData);       \
-    func(MapInfo)
+    func(MapInfo);           \
+    func(Collidable);        \
 
 #endif // COMPONENTS_H

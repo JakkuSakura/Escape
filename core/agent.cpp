@@ -11,9 +11,11 @@ namespace Escape {
         world->assign<Position>(agent, pos);
         world->assign<AgentData>(agent, AgentData{player, group, std::move(ai)});
         world->assign<Health>(agent, 100);
-        world->assign<Hitbox>(agent, Hitbox{.radius =  AGENT_RADIUS});
+        world->assign<CircleShape>(agent, AGENT_RADIUS);
         world->assign<Velocity>(agent);
+        world->assign<Collidable>(agent, true);
         world->assign<Weapon>(agent, Weapon{WeaponType::HANDGUN, 0});
+
         return agent;
 
     }

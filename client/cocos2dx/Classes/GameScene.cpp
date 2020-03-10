@@ -33,9 +33,9 @@ void GameScene::update(float delta) {
     World *world = logic->world;
     this->removeAllChildren();
 
-    world->view<AgentData, Position, Health, Hitbox>().each(
-            [&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
-                auto player = newPlayer(pos.x, pos.y, hitbox.radius);
+    world->view<AgentData, Position, Health, CircleShape>().each(
+            [&](auto ent, auto &agt, auto &pos, auto &health, auto &cir) {
+                auto player = newPlayer(pos.x, pos.y, cir.radius);
                 if (world->has<Rotation>(ent)) {
                     Rotation rotation = world->get<Rotation>(ent);
                     player->setRotation(rotation.radian);
