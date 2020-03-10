@@ -50,8 +50,12 @@ namespace Escape {
                                 -(j * tileheight + (float) layer["y"]) * scale_y;
                         int type = data[j * width + i];
                         if (type > 0) {
-                            if (configuration["tiles"][type - 1]["type"] == "Wall") {              // It's wall
+                            if (configuration["tiles"][type - 1]["type"] == "Wall") {
                                 TerrainSystem::createWall(world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                            } else if (configuration["tiles"][type - 1]["type"] == "Water") {
+                                TerrainSystem::createWater(world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                            } else if (configuration["tiles"][type - 1]["type"] == "Barrier") {
+                                TerrainSystem::createBarrier(world, x, y, tilewidth * scale_x, tileheight * scale_y);
                             }
                         }
                     }

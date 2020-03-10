@@ -162,12 +162,21 @@ struct Weapon {
 
 
 enum class TerrainType {
+    AIR,
+    WALL,
+    WATER,
+    BARRAIR,
+};
+
+// TODO Seperate Physics Components(Like shapes) and TerrainData
+enum class TerrainShape {
     BOX,
     CIRCLE
 };
 
 struct TerrainData {
     TerrainType type;
+    TerrainShape shape;
     float argument_1;
     float argument_2;
     float argument_3;

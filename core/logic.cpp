@@ -12,9 +12,12 @@
 #include "event_system.h"
 #include "restful_system.h"
 #include "map_script_system.h"
+#include "terrain.h"
+
 namespace Escape {
     void Logic::addSystems() {
         addSubSystem(new RESTSystem());
+        addSubSystem(new TerrainSystem());
         addSubSystem(new MapScriptSystem());
         addSubSystem(new TimeServer(60));
         addSubSystem(new PhysicsSystem());

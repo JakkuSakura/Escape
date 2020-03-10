@@ -35,7 +35,7 @@ ThorsAnvil_MakeTrait(BulletData, firer_id, type, damage, density, radius);
 ThorsAnvil_MakeTrait(WeaponPrototype, type, bullet_type, cd, accuracy, bullet_number, bullet_damage, bullet_speed,
                      gun_length);
 ThorsAnvil_MakeTrait(Weapon, weapon, last, next);
-ThorsAnvil_MakeTrait(TerrainData, type, argument_1, argument_2, argument_3, argument_4);
+ThorsAnvil_MakeTrait(TerrainData, type, shape, argument_1, argument_2, argument_3, argument_4);
 
 ThorsAnvil_MakeEnum(BulletType,
                     HANDGUN_BULLET,
@@ -49,7 +49,8 @@ ThorsAnvil_MakeEnum(WeaponType,
                     SMG,
                     RIFLE);
 
-ThorsAnvil_MakeEnum(TerrainType, BOX, CIRCLE);
+ThorsAnvil_MakeEnum(TerrainType, AIR, WALL, WATER, BARRAIR);
+ThorsAnvil_MakeEnum(TerrainShape, BOX, CIRCLE);
 ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
 
 ThorsAnvil_MakeTrait(Event, actor);

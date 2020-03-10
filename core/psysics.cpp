@@ -3,10 +3,12 @@
 #include "control.h"
 #include <map>
 #include "event_system.h"
+
 namespace Escape {
     struct ContactListener : public b2ContactListener {
         World *world;
         EventSystem *eventSystem;
+
         ContactListener(World *world, EventSystem *event_system) : world(world), eventSystem(event_system) {
         }
 
@@ -29,15 +31,15 @@ namespace Escape {
 
     void PhysicsSystem::initialize() {
         ECSSystem::initialize();
-        findSystem<EventSystem>()->listen([this](Impulse imp){
-            if(getWorld()->valid(imp.actor))
-            {
+        findSystem<EventSystem>()->listen([this](Impulse imp) {
+            if (getWorld()->valid(imp.actor)) {
                 auto &vel = getWorld()->get<Velocity>(imp.actor);
                 vel += imp;
             }
         });
 
     }
+
     void PhysicsSystem::update(float delta) {
         ContactListener listener(getWorld(), findSystem<EventSystem>());
         b2World b2d_world(b2Vec2(0, 0));
@@ -46,7 +48,7 @@ namespace Escape {
 
         // Put walls into box2d
         getWorld()->view<Position, Rotation, TerrainData>().each([&](auto ent, auto &pos, auto &rot, auto &ter) {
-            if (ter.type == TerrainType::BOX) {
+            if (ter.shape == TerrainShape::BOX) {
                 b2BodyDef wallDef;
                 wallDef.position.Set(pos.x, pos.y);
                 wallDef.angle = rot.radian;
@@ -59,9 +61,7 @@ namespace Escape {
                 b2Body *wall = b2d_world.CreateBody(&wallDef);
                 wall->CreateFixture(&fixtureDef);
                 wall->SetUserData((void *) (ent));
-
                 mapping[ent] = wall;
-
             }
         });
 
@@ -85,7 +85,7 @@ namespace Escape {
                 fixtureDef.friction = 1e6f;
 //                 this slows down fps and is unnecessary for relatively slow speed.
 //                bodyDef.bullet = true;
-            } else {
+            } else if (getWorld()->has<AgentData>(ent)) {
                 fixtureDef.density = 1;
                 fixtureDef.friction = 0.1;
                 bodyDef.linearDamping = 15;
@@ -117,10 +117,10 @@ namespace Escape {
             vel = as<Velocity>(velocity);
         });
 
-        // Only movement
-         getWorld()->view<Position, Velocity, BulletData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
-             pos += vel * delta;
-         });
+        // Only movement for bullets
+        getWorld()->view<Position, Velocity, BulletData>().each([&](auto ent, auto &pos, auto &vel, auto &agt) {
+            pos += vel * delta;
+        });
     }
 
 }
