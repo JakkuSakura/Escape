@@ -16,7 +16,7 @@ namespace Escape {
                 .bullet_number =  1,
                 .bullet_damage =  10,
                 .bullet_speed =  60,
-                .gun_length =  2.1,
+                .gun_length =  1.5,
         };
         default_weapons[WeaponType::SHOTGUN] = WeaponPrototype{
                 .type =  WeaponType::SHOTGUN,
@@ -26,7 +26,7 @@ namespace Escape {
                 .bullet_number = 10,
                 .bullet_damage = 8,
                 .bullet_speed = 60,
-                .gun_length = 2.5,
+                .gun_length = 2,
         };
         default_weapons[WeaponType::SMG] = WeaponPrototype{
                 .type = WeaponType::SMG,
@@ -36,18 +36,37 @@ namespace Escape {
                 .bullet_number = 1,
                 .bullet_damage = 4,
                 .bullet_speed = 60,
-                .gun_length = 2.3,
+                .gun_length = 1.5,
         };
-        default_weapons[WeaponType::RIFLE] = WeaponPrototype{
-                .type = WeaponType::RIFLE,
+        default_weapons[WeaponType::SNIPER_RIFLE] = WeaponPrototype{
+                .type = WeaponType::SNIPER_RIFLE,
                 .bullet_type = BulletType::RIFLE_BULLET,
                 .cd = 2,
                 .accuracy = 97,
                 .bullet_number = 1,
                 .bullet_damage = 55,
                 .bullet_speed = 100,
-                .gun_length = 3,
+                .gun_length = 2.5,
         };
+        // TODO add burning effect
+        default_weapons[WeaponType::FLAME_THROWER] = WeaponPrototype{
+                .type = WeaponType::FLAME_THROWER,
+                .bullet_type = BulletType::RIFLE_BULLET,
+                .cd = 1.0 / 30,
+                .accuracy = 85,
+                .bullet_number = 2,
+                .bullet_damage = 5,
+                .bullet_speed = 8,
+                .gun_length = 2,
+        };
+        // TODO KNIFE
+        // TODO assault rifle
+        // TODO MACHINE_GUN
+        // TODO MINIGUN
+        // TODO Revolver
+        // TODO ROCKET_LAUNCHER
+        // TODO GRENADE
+        // TODO MINE
     }
 
     void WeaponSystem::initialize() {

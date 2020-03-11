@@ -1,34 +1,7 @@
-
-#include "ai_system.h"
-#include "lua_ai.h"
-#include "logic.h"
+#include "my_escape.h"
 #include "display.h"
-#include "map_converter.h"
-#include "map_script_system.h"
+
 using namespace Escape;
-
-class MySystem : public ECSSystem {
-    std::string mapfile;
-public:
-    MySystem(std::string &&map) : mapfile(std::move(map)) {
-        MapConverter mapConverter;
-        auto *world = mapConverter.convert(mapfile);
-        auto *logic = new Logic(world);
-        addSubSystem(logic);
-        findSystem<MapScriptSystem>()->loadMapScript( mapfile + "/game.lua");
-        ECSSystem::configure();
-    }
-
-    void update(float delta) override {
-        auto ai_system = findSystem<AISystem>();
-        for (entt::entity ent = ai_system->allocate(); ent != entt::null; ent = ai_system->allocate()) {
-            auto *world = getWorld();
-            auto data = world->get<AgentData>(ent);
-            auto ai_path = mapfile + "/" + data.ai + ".lua";
-            ai_system->insert(ent, new Agent_Lua(std::move(ai_path)));
-        }
-    }
-};
 
 int main(int argc, const char **argv) {
     if (argc < 2) {
@@ -38,7 +11,7 @@ int main(int argc, const char **argv) {
 
     auto display = new DisplayOgre();
 
-    MySystem system(argv[1]);
+    MyEscape system(argv[1]);
     system.addSubSystem(display);
 
     system.foreach([](System *sys) {

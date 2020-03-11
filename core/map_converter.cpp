@@ -23,19 +23,7 @@ namespace Escape {
         return;
     }
 
-    World *MapConverter::convert(const std::string &input) {
-
-        json configuration;
-        {
-            std::ifstream is(input + "/configuration.json");
-            is >> configuration;
-        }
-
-        json map;
-        {
-            std::ifstream is(input + "/mapdata.json");
-            is >> map;
-        }
+    World *MapConverter::convert() {
 
         entt::registry *world = new entt::registry();
         int width = map["width"], height = map["height"];
@@ -77,5 +65,40 @@ namespace Escape {
             }
         }
         return world;
+    }
+
+    MapConverter::MapConverter(const std::string &input) {
+        {
+            std::ifstream is(input + "/configuration.json");
+            is >> configuration;
+        }
+
+        {
+            std::ifstream is(input + "/mapdata.json");
+            is >> map;
+        }
+    }
+
+    void MapConverter::coordinate(const std::string &obj, std::string &filename, int &x1, int &y1, int &x2, int &y2) {
+        int tilewidth = configuration["tilewidth"], tileheight = configuration["tileheight"];
+        int imagewidth = configuration["imagewidth"], imageheight = configuration["imageheight"];
+        int margin = configuration["margin"], spacing = configuration["spacing"];
+        int col = (imagewidth - margin * 2 + spacing) / (tilewidth + spacing)
+        , row = (imageheight - margin * 2 + spacing) / (tileheight + spacing);
+
+        for (int i = 0; i < configuration["tiles"].size(); ++i) {
+            if (configuration["tiles"][i]["type"] == obj) {
+                filename = configuration["image"];
+                int id = configuration["tiles"][i]["id"];
+                int c = id % col, r = id / col;
+
+                x1 = margin - spacing + c * (tilewidth + spacing);
+                y1 = margin - spacing + r * (tileheight + spacing);
+
+                x2 = x1 + spacing + tilewidth;
+                y2 = y1 + spacing + tileheight;
+                return;
+            }
+        }
     }
 } // namespace Escape

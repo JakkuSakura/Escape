@@ -7,12 +7,16 @@
 
 #include <string>
 #include "MyECS.h"
-
+#include <nlohmann/json.hpp>
 namespace Escape
 {
 class MapConverter {
+    nlohmann::json configuration;
+    nlohmann::json map;
 public:
-    World *convert(const std::string &input);
+    MapConverter(const std::string &input);
+    World *convert();
+    void coordinate(const std::string &obj, std::string &filename, int &x1, int &y1, int &x2, int &y2);
 };
     
 } // namespace Escape

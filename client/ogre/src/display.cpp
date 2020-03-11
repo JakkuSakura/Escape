@@ -69,7 +69,10 @@ namespace Escape {
                 controlSystem->dispatch(player, ChangeWeapon(WeaponType::SMG));
 
             if (input->keys['4'])
-                controlSystem->dispatch(player, ChangeWeapon(WeaponType::RIFLE));
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::SNIPER_RIFLE));
+
+            if (input->keys['5'])
+                controlSystem->dispatch(player, ChangeWeapon(WeaponType::FLAME_THROWER));
             display->setCenter(pos.x, pos.y);
         }
     };
@@ -147,27 +150,6 @@ namespace Escape {
 
         }
 
-        if (input.keys['o']) {
-
-            try {
-                std::cerr << "Writing map file" << std::endl;
-                SerializationHelper helper;
-                auto os = std::ofstream("map.json");
-                helper.serialize(*world, os);
-            }
-            catch (std::runtime_error &e) {
-                std::cerr << "error " << e.what() << std::endl;
-            }
-            catch (std::exception &e) {
-                std::cerr << "error " << e.what() << std::endl;
-            }
-        }
-        if (input.keys['i']) {
-            std::cerr << "Reading map file" << std::endl;
-            SerializationHelper helper;
-            auto is = std::ifstream("map.json");
-            helper.deserialize(*world, is);
-        }
     }
 
 

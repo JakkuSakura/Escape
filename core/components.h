@@ -143,7 +143,8 @@ enum class WeaponType {
     HANDGUN,
     SHOTGUN,
     SMG,
-    RIFLE
+    SNIPER_RIFLE,
+    FLAME_THROWER,
 };
 
 struct WeaponPrototype {
