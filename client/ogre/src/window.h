@@ -2,7 +2,7 @@
 #define DISPLAY_H
 #include <string>
 #include <iostream>
-#include "system.h"
+#include "engine/system.h"
 
 namespace Escape
 {

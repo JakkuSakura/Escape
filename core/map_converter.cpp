@@ -24,28 +24,27 @@ namespace Escape {
     }
 
     World *MapConverter::convert() {
-
-        entt::registry *world = new entt::registry();
-        int width = map["width"], height = map["height"];
+        auto *world = new World();
         float tilewidth = map["tilewidth"], tileheight = map["tileheight"];
         float scale_x = 1.0f / 16.0f, scale_y = 1.0f / 16.0f;
         for (auto &&layer : map["layers"]) {
             if (layer["data"].is_array()) {
+                int width = layer["width"], height = layer["height"];
                 auto &&data = layer["data"];
                 for (size_t i = 0; i < height; i++) {
                     for (size_t j = 0; j < width; j++) {
-                        float x = (i * tilewidth + (float) layer["x"]) * scale_x, y =
-                                -(j * tileheight + (float) layer["y"]) * scale_y;
+                        float x = (i * tilewidth + (float) layer["x"] + tilewidth / 2) * scale_x,
+                                y = -(j * tileheight + (float) layer["y"] + tileheight / 2) * scale_y;
                         int type = data[j * width + i];
-                        if (type > 0) {
-                            if (configuration["tiles"][type - 1]["type"] == "Wall") {
-                                TerrainSystem::createWall(world, x, y, tilewidth * scale_x, tileheight * scale_y);
-                            } else if (configuration["tiles"][type - 1]["type"] == "Water") {
-                                TerrainSystem::createWater(world, x, y, tilewidth * scale_x, tileheight * scale_y);
-                            } else if (configuration["tiles"][type - 1]["type"] == "Barrier") {
-                                TerrainSystem::createBarrier(world, x, y, tilewidth * scale_x, tileheight * scale_y);
-                            }
+
+                        if (type == 1) {
+                            TerrainSystem::createWall(world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                        } else if (type == 2) {
+                            TerrainSystem::createWater(world, x, y, tilewidth * scale_x, tileheight * scale_y);
+                        } else if (type == 3) {
+                            TerrainSystem::createBarrier(world, x, y, tilewidth * scale_x, tileheight * scale_y);
                         }
+
                     }
                 }
             } else if (layer["objects"].is_array()) {
@@ -71,6 +70,12 @@ namespace Escape {
         {
             std::ifstream is(input + "/configuration.json");
             is >> configuration;
+            tilewidth = configuration["tilewidth"], tileheight = configuration["tileheight"];
+            imagewidth = configuration["imagewidth"], imageheight = configuration["imageheight"];
+            margin = configuration["margin"], spacing = configuration["spacing"];
+            col = (imagewidth - margin * 2 + spacing) / (tilewidth + spacing);
+            row = (imageheight - margin * 2 + spacing) / (tileheight + spacing);
+            tileset = input + "/" + configuration["image"].get<std::string>();
         }
 
         {
@@ -79,26 +84,16 @@ namespace Escape {
         }
     }
 
-    void MapConverter::coordinate(const std::string &obj, std::string &filename, int &x1, int &y1, int &x2, int &y2) {
-        int tilewidth = configuration["tilewidth"], tileheight = configuration["tileheight"];
-        int imagewidth = configuration["imagewidth"], imageheight = configuration["imageheight"];
-        int margin = configuration["margin"], spacing = configuration["spacing"];
-        int col = (imagewidth - margin * 2 + spacing) / (tilewidth + spacing)
-        , row = (imageheight - margin * 2 + spacing) / (tileheight + spacing);
+    void MapConverter::coordinate(int id, int &x1, int &y1, int &x2, int &y2) {
 
-        for (int i = 0; i < configuration["tiles"].size(); ++i) {
-            if (configuration["tiles"][i]["type"] == obj) {
-                filename = configuration["image"];
-                int id = configuration["tiles"][i]["id"];
-                int c = id % col, r = id / col;
+        int c = id % col, r = id / col;
 
-                x1 = margin - spacing + c * (tilewidth + spacing);
-                y1 = margin - spacing + r * (tileheight + spacing);
+        x1 = margin - spacing + c * (tilewidth + spacing);
+        y1 = margin - spacing + r * (tileheight + spacing);
 
-                x2 = x1 + spacing + tilewidth;
-                y2 = y1 + spacing + tileheight;
-                return;
-            }
-        }
+        x2 = x1 + spacing + tilewidth;
+        y2 = y1 + spacing + tileheight;
+
+
     }
 } // namespace Escape

@@ -51,7 +51,7 @@ ThorsAnvil_MakeEnum(WeaponType,
                     SNIPER_RIFLE,
                     FLAME_THROWER);
 
-ThorsAnvil_MakeEnum(TerrainType, AIR, WALL, WATER, BARRAIR);
+ThorsAnvil_MakeEnum(TerrainType, WALL, WATER, BARRAIR);
 ThorsAnvil_ExpandTrait(MapInfo::s_s_pair, MapInfo);
 
 //ThorsAnvil_MakeTrait(Event, actor);

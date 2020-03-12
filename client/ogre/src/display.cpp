@@ -73,7 +73,6 @@ namespace Escape {
 
             if (input->keys['5'])
                 controlSystem->dispatch(player, ChangeWeapon(WeaponType::FLAME_THROWER));
-            display->setCenter(pos.x, pos.y);
         }
     };
 
@@ -159,7 +158,14 @@ namespace Escape {
 
 
     void DisplayOgre::render() {
-        // std::cerr << "Render " << logic->timeserver->getTick() << std::endl;
+        {
+            auto player = AgentSystem::getPlayer(world, 1);
+            if(world->valid(player))
+            {
+                auto pos = world->get<Position>(player);
+                setCenter(pos.x, pos.y);
+            }
+        }
         world->view<AgentData, Position, Health, CircleShape>().each(
                 [&](auto ent, auto &agt, auto &pos, auto &health, auto &hitbox) {
                     float percent = health.health / health.max_health;

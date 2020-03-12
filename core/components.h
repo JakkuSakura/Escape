@@ -167,7 +167,6 @@ struct Weapon {
 
 
 enum class TerrainType {
-    AIR,
     WALL,
     WATER,
     BARRAIR,

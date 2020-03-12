@@ -14,9 +14,15 @@ class MapConverter {
     nlohmann::json configuration;
     nlohmann::json map;
 public:
+    std::string tileset;
     MapConverter(const std::string &input);
     World *convert();
-    void coordinate(const std::string &obj, std::string &filename, int &x1, int &y1, int &x2, int &y2);
+    void coordinate(int id, int &x1, int &y1, int &x2, int &y2);
+
+    int tilewidth, tileheight;
+    int imagewidth, imageheight;
+    int margin, spacing;
+    int col, row;
 };
     
 } // namespace Escape

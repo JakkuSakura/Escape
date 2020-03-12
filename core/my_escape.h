@@ -13,14 +13,13 @@
 namespace Escape {
 
     class MyEscape : public ECSSystem {
-        std::string mapfile;
+        std::string mapfile, mapscript;
     public:
-        MyEscape(std::string map) : mapfile(std::move(map)) {
-            MapConverter mapConverter(mapfile);
+        MyEscape(std::string map) : mapfile(std::move(map)), mapConverter(mapfile), mapscript(mapfile + "/game.lua") {
             auto *world = mapConverter.convert();
             auto *logic = new Logic(world);
             addSubSystem(logic);
-            findSystem<MapScriptSystem>()->loadMapScript( mapfile + "/game.lua");
+            findSystem<MapScriptSystem>()->loadMapScript( mapscript);
             ECSSystem::configure();
         }
 
@@ -35,6 +34,7 @@ namespace Escape {
         }
 
         using ECSSystem::getWorld;
+        MapConverter mapConverter;
     };
 }
 #endif //ESCAPE_MY_ESCAPE_H
