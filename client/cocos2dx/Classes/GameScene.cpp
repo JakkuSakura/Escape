@@ -29,11 +29,7 @@ public:
         auto[pos, agt] = controlSystem->get<Position, AgentData>(player);
         if (input->mouse[(int) EventMouse::MouseButton::BUTTON_LEFT]) {
             auto click = display->pickUp(input->mouse_x, input->mouse_y);
-            double x = click.x, y = click.y;
-            std::cerr << "Cursor: " << x << " " << y << std::endl;
-            std::cerr << "Player: " << pos.x << " " << pos.y << std::endl;
-            float angle = atan2(y - pos.y, x - pos.x);
-
+            float angle = atan2(click.y - pos.y, click.x - pos.x);
             controlSystem->dispatch(player, Shooting(angle));
         }
 
@@ -81,7 +77,7 @@ bool GameScene::init() {
         return false;
 
     myEscape = new MyEscape(settings["map"]);
-    this->getDefaultCamera()->setPositionZ(60);
+    this->getDefaultCamera()->setPositionZ(this->getDefaultCamera()->getPositionZ() / zoomin_ratio);
     this->scheduleUpdate();
 
     {
@@ -105,22 +101,22 @@ bool GameScene::init() {
         listener->onMouseDown = [&](cocos2d::Event *event) {
             EventMouse *mouseEvent = dynamic_cast<EventMouse *>(event);
             input_state.mouse[(int) mouseEvent->getMouseButton()] = true;
-            input_state.mouse_x = mouseEvent->getCursorX();
-            input_state.mouse_y = mouseEvent->getCursorY();
+            input_state.mouse_x = mouseEvent->getLocation().x;
+            input_state.mouse_y = mouseEvent->getLocation().y;
         };
 
         listener->onMouseMove = [&](cocos2d::Event *event) {
             EventMouse *mouseEvent = dynamic_cast<EventMouse *>(event);
-            input_state.mouse_x = mouseEvent->getCursorX();
-            input_state.mouse_y = mouseEvent->getCursorY();
+            input_state.mouse_x = mouseEvent->getLocation().x;
+            input_state.mouse_y = mouseEvent->getLocation().y;
         };
 
 
         listener->onMouseUp = [&](cocos2d::Event *event) {
             EventMouse *mouseEvent = dynamic_cast<EventMouse *>(event);
             input_state.mouse[(int) mouseEvent->getMouseButton()] = false;
-            input_state.mouse_x = mouseEvent->getCursorX();
-            input_state.mouse_y = mouseEvent->getCursorY();
+            input_state.mouse_x = mouseEvent->getLocation().x;
+            input_state.mouse_y = mouseEvent->getLocation().y;
         };
 
         _eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
@@ -133,12 +129,19 @@ bool GameScene::init() {
     return true;
 }
 
-// TODO get world coordinates correctly
 Position GameScene::pickUp(float x, float y) {
+    // x and y in window coordinates
+
     auto size = Director::getInstance()->getWinSize();
+
+    float x2 = x, y2 = size.height - y; // Cocos2d-x Coordinates
+
     auto camera = getDefaultCamera();
-    auto pos = camera->unprojectGL(Vec3(x, y, 0));
-    return Position(pos.x, pos.y);
+    auto pos_c = camera->getPosition();
+
+    float dx = (x2 - size.width / 2) / zoomin_ratio, dy = (y2 - size.height / 2) / zoomin_ratio;
+
+    return {pos_c.x + dx, pos_c.y + dy};
 }
 
 void GameScene::menuCloseCallback(Ref *pSender) {

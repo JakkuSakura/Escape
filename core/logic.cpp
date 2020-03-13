@@ -13,8 +13,9 @@
 #include "restful_system.h"
 #include "map_script_system.h"
 #include "terrain.h"
-
+#include "map_info.h"
 namespace Escape {
+
     void Logic::addSystems() {
         addSubSystem(new RESTSystem());
         addSubSystem(new TerrainSystem());
@@ -28,6 +29,7 @@ namespace Escape {
         addSubSystem(new ControlSystem());
         addSubSystem(new AgentSystem());
         addSubSystem(new EventSystem());
+        addSubSystem(new MapInfoSystem());
     }
     Logic::Logic() {
         addSystems();

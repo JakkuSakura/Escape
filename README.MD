@@ -17,7 +17,7 @@ Lua
 - [x] Purer physics system
 - [ ] Better Weapon system, weapon data
 - [ ] Split entity system to do more specific stuff
-- [ ] Develop Cocos2dx display
+- [x] Develop Cocos2dx display
  
 ## Technologies
 

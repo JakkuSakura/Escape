@@ -10,6 +10,7 @@
 #include "logic.h"
 #include "map_converter.h"
 #include "map_script_system.h"
+
 namespace Escape {
 
     class MyEscape : public ECSSystem {
@@ -19,8 +20,11 @@ namespace Escape {
             auto *world = mapConverter.convert();
             auto *logic = new Logic(world);
             addSubSystem(logic);
-            findSystem<MapScriptSystem>()->loadMapScript( mapscript);
             ECSSystem::configure();
+        }
+
+        void initialize() override {
+            findSystem<MapScriptSystem>()->loadMapScript(mapscript);
         }
 
         void update(float delta) override {

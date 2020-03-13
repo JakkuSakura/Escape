@@ -4,12 +4,13 @@
 #include <nlohmann/json.hpp>
 
 namespace Escape {
-    entt::entity AgentSystem::createAgent(World *world, const Position &pos, int player, int group, std::string &&ai) {
+    entt::entity
+    AgentSystem::createAgent(World *world, const Position &pos, int player, int group, const std::string &ai) {
         assert(world != nullptr);
         entt::entity agent = world->create();
         world->assign<Name>(agent, "agent");
         world->assign<Position>(agent, pos);
-        world->assign<AgentData>(agent, AgentData{player, group, std::move(ai)});
+        world->assign<AgentData>(agent, AgentData{player, group, ai});
         world->assign<Health>(agent, 100);
         world->assign<CircleShape>(agent, AGENT_RADIUS);
         world->assign<Velocity>(agent);
@@ -56,6 +57,25 @@ namespace Escape {
                 return true;
             }
         }
+        if (q.resource == "/agents") {
+            if (q.method == "GET") {
+                getWorld()->view<AgentData>().each([&](entt::entity ent, auto &data) {
+                    if (!q.parameters.is_null()) {
+                        if (q.parameters.count("player") && data.player != q.parameters["player"])
+                            return;
+                        if (q.parameters.count("group") && data.group != q.parameters["group"])
+                            return;
+                    }
+                    q.result.push_back(ent);
+                });
+                return true;
+            } else if (q.method == "POST") {
+                q.result = createAgent(getWorld(), Position(q.parameters["x"], q.parameters["y"]),
+                                       q.parameters["player"],
+                                       q.parameters["group"], q.parameters["ai"]);
+                return true;
+            }
+        }
         if (q.resource == "/entity") {
             if (q.method == "GET") {
                 if (q.parameters.is_null()) {
@@ -74,6 +94,15 @@ namespace Escape {
                 setEntityInfo(getWorld(), entity_id, q.parameters["components"]);
                 return true;
             }
+        }
+        if (q.resource == "/entities") {
+            if (q.method == "GET") {
+                getWorld()->each([&](entt::entity ent) {
+                    q.result.push_back(ent);
+                });
+                return true;
+            }
+
         }
         return false;
     }

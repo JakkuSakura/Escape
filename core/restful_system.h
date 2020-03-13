@@ -54,7 +54,7 @@ namespace Escape {
                 if (provider->query(qu))
                     return qu.result;
             }
-            return qu.result;
+            throw std::runtime_error("Unsupported query");
         }
 
         void addProvider(ResourceProvider *p) {

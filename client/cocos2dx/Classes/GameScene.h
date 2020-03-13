@@ -20,7 +20,7 @@ public:
     Escape::MyEscape *myEscape;
     static cocos2d::Scene *createScene();
     virtual bool init();
-
+    float zoomin_ratio = 10;
     void menuCloseCallback(cocos2d::Ref *pSender);
     void update(float delta) override;
     virtual ~GameScene() override;

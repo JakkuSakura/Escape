@@ -51,13 +51,13 @@ namespace Escape {
                 for (auto &&obj : layer["objects"]) {
                     if (obj["type"] == "SpawnPoint") {
                         float x = ((float) obj["x"]) * scale_x, y = -((float) obj["y"]) * scale_y;
+                        std::string ai_file;
+                        bool success;
+                        getProperty(obj, "ai", ai_file, success);
                         if (obj["name"] == "player") {
-                            AgentSystem::createAgent(world, Position(x, y), 1, 1);
+                            AgentSystem::createAgent(world, Position(x, y), 1, 1, ai_file);
                         } else if (obj["name"] == "agent") {
-                            std::string ai_file = "simple_ai";
-                            bool success;
-                            getProperty(obj, "ai", ai_file, success);
-                            AgentSystem::createAgent(world, Position(x, y), 0, 0, std::move(ai_file));
+                            AgentSystem::createAgent(world, Position(x, y), 0, 0, ai_file);
                         }
                     }
                 }

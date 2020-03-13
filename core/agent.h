@@ -23,7 +23,7 @@ namespace Escape {
         void initialize() override;
 
         static entt::entity
-        createAgent(World *world, const Position &pos, int player, int group = 0, std::string &&ai = "");
+        createAgent(World *world, const Position &pos, int player, int group = 0, const std::string &ai = "");
     };
 } // namespace Escape
 

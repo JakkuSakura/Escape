@@ -91,10 +91,8 @@ namespace Escape {
         b2d_world.SetContactListener(&listener);
 
         // set very fast options
-        int velocityIterations = 1;
-        int positionIterations = 1;
-        b2d_world.SetSubStepping(false);
-        b2d_world.SetContinuousPhysics(false);
+        int velocityIterations = 2;
+        int positionIterations = 2;
 
         b2d_world.Step(delta, velocityIterations, positionIterations);
 
